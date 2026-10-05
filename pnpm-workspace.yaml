@@ -3,3 +3,6 @@ packages:
   - packages/*
 allowBuilds:
   unrs-resolver: false
+supportedArchitectures:
+  os: [current]
+  cpu: [arm64, x64]
