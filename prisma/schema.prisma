@@ -1,0 +1,675 @@
+// Схема даних Grade Expectations. Службові поля синхронізації (createdAt, updatedAt, version, deletedAt)
+// вставлені в усі змінювані моделі. Ідентифікатори — UUID v7, генеруються на клієнті (без @default).
+// Застосовані міграції не редагуються: зміни — лише новою міграцією.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── Enum-и ───────────────────────────────────────────
+enum Role {
+  TEACHER
+  MODERATOR
+}
+
+enum WeekParity {
+  TOP
+  BOTTOM
+}
+
+enum ParityAfterBreak {
+  CONTINUE
+  RESTART
+}
+
+enum SemesterStatus {
+  DRAFT
+  ACTIVE
+  CLOSED
+}
+
+enum PeriodKind {
+  HOLIDAY
+  DAY_OFF
+  EXAM_SESSION
+  PRACTICE
+  INTERIM_ATTESTATION
+  DIRECTOR_TEST
+}
+
+enum Scale {
+  TWELVE
+  FIVE
+  HUNDRED
+  PASS_FAIL
+}
+
+enum LessonKind {
+  LECTURE
+  PRACTICE
+  LAB
+  SEMINAR
+  CONTROL
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  ACADEMIC_LEAVE
+  EXPELLED
+  TRANSFERRED
+}
+
+enum ControlForm {
+  EXAM
+  CREDIT
+}
+
+enum ScheduleStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum SlotParity {
+  EVERY
+  TOP
+  BOTTOM
+}
+
+enum LessonStatus {
+  PLANNED
+  HELD
+  CANCELLED
+  MOVED
+  SUBSTITUTED
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  EXCUSED
+  LATE
+}
+
+enum AssessmentKind {
+  TEST
+  LAB
+  SELF_STUDY
+  DIRECTOR_TEST
+}
+
+enum GradeKind {
+  ORAL
+  PRACTICE
+  LAB
+  TEST
+  RETAKE
+}
+
+enum AttestationKind {
+  INTERIM
+  DIRECTOR_TEST
+  AVERAGE
+  EXAM
+}
+
+// ── Коледж, користувачі, ролі ────────────────────────
+model Organization {
+  id        String    @id @db.Uuid
+  title     String
+  timezone  String    @default("Europe/Kyiv")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  version   Int       @default(0)
+  deletedAt DateTime?
+
+  members     Membership[]
+  bells       BellTime[]
+  rooms       Room[]
+  years       AcademicYear[]
+  disciplines Discipline[]
+  cohorts     Cohort[]
+  students    Student[]
+}
+
+model User {
+  id        String    @id @db.Uuid
+  email     String    @unique
+  fullName  String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  version   Int       @default(0)
+  deletedAt DateTime?
+
+  memberships Membership[]
+  loads       TeachingLoad[]
+  lessons     Lesson[]
+}
+
+model Membership {
+  id             String    @id @db.Uuid
+  userId         String    @db.Uuid
+  organizationId String    @db.Uuid
+  roles          Role[] // TEACHER | MODERATOR (фаза 3: COMMISSION_HEAD | ADMIN | STUDENT)
+  scope          Json? // межі повноважень модератора — уточнюється (OQ-3)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  version        Int       @default(0)
+  deletedAt      DateTime?
+
+  user         User         @relation(fields: [userId], references: [id])
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@unique([userId, organizationId])
+}
+
+model BellTime {
+  organizationId String    @db.Uuid
+  pairNumber     Int
+  startsAt       String // "08:30"
+  endsAt         String // "09:50"
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  version        Int       @default(0)
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+
+  @@id([organizationId, pairNumber])
+}
+
+model Room {
+  id             String    @id @db.Uuid
+  organizationId String    @db.Uuid
+  name           String
+  capacity       Int?
+  kind           String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  version        Int       @default(0)
+  deletedAt      DateTime?
+
+  organization Organization   @relation(fields: [organizationId], references: [id])
+  slots        ScheduleSlot[]
+  lessons      Lesson[]
+
+  @@unique([organizationId, name])
+}
+
+// ── Час ──────────────────────────────────────────────
+model AcademicYear {
+  id             String    @id @db.Uuid
+  organizationId String    @db.Uuid
+  title          String
+  startDate      DateTime  @db.Date
+  endDate        DateTime  @db.Date
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  version        Int       @default(0)
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  semesters    Semester[]
+  groups       Group[]
+
+  @@unique([organizationId, title])
+}
+
+model Semester {
+  id               String           @id @db.Uuid
+  academicYearId   String           @db.Uuid
+  number           Int // 1 | 2
+  startDate        DateTime         @db.Date
+  endDate          DateTime         @db.Date
+  firstWeekParity  WeekParity
+  parityAfterBreak ParityAfterBreak @default(CONTINUE)
+  status           SemesterStatus   @default(DRAFT)
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  version          Int              @default(0)
+  deletedAt        DateTime?
+
+  academicYear AcademicYear     @relation(fields: [academicYearId], references: [id])
+  periods      SemesterPeriod[]
+  loads        TeachingLoad[]
+  schedules    Schedule[]
+  attestations Attestation[]
+
+  @@unique([academicYearId, number])
+}
+
+model SemesterPeriod {
+  id         String     @id @db.Uuid
+  semesterId String     @db.Uuid
+  kind       PeriodKind
+  startDate  DateTime   @db.Date
+  endDate    DateTime   @db.Date
+  title      String?
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  version    Int        @default(0)
+  deletedAt  DateTime?
+
+  semester Semester @relation(fields: [semesterId], references: [id])
+
+  @@index([semesterId])
+}
+
+// ── Довідники ────────────────────────────────────────
+model Discipline {
+  id             String    @id @db.Uuid
+  organizationId String    @db.Uuid
+  title          String
+  shortTitle     String
+  code           String?
+  color          String
+  defaultScale   Scale     @default(TWELVE)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  version        Int       @default(0)
+  deletedAt      DateTime?
+
+  organization Organization        @relation(fields: [organizationId], references: [id])
+  programs     DisciplineProgram[]
+  loads        TeachingLoad[]
+
+  @@index([organizationId])
+}
+
+model DisciplineProgram {
+  id           String    @id @db.Uuid
+  disciplineId String    @db.Uuid
+  edition      String // редакція програми, напр. "2026"
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  version      Int       @default(0)
+  deletedAt    DateTime?
+
+  discipline Discipline     @relation(fields: [disciplineId], references: [id])
+  topics     ProgramTopic[]
+
+  @@unique([disciplineId, edition])
+}
+
+model ProgramTopic {
+  id        String     @id @db.Uuid
+  programId String     @db.Uuid
+  order     Int
+  title     String
+  hours     Int
+  kind      LessonKind
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  version   Int        @default(0)
+  deletedAt DateTime?
+
+  program DisciplineProgram @relation(fields: [programId], references: [id])
+  lessons Lesson[]
+
+  @@index([programId, order])
+}
+
+model Cohort {
+  id             String    @id @db.Uuid
+  organizationId String    @db.Uuid
+  specialty      String
+  entryYear      Int
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  version        Int       @default(0)
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  groups       Group[]
+
+  @@unique([organizationId, specialty, entryYear])
+}
+
+model Group {
+  id             String    @id @db.Uuid
+  cohortId       String    @db.Uuid
+  academicYearId String    @db.Uuid
+  name           String
+  course         Int
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  version        Int       @default(0)
+  deletedAt      DateTime?
+
+  cohort       Cohort         @relation(fields: [cohortId], references: [id])
+  academicYear AcademicYear   @relation(fields: [academicYearId], references: [id])
+  subgroups    Subgroup[]
+  enrollments  Enrollment[]
+  loads        TeachingLoad[]
+
+  @@unique([academicYearId, name])
+}
+
+model Subgroup {
+  id        String    @id @db.Uuid
+  groupId   String    @db.Uuid
+  name      String
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  version   Int       @default(0)
+  deletedAt DateTime?
+
+  group   Group            @relation(fields: [groupId], references: [id])
+  members SubgroupMember[]
+  loads   TeachingLoad[]
+
+  @@unique([groupId, name])
+}
+
+model SubgroupMember {
+  subgroupId   String    @db.Uuid
+  enrollmentId String    @db.Uuid
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  version      Int       @default(0)
+  deletedAt    DateTime?
+
+  subgroup   Subgroup   @relation(fields: [subgroupId], references: [id])
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id])
+
+  @@id([subgroupId, enrollmentId])
+}
+
+model Student {
+  id             String    @id @db.Uuid
+  organizationId String    @db.Uuid
+  lastName       String
+  firstName      String
+  middleName     String?
+  note           String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  version        Int       @default(0)
+  deletedAt      DateTime?
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  enrollments  Enrollment[]
+
+  @@index([organizationId, lastName])
+}
+
+model Enrollment {
+  id        String           @id @db.Uuid
+  studentId String           @db.Uuid
+  groupId   String           @db.Uuid
+  status    EnrollmentStatus @default(ACTIVE)
+  fromDate  DateTime         @db.Date
+  toDate    DateTime?        @db.Date
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+  version   Int              @default(0)
+  deletedAt DateTime?
+
+  student    Student             @relation(fields: [studentId], references: [id])
+  group      Group               @relation(fields: [groupId], references: [id])
+  subgroups  SubgroupMember[]
+  attendance Attendance[]
+  grades     Grade[]
+  results    AttestationResult[]
+
+  @@unique([studentId, groupId])
+  @@index([groupId])
+}
+
+// ── Навантаження і розклад ───────────────────────────
+// Один запис навантаження — один вид занять (рішення за OQ-8).
+model TeachingLoad {
+  id           String      @id @db.Uuid
+  semesterId   String      @db.Uuid
+  disciplineId String      @db.Uuid
+  groupId      String      @db.Uuid
+  subgroupId   String?     @db.Uuid
+  teacherId    String      @db.Uuid
+  kind         LessonKind
+  plannedHours Int
+  controlForm  ControlForm
+  gradingRules Json
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  version      Int         @default(0)
+  deletedAt    DateTime?
+
+  semester    Semester            @relation(fields: [semesterId], references: [id])
+  discipline  Discipline          @relation(fields: [disciplineId], references: [id])
+  group       Group               @relation(fields: [groupId], references: [id])
+  subgroup    Subgroup?           @relation(fields: [subgroupId], references: [id])
+  teacher     User                @relation(fields: [teacherId], references: [id])
+  slots       ScheduleSlot[]
+  lessons     Lesson[]
+  assessments Assessment[]
+  results     AttestationResult[]
+
+  @@index([semesterId, teacherId])
+  @@index([groupId])
+}
+
+model Schedule {
+  id            String         @id @db.Uuid
+  semesterId    String         @db.Uuid
+  revision      Int // номер версії розкладу (не плутати зі службовим version)
+  status        ScheduleStatus @default(DRAFT)
+  publishedAt   DateTime?
+  publishedById String?        @db.Uuid
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  version       Int            @default(0)
+  deletedAt     DateTime?
+
+  semester Semester       @relation(fields: [semesterId], references: [id])
+  slots    ScheduleSlot[]
+
+  @@unique([semesterId, revision])
+}
+
+model ScheduleSlot {
+  id         String     @id @db.Uuid
+  scheduleId String     @db.Uuid
+  loadId     String     @db.Uuid
+  weekday    Int // 1..6
+  pairNumber Int
+  parity     SlotParity @default(EVERY)
+  roomId     String?    @db.Uuid
+  validFrom  DateTime   @db.Date
+  validTo    DateTime?  @db.Date
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+  version    Int        @default(0)
+  deletedAt  DateTime?
+
+  schedule Schedule     @relation(fields: [scheduleId], references: [id])
+  load     TeachingLoad @relation(fields: [loadId], references: [id])
+  room     Room?        @relation(fields: [roomId], references: [id])
+  lessons  Lesson[]
+
+  @@index([scheduleId, weekday, pairNumber])
+  @@index([loadId])
+}
+
+// Конкретне заняття — ядро системи.
+model Lesson {
+  id              String       @id @db.Uuid
+  loadId          String       @db.Uuid
+  slotId          String?      @db.Uuid // null = додаткова пара
+  teacherId       String       @db.Uuid // хто фактично веде (заміни)
+  scheduleVersion Int?
+  date            DateTime     @db.Date
+  pairNumber      Int
+  roomId          String?      @db.Uuid
+  hours           Int          @default(2)
+  status          LessonStatus @default(PLANNED)
+  topicId         String?      @db.Uuid
+  topicText       String?
+  homework        String?
+  note            String?
+  manuallyEdited  Boolean      @default(false) // ADR-004: захищає від регенерації
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  version         Int          @default(0)
+  deletedAt       DateTime?
+
+  load        TeachingLoad        @relation(fields: [loadId], references: [id])
+  slot        ScheduleSlot?       @relation(fields: [slotId], references: [id])
+  teacher     User                @relation(fields: [teacherId], references: [id])
+  room        Room?               @relation(fields: [roomId], references: [id])
+  topic       ProgramTopic?       @relation(fields: [topicId], references: [id])
+  attendance  Attendance[]
+  grades      Grade[]
+  assessments Assessment[]
+  requests    RescheduleRequest[]
+
+  @@unique([loadId, date, pairNumber])
+  @@index([teacherId, date])
+  @@index([date])
+}
+
+model RescheduleRequest {
+  id              String        @id @db.Uuid
+  lessonId        String        @db.Uuid
+  requestedById   String        @db.Uuid
+  proposedDate    DateTime      @db.Date
+  proposedPair    Int
+  proposedRoomId  String?       @db.Uuid
+  reason          String
+  status          RequestStatus @default(PENDING)
+  resolvedById    String?       @db.Uuid
+  resolverComment String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  version         Int           @default(0)
+  deletedAt       DateTime?
+
+  lesson Lesson @relation(fields: [lessonId], references: [id])
+
+  @@index([status])
+}
+
+// ── Облік ────────────────────────────────────────────
+model Attendance {
+  lessonId     String           @db.Uuid
+  enrollmentId String           @db.Uuid
+  status       AttendanceStatus @default(PRESENT)
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  version      Int              @default(0)
+  deletedAt    DateTime?
+
+  lesson     Lesson     @relation(fields: [lessonId], references: [id])
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id])
+
+  @@id([lessonId, enrollmentId])
+  @@index([enrollmentId])
+}
+
+model Assessment {
+  id        String         @id @db.Uuid
+  loadId    String         @db.Uuid
+  lessonId  String?        @db.Uuid
+  kind      AssessmentKind
+  title     String
+  maxScore  Int
+  weight    Decimal        @default(1)
+  variants  Json?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  version   Int            @default(0)
+  deletedAt DateTime?
+
+  load   TeachingLoad @relation(fields: [loadId], references: [id])
+  lesson Lesson?      @relation(fields: [lessonId], references: [id])
+  grades Grade[]
+
+  @@index([loadId])
+}
+
+model Grade {
+  id           String    @id @db.Uuid
+  enrollmentId String    @db.Uuid
+  lessonId     String?   @db.Uuid
+  assessmentId String?   @db.Uuid
+  kind         GradeKind
+  rawScore     Decimal?
+  value        Int // у шкалі дисципліни; для PASS_FAIL: 1 — зараховано, 0 — ні (OQ-9)
+  weight       Decimal   @default(1)
+  comment      String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  version      Int       @default(0)
+  deletedAt    DateTime?
+
+  enrollment Enrollment  @relation(fields: [enrollmentId], references: [id])
+  lesson     Lesson?     @relation(fields: [lessonId], references: [id])
+  assessment Assessment? @relation(fields: [assessmentId], references: [id])
+
+  @@index([enrollmentId])
+  @@index([lessonId])
+}
+
+model Attestation {
+  id         String          @id @db.Uuid
+  semesterId String          @db.Uuid
+  kind       AttestationKind
+  dateFrom   DateTime        @db.Date
+  dateTo     DateTime        @db.Date
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  version    Int             @default(0)
+  deletedAt  DateTime?
+
+  semester Semester            @relation(fields: [semesterId], references: [id])
+  results  AttestationResult[]
+
+  @@index([semesterId])
+}
+
+model AttestationResult {
+  id            String    @id @db.Uuid
+  attestationId String    @db.Uuid
+  loadId        String    @db.Uuid
+  enrollmentId  String    @db.Uuid
+  proposed      Int?
+  final         String? // "9" | "н/а" | "зар."
+  comment       String?
+  confirmed     Boolean   @default(false)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  version       Int       @default(0)
+  deletedAt     DateTime?
+
+  attestation Attestation  @relation(fields: [attestationId], references: [id])
+  load        TeachingLoad @relation(fields: [loadId], references: [id])
+  enrollment  Enrollment   @relation(fields: [enrollmentId], references: [id])
+
+  @@unique([attestationId, loadId, enrollmentId])
+}
+
+// Аудит і основа синхронізації.
+model ChangeLog {
+  id             BigInt   @id @default(autoincrement())
+  organizationId String   @db.Uuid
+  userId         String   @db.Uuid
+  entity         String
+  entityId       String
+  op             String // UPSERT | DELETE
+  before         Json?
+  after          Json?
+  deviceId       String
+  createdAt      DateTime @default(now())
+
+  @@index([organizationId, id])
+  @@index([entity, entityId])
+}

@@ -8,7 +8,7 @@ export function healthRoutes(app: FastifyInstance): void {
     .get('/health', { schema: { response: { 200: healthResponseSchema } } }, async () => {
       let db: 'ok' | 'down' = 'ok';
       try {
-        await app.pool.query('SELECT 1');
+        await app.prisma.$queryRaw`SELECT 1`;
       } catch (error) {
         app.log.error({ err: error }, 'перевірка БД не пройшла');
         db = 'down';

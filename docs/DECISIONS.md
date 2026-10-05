@@ -48,3 +48,9 @@
 - MUI закріплено на 7.3.11 згідно з концептом (на сьогодні є v9); оновлення — окремим ADR.
 - Версії у `package.json` — точні (без `^`), pnpm 12.9.1 через `packageManager`.
 - Залежності зі скриптами збірки заборонені за замовчуванням (`allowBuilds`); дозволяти лише за потреби.
+
+## ADR-007. Перейменування полів, що конфліктують зі службовим `version`
+
+- **Контекст.** Службове поле `version` (лічильник для синхронізації) є в кожній моделі, а в концепті `Schedule.version` і `DisciplineProgram.version` означали інше.
+- **Рішення.** `Schedule.revision` (номер версії розкладу) і `DisciplineProgram.edition` (редакція програми). `Lesson.scheduleVersion` зберігає `Schedule.revision`.
+- **Наслідки.** DTO й домен використовують `revision`/`scheduleVersion`.

@@ -10,7 +10,7 @@ import {
 
 import type { Env } from './env.js';
 import { healthRoutes } from './modules/health/routes.js';
-import { dbPlugin } from './plugins/db.js';
+import { prismaPlugin } from './plugins/prisma.js';
 
 export async function buildApp(env: Env): Promise<FastifyInstance> {
   const app = Fastify({
@@ -26,7 +26,7 @@ export async function buildApp(env: Env): Promise<FastifyInstance> {
   });
   await app.register(cookie);
   await app.register(rateLimit, { global: false });
-  await app.register(dbPlugin, { connectionString: env.DATABASE_URL });
+  await app.register(prismaPlugin, { databaseUrl: env.DATABASE_URL });
   await app.register(healthRoutes, { prefix: '/api/v1' });
 
   app.get('/api/v1/openapi.json', () => app.swagger());

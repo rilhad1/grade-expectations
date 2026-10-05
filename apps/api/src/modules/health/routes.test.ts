@@ -15,3 +15,16 @@ describe('GET /api/v1/health', () => {
     await app.close();
   });
 });
+
+describe('GET /api/v1/health (інтеграційний, справжній Postgres)', () => {
+  it('повертає db: ok', async () => {
+    const app = await buildApp({
+      NODE_ENV: 'test',
+      API_PORT: 0,
+      DATABASE_URL: process.env['TEST_DATABASE_URL'] ?? 'postgresql://ge:ge@localhost:5432/ge_test',
+    });
+    const res = await app.inject({ method: 'GET', url: '/api/v1/health' });
+    expect(res.json()).toEqual({ status: 'ok', db: 'ok' });
+    await app.close();
+  });
+});

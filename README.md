@@ -28,13 +28,17 @@ createdb -O ge ge; createdb -O ge ge_test
 
 ## Скрипти
 
-| Команда          | Дія                                  |
-| ---------------- | ------------------------------------ |
-| `pnpm typecheck` | перевірка типів у всіх пакетах       |
-| `pnpm lint`      | ESLint (strict-type-checked) по репо |
-| `pnpm test`      | Vitest у всіх пакетах                |
-| `pnpm build`     | збірка пакетів і застосунків         |
-| `pnpm format`    | Prettier                             |
+| Команда           | Дія                                  |
+| ----------------- | ------------------------------------ |
+| `pnpm typecheck`  | перевірка типів у всіх пакетах       |
+| `pnpm lint`       | ESLint (strict-type-checked) по репо |
+| `pnpm test`       | Vitest у всіх пакетах                |
+| `pnpm build`      | збірка пакетів і застосунків         |
+| `pnpm db:migrate` | нова міграція Prisma (dev)           |
+| `pnpm db:deploy`  | застосувати міграції                 |
+| `pnpm db:seed`    | демо-дані (ідемпотентно)             |
+| `pnpm db:reset`   | скинути БД                           |
+| `pnpm format`     | Prettier                             |
 
 ## Структура
 

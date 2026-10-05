@@ -14,12 +14,20 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "turbo run test",
-    "prepare": "husky"
+    "prepare": "husky",
+    "db:generate": "prisma generate --schema prisma/schema.prisma",
+    "db:migrate": "prisma migrate dev --schema prisma/schema.prisma",
+    "db:deploy": "prisma migrate deploy --schema prisma/schema.prisma",
+    "db:seed": "pnpm --filter @ge/shared --filter @ge/domain build && tsx --env-file=.env prisma/seed.ts",
+    "db:reset": "prisma migrate reset --force --skip-seed --schema prisma/schema.prisma"
   },
   "devDependencies": {
     "@commitlint/cli": "21.2.3",
     "@commitlint/config-conventional": "21.2.3",
     "@eslint/js": "10.0.1",
+    "@ge/domain": "workspace:*",
+    "@ge/shared": "workspace:*",
+    "@types/node": "^22.20.5",
     "eslint": "10.12.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-import-x": "4.17.1",
@@ -28,6 +36,8 @@
     "husky": "9.1.7",
     "lint-staged": "17.6.0",
     "prettier": "3.9.9",
+    "prisma": "6.19.3",
+    "tsx": "^4.23.15",
     "turbo": "2.11.7",
     "typescript": "6.0.3",
     "typescript-eslint": "8.71.0",
@@ -41,5 +51,8 @@
     "*.{json,md,yml,yaml,css}": [
       "prettier --write"
     ]
+  },
+  "dependencies": {
+    "@prisma/client": "6.19.3"
   }
 }
