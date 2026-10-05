@@ -13,8 +13,10 @@ import { authRoutes } from './modules/auth/routes.js';
 import { directoryRoutes } from './modules/directory/routes.js';
 import { groupRoutes } from './modules/groups/routes.js';
 import { healthRoutes } from './modules/health/routes.js';
+import { lessonExceptionRoutes } from './modules/lessons/routes.js';
 import { loadRoutes } from './modules/loads/routes.js';
 import { meRoutes } from './modules/me/routes.js';
+import { requestRoutes } from './modules/requests/routes.js';
 import { scheduleRoutes } from './modules/schedules/routes.js';
 import { semesterRoutes } from './modules/semesters/routes.js';
 import { userRoutes } from './modules/users/routes.js';
@@ -49,6 +51,8 @@ export async function buildApp(env: Env): Promise<FastifyInstance> {
   await app.register(userRoutes, { prefix: '/api/v1' });
   await app.register(loadRoutes, { prefix: '/api/v1' });
   await app.register(scheduleRoutes, { prefix: '/api/v1' });
+  await app.register(lessonExceptionRoutes, { prefix: '/api/v1' });
+  await app.register(requestRoutes, { prefix: '/api/v1' });
   await app.register(meRoutes, {
     prefix: '/api/v1',
     googleEnabled: env.GOOGLE_CLIENT_ID !== undefined && env.GOOGLE_CLIENT_SECRET !== undefined,

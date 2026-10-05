@@ -10,3 +10,4 @@ export * from './dto/common.js';
 export * from './dto/directory.js';
 export * from './dto/loads.js';
 export * from './dto/schedules.js';
+export * from './dto/requests.js';

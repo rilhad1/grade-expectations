@@ -2,6 +2,7 @@
 export * from './assignTopics.js';
 export * from './convertScale.js';
 export * from './dates.js';
+export * from './freeSlots.js';
 export * from './generateLessons.js';
 export * from './hoursProgress.js';
 export * from './moduleProposal.js';

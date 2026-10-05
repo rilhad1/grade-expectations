@@ -54,3 +54,8 @@ export function definedOnly<T extends object>(
     [K in keyof T]?: Exclude<T[K], undefined>;
   };
 }
+
+/** Додає дні до дати 'YYYY-MM-DD'. */
+export function addDaysIso(iso: string, days: number): string {
+  return isoOf(new Date(dateOf(iso).getTime() + days * 86_400_000));
+}
