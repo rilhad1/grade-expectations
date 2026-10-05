@@ -26,6 +26,6 @@ export default defineConfig(({ mode }) => {
     server: {
       proxy: { '/api': `http://localhost:${apiPort}` },
     },
-    test: { environment: 'jsdom' },
+    test: { environment: 'jsdom', setupFiles: ['./src/test/setup.ts'] },
   };
 });
