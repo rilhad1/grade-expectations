@@ -1,0 +1,1 @@
+CREATE DATABASE ge_test OWNER ge;
