@@ -62,17 +62,24 @@ export const semesterDtoSchema = z.object({
 });
 export type SemesterFullDto = z.infer<typeof semesterDtoSchema>;
 
+// Значення за замовчуванням — лише у схемі створення: у Zod 4 .partial() їх не прибирає,
+// і PATCH без поля скидав би його (наприклад, стирав періоди семестру).
 const semesterFields = z.object({
   number: z.union([z.literal(1), z.literal(2)]),
   startDate: isoDateSchema,
   endDate: isoDateSchema,
   firstWeekParity: WeekParity.schema,
-  parityAfterBreak: ParityAfterBreak.schema.default('CONTINUE'),
-  periods: z.array(periodInputSchema).default([]),
+  parityAfterBreak: ParityAfterBreak.schema,
+  periods: z.array(periodInputSchema),
 });
 
 export const createSemesterSchema = semesterFields
-  .extend({ id: clientIdSchema, academicYearId: uuidSchema })
+  .extend({
+    id: clientIdSchema,
+    academicYearId: uuidSchema,
+    parityAfterBreak: ParityAfterBreak.schema.default('CONTINUE'),
+    periods: z.array(periodInputSchema).default([]),
+  })
   .refine(endAfterStart, rangeMessage);
 
 export const updateSemesterSchema = semesterFields

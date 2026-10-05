@@ -63,7 +63,6 @@ async function lessonsOf(ctx: AuthContext, loadIds: string[]): Promise<LessonHou
   });
 }
 
-const today = () => isoOf(new Date());
 const isModerator = (ctx: AuthContext) => ctx.roles.includes('MODERATOR');
 
 async function loadOne(ctx: AuthContext, id: string): Promise<LoadDto | null> {
@@ -71,7 +70,7 @@ async function loadOne(ctx: AuthContext, id: string): Promise<LoadDto | null> {
     where: { id, ...loadScope(ctx.organization.id) },
     include,
   });
-  return row ? toDto(row, await lessonsOf(ctx, [row.id]), today()) : null;
+  return row ? toDto(row, await lessonsOf(ctx, [row.id]), ctx.today()) : null;
 }
 
 export async function listLoads(
@@ -101,7 +100,7 @@ export async function listLoads(
     ctx,
     page.items.map((r) => r.id),
   );
-  const now = today();
+  const now = ctx.today();
   return { items: page.items.map((r) => toDto(r, lessons, now)), nextCursor: page.nextCursor };
 }
 
@@ -213,7 +212,7 @@ export async function updateLoad(
         where: {
           loadId: id,
           status: 'PLANNED',
-          date: { gte: new Date(`${today()}T00:00:00.000Z`) },
+          date: { gte: new Date(`${ctx.today()}T00:00:00.000Z`) },
           deletedAt: null,
         },
         data: { teacherId: input.teacherId, version: { increment: 1 } },

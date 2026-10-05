@@ -21,14 +21,19 @@ export const disciplineDtoSchema = z.object({
 export type DisciplineDto = z.infer<typeof disciplineDtoSchema>;
 
 const colorSchema = z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Колір у форматі #RRGGBB');
+// Значення за замовчуванням — лише у схемах створення (у Zod 4 .partial() їх не прибирає).
 const disciplineFields = z.object({
   title: name(),
   shortTitle: name(30),
-  code: nullableText(50).default(null),
+  code: nullableText(50),
   color: colorSchema,
+  defaultScale: Scale.schema,
+});
+export const createDisciplineSchema = disciplineFields.extend({
+  id: clientIdSchema,
+  code: nullableText(50).default(null),
   defaultScale: Scale.schema.default('TWELVE'),
 });
-export const createDisciplineSchema = disciplineFields.extend({ id: clientIdSchema });
 export const updateDisciplineSchema = disciplineFields.partial().extend(versionSchema.shape);
 
 // ── Аудиторії ────────────────────────────────────────
@@ -43,10 +48,14 @@ export type RoomDto = z.infer<typeof roomDtoSchema>;
 
 const roomFields = z.object({
   name: name(100),
+  capacity: z.number().int().positive().nullable(),
+  kind: nullableText(50),
+});
+export const createRoomSchema = roomFields.extend({
+  id: clientIdSchema,
   capacity: z.number().int().positive().nullable().default(null),
   kind: nullableText(50).default(null),
 });
-export const createRoomSchema = roomFields.extend({ id: clientIdSchema });
 export const updateRoomSchema = roomFields.partial().extend(versionSchema.shape);
 
 // ── Розклад дзвінків ─────────────────────────────────
@@ -182,11 +191,13 @@ export type StudentDto = z.infer<typeof studentDtoSchema>;
 const studentFields = z.object({
   lastName: name(100),
   firstName: name(100),
-  middleName: nullableText(100).default(null),
-  note: nullableText(1000).default(null),
+  middleName: nullableText(100),
+  note: nullableText(1000),
 });
 export const createStudentSchema = studentFields.extend({
   id: clientIdSchema,
+  middleName: nullableText(100).default(null),
+  note: nullableText(1000).default(null),
   /** Одразу зарахувати в групу. */
   groupId: uuidSchema.optional(),
   fromDate: isoDateSchema.optional(),

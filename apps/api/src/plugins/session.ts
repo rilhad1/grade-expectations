@@ -14,11 +14,14 @@ export interface AuthContext {
   roles: readonly Role[];
   /** Клієнт Prisma з ізоляцією за коледжем. */
   db: TenantClient;
+  /** Сьогодні (YYYY-MM-DD, Europe/Kyiv). Джерело часу в сервісах; у тестах підміняється. */
+  today: () => string;
 }
 
 declare module 'fastify' {
   interface FastifyInstance {
     auth: Auth;
+    clock: { today: () => string };
     requireAuth: (request: FastifyRequest) => Promise<AuthContext>;
   }
   interface FastifyRequest {
@@ -46,6 +49,9 @@ function toHeaders(request: FastifyRequest): Headers {
 export const sessionPlugin = fp((app: FastifyInstance, opts: { env: Env }) => {
   const auth = createAuth(app.prisma, opts.env);
   app.decorate('auth', auth);
+  app.decorate('clock', {
+    today: () => new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Kyiv' }).format(new Date()),
+  });
 
   app.decorate('requireAuth', async (request: FastifyRequest): Promise<AuthContext> => {
     if (request.authContext) return request.authContext;
@@ -65,6 +71,7 @@ export const sessionPlugin = fp((app: FastifyInstance, opts: { env: Env }) => {
       organization: membership.organization,
       roles: membership.roles,
       db: forOrganization(app.prisma, membership.organizationId),
+      today: () => app.clock.today(),
     };
     request.authContext = context;
     return context;
