@@ -123,3 +123,44 @@ describe('вхід і сесія', () => {
     expect(res.json()).toEqual({ googleEnabled: false });
   });
 });
+
+describe('обмеження спроб входу', () => {
+  const attempt = (email: string) =>
+    app.inject({
+      method: 'POST',
+      url: '/api/v1/auth/sign-in/email',
+      headers: { origin: WEB_ORIGIN, 'content-type': 'application/json' },
+      payload: { email, password: 'wrong-password-1' },
+    });
+
+  it('перебір пароля одного облікового запису блокується (429 problem+json), інші користувачі не страждають', async () => {
+    const victim = `bruteforce.${Date.now()}@test.local`; // окрема адреса: квота не змішується з іншими тестами
+    const statuses: number[] = [];
+    for (let i = 0; i < 12; i++) statuses.push((await attempt(victim)).statusCode);
+    expect(statuses.slice(0, 10).every((s) => s === 401)).toBe(true);
+    expect(statuses.slice(10)).toEqual([429, 429]);
+
+    const blocked = await attempt(victim);
+    expect(blocked.headers['content-type']).toContain('application/problem+json');
+    expect(blocked.json<{ code: string }>().code).toBe('RATE_LIMITED');
+
+    // інший обліковий запис з того самого IP, як і правильний вхід, працює
+    expect((await attempt(teacherEmail)).statusCode).toBe(401);
+    const cookie = await login(app, teacherEmail);
+    expect(
+      (await app.inject({ method: 'GET', url: '/api/v1/me', headers: { cookie } })).statusCode,
+    ).toBe(200);
+  });
+
+  it('get-session не обмежується', async () => {
+    const cookie = await login(app, teacherEmail);
+    for (let i = 0; i < 30; i++) {
+      const res = await app.inject({
+        method: 'GET',
+        url: '/api/v1/auth/get-session',
+        headers: { cookie },
+      });
+      expect(res.statusCode).toBe(200);
+    }
+  });
+});

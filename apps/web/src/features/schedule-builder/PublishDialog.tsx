@@ -11,6 +11,7 @@ import {
   Typography,
 } from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState } from 'react';
 
 import { uk } from '../../shared/i18n/uk';
 import { ErrorAlert } from '../../shared/ui/ErrorAlert';
@@ -28,14 +29,21 @@ export function PublishDialog({
   onClose: () => void;
 }) {
   const queryClient = useQueryClient();
+  const [published, setPublished] = useState(false);
+  // Окремий ключ (не під ['schedule']), щоб інвалідація після публікації не перезапитувала перегляд:
+  // версія вже незмінна, і API відповів би 409.
   const preview = useQuery({
-    queryKey: ['schedule', scheduleId, 'preview'],
+    queryKey: ['publish-preview', scheduleId],
     queryFn: () => publish(scheduleId, true),
     gcTime: 0,
+    retry: false,
+    refetchOnWindowFocus: false,
+    enabled: !published,
   });
   const run = useMutation({
     mutationFn: () => publish(scheduleId, false),
     onSuccess: async () => {
+      setPublished(true);
       await queryClient.invalidateQueries({ queryKey: ['schedule'] });
       await queryClient.invalidateQueries({ queryKey: ['schedules'] });
       await queryClient.invalidateQueries({ queryKey: ['loads'] });

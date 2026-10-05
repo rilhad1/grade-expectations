@@ -91,7 +91,8 @@ function BuilderPage() {
     room: '',
   });
   const [selectedSlot, setSelectedSlot] = useState<SlotDto | null>(null);
-  const [publishing, setPublishing] = useState(false);
+  // id чернетки, що публікується: діалог не залежить від чернетки, яка після публікації зникає зі списку
+  const [publishingId, setPublishingId] = useState<string | null>(null);
 
   const loads = loadsQ.data ?? EMPTY;
   const rooms = roomsQ.data ?? EMPTY;
@@ -209,7 +210,7 @@ function BuilderPage() {
                 <Button
                   variant="contained"
                   onClick={() => {
-                    setPublishing(true);
+                    setPublishingId(draft.id);
                   }}
                 >
                   {b.publish}
@@ -286,7 +287,10 @@ function BuilderPage() {
       {current && (
         <Stack direction={{ xs: 'column', lg: 'row' }} spacing={2} alignItems="flex-start">
           {editable && (
-            <UnplacedPanel items={unplaced} disabled={!editable} roomView={view === 'room'} />
+            <Stack spacing={2} sx={{ width: { xs: '100%', lg: 280 }, flexShrink: 0 }}>
+              <ConflictsPanel conflicts={conflicts} />
+              <UnplacedPanel items={unplaced} disabled={!editable} roomView={view === 'room'} />
+            </Stack>
           )}
           <Box sx={{ flexGrow: 1, minWidth: 0, width: '100%' }}>
             <ScheduleGrid
@@ -302,7 +306,6 @@ function BuilderPage() {
               onSelectSlot={setSelectedSlot}
             />
           </Box>
-          {editable && <ConflictsPanel conflicts={conflicts} />}
         </Stack>
       )}
 
@@ -320,11 +323,11 @@ function BuilderPage() {
           onChanged={refresh}
         />
       )}
-      {publishing && draft && (
+      {publishingId && (
         <PublishDialog
-          scheduleId={draft.id}
+          scheduleId={publishingId}
           onClose={() => {
-            setPublishing(false);
+            setPublishingId(null);
           }}
         />
       )}

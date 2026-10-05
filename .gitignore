@@ -7,3 +7,5 @@ coverage
 .DS_Store
 .idea
 apps/web/src/routeTree.gen.ts
+test-results
+playwright-report

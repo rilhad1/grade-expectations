@@ -38,7 +38,8 @@ export async function buildApp(env: Env): Promise<FastifyInstance> {
     transform: jsonSchemaTransform,
   });
   await app.register(cookie);
-  await app.register(rateLimit, { global: false });
+  // preHandler: ключ ліміту входу використовує email з тіла запиту
+  await app.register(rateLimit, { global: false, hook: 'preHandler' });
   await app.register(prismaPlugin, { databaseUrl: env.DATABASE_URL });
   await app.register(errorsPlugin);
   await app.register(sessionPlugin, { env });

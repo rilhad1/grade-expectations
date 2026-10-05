@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 
-import { findFreeSlots, type BusySlot } from './freeSlots.js';
+import { findFreeSlots, type BusySlot, type FreeSlotQuery } from './freeSlots.js';
 
-const lesson = { teacherId: 't1', groupId: 'g1', subgroupId: null };
+const lesson: FreeSlotQuery['lesson'] = { teacherId: 't1', groupId: 'g1', subgroupId: null };
 const busy = (over: Partial<BusySlot>): BusySlot => ({
   date: '2026-10-12',
   pairNumber: 1,

@@ -5,7 +5,7 @@ import { uk } from '../../shared/i18n/uk';
 
 export function ConflictsPanel({ conflicts }: { conflicts: readonly ConflictDto[] }) {
   return (
-    <Paper variant="outlined" sx={{ p: 1.5, width: { xs: '100%', xl: 280 }, flexShrink: 0 }}>
+    <Paper variant="outlined" sx={{ p: 1.5, width: '100%' }}>
       <Typography variant="subtitle1" component="h2" sx={{ mb: 1 }}>
         {uk.builder.conflicts} ({conflicts.length})
       </Typography>

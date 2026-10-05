@@ -19,7 +19,8 @@
     "db:migrate": "prisma migrate dev --schema prisma/schema.prisma",
     "db:deploy": "prisma migrate deploy --schema prisma/schema.prisma",
     "db:seed": "pnpm --filter @ge/shared --filter @ge/domain build && tsx --env-file=.env prisma/seed.ts",
-    "db:reset": "prisma migrate reset --force --skip-seed --schema prisma/schema.prisma"
+    "db:reset": "prisma migrate reset --force --skip-seed --schema prisma/schema.prisma",
+    "e2e": "playwright test -c e2e/playwright.config.ts"
   },
   "devDependencies": {
     "@commitlint/cli": "21.2.3",
@@ -27,6 +28,7 @@
     "@eslint/js": "10.0.1",
     "@ge/domain": "workspace:*",
     "@ge/shared": "workspace:*",
+    "@playwright/test": "1.63.0",
     "@types/node": "^22.20.5",
     "better-auth": "1.7.7",
     "eslint": "10.12.0",

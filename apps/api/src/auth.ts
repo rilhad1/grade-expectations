@@ -37,8 +37,14 @@ export function createAuth(prisma: PrismaClient, env: Env) {
       database: { generateId: () => uuidv7() },
       useSecureCookies: env.NODE_ENV === 'production',
     },
-    // Обмеження спроб входу: додатково до rate-limit на рівні Fastify
-    rateLimit: { enabled: env.NODE_ENV !== 'test', window: 60, max: 60 },
+    // Вбудований ліміт Better Auth для входу (3 спроби / 10 с з одного IP) вимкнено: за спільним NAT
+    // коледжу він блокував би цілу аудиторію викладачів. Перебір пароля обмежує Fastify (IP + пошта).
+    rateLimit: {
+      enabled: env.NODE_ENV !== 'test',
+      window: 60,
+      max: 300,
+      customRules: { '/sign-in/email': false, '/get-session': false, '/sign-out': false },
+    },
   });
 }
 
