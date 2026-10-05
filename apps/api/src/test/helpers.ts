@@ -60,13 +60,43 @@ export async function createOrganization(
   return { organizationId, users };
 }
 
+/** Повністю прибирає дані тестового коледжу (у порядку залежностей). */
 export async function deleteOrganization(
   prisma: PrismaClient,
   organizationId: string,
 ): Promise<void> {
   const memberships = await prisma.membership.findMany({ where: { organizationId } });
   const userIds = memberships.map((m) => m.userId);
+  const year = { academicYear: { organizationId } };
+  const sem = { semester: year };
+  const load = { load: sem };
+  const lesson = { lesson: load };
+  const enr = { enrollment: { student: { organizationId } } };
+
+  await prisma.attendance.deleteMany({ where: lesson });
+  await prisma.grade.deleteMany({ where: enr });
+  await prisma.attestationResult.deleteMany({ where: load });
+  await prisma.assessment.deleteMany({ where: load });
+  await prisma.rescheduleRequest.deleteMany({ where: lesson });
+  await prisma.lesson.deleteMany({ where: load });
+  await prisma.scheduleSlot.deleteMany({ where: { schedule: sem } });
+  await prisma.schedule.deleteMany({ where: sem });
+  await prisma.teachingLoad.deleteMany({ where: sem });
+  await prisma.attestation.deleteMany({ where: sem });
+  await prisma.semesterPeriod.deleteMany({ where: sem });
+  await prisma.semester.deleteMany({ where: year });
+  await prisma.subgroupMember.deleteMany({ where: enr });
+  await prisma.enrollment.deleteMany({ where: { student: { organizationId } } });
+  await prisma.subgroup.deleteMany({ where: { group: { cohort: { organizationId } } } });
+  await prisma.group.deleteMany({ where: { cohort: { organizationId } } });
+  await prisma.cohort.deleteMany({ where: { organizationId } });
   await prisma.student.deleteMany({ where: { organizationId } });
+  await prisma.academicYear.deleteMany({ where: { organizationId } });
+  await prisma.programTopic.deleteMany({ where: { program: { discipline: { organizationId } } } });
+  await prisma.disciplineProgram.deleteMany({ where: { discipline: { organizationId } } });
+  await prisma.discipline.deleteMany({ where: { organizationId } });
+  await prisma.room.deleteMany({ where: { organizationId } });
+  await prisma.bellTime.deleteMany({ where: { organizationId } });
   await prisma.membership.deleteMany({ where: { organizationId } });
   await prisma.session.deleteMany({ where: { userId: { in: userIds } } });
   await prisma.account.deleteMany({ where: { userId: { in: userIds } } });
@@ -90,4 +120,32 @@ export async function login(
   const cookies = res.headers['set-cookie'];
   const list = Array.isArray(cookies) ? cookies : cookies ? [cookies] : [];
   return list.map((c) => c.split(';')[0]).join('; ');
+}
+
+export interface ApiResult<T = unknown> {
+  status: number;
+  body: T;
+  contentType: string;
+}
+
+/** Короткий виклик API з cookie сесії. */
+export function client(app: FastifyInstance, cookie?: string) {
+  return async function call<T = unknown>(
+    method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE',
+    url: string,
+    payload?: unknown,
+  ): Promise<ApiResult<T>> {
+    const res = await app.inject({
+      method,
+      url: `/api/v1${url}`,
+      headers: { ...(cookie ? { cookie } : {}), origin: WEB_ORIGIN },
+      ...(payload !== undefined ? { payload: payload as object } : {}),
+    });
+    const text = res.body;
+    return {
+      status: res.statusCode,
+      body: (text ? JSON.parse(text) : null) as T,
+      contentType: res.headers['content-type'] ?? '',
+    };
+  };
 }

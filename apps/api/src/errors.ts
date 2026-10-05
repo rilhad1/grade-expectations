@@ -14,3 +14,9 @@ export const unauthenticated = () => new AppError(401, 'UNAUTHENTICATED', 'По�
 export const forbidden = (detail?: string) =>
   new AppError(403, 'FORBIDDEN', 'Недостатньо прав', detail);
 export const notFound = (detail?: string) => new AppError(404, 'NOT_FOUND', 'Не знайдено', detail);
+/** Конфлікт стану (дублікат, невідповідний статус, застаріла версія). */
+export const conflict = (code: string, detail?: string) =>
+  new AppError(409, code, 'Конфлікт', detail);
+/** Запит коректний за формою, але порушує бізнес-правило. */
+export const unprocessable = (code: string, detail?: string) =>
+  new AppError(422, code, 'Неможливо виконати', detail);

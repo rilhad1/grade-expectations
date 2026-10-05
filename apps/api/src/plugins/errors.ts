@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client';
 import type { FastifyInstance } from 'fastify';
 import fp from 'fastify-plugin';
 import { hasZodFastifySchemaValidationErrors } from 'fastify-type-provider-zod';
@@ -26,6 +27,21 @@ export const errorsPlugin = fp((app: FastifyInstance) => {
         status: error.status,
         code: error.code,
         ...(error.detail !== undefined && { detail: error.detail }),
+      };
+    } else if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      problem = {
+        type: 'about:blank#DUPLICATE',
+        title: 'Конфлікт',
+        status: 409,
+        code: 'DUPLICATE',
+        detail: 'Такий запис уже існує',
+      };
+    } else if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      problem = {
+        type: 'about:blank#NOT_FOUND',
+        title: 'Не знайдено',
+        status: 404,
+        code: 'NOT_FOUND',
       };
     } else if (hasZodFastifySchemaValidationErrors(error)) {
       problem = {
