@@ -10,9 +10,12 @@ import {
 
 import type { Env } from './env.js';
 import { authRoutes } from './modules/auth/routes.js';
+import { directoryRoutes } from './modules/directory/routes.js';
+import { groupRoutes } from './modules/groups/routes.js';
 import { healthRoutes } from './modules/health/routes.js';
 import { meRoutes } from './modules/me/routes.js';
 import { semesterRoutes } from './modules/semesters/routes.js';
+import { userRoutes } from './modules/users/routes.js';
 import { errorsPlugin } from './plugins/errors.js';
 import { permissionsPlugin } from './plugins/permissions.js';
 import { prismaPlugin } from './plugins/prisma.js';
@@ -39,6 +42,9 @@ export async function buildApp(env: Env): Promise<FastifyInstance> {
   await app.register(healthRoutes, { prefix: '/api/v1' });
   await app.register(authRoutes, { prefix: '/api/v1' });
   await app.register(semesterRoutes, { prefix: '/api/v1' });
+  await app.register(directoryRoutes, { prefix: '/api/v1' });
+  await app.register(groupRoutes, { prefix: '/api/v1' });
+  await app.register(userRoutes, { prefix: '/api/v1' });
   await app.register(meRoutes, {
     prefix: '/api/v1',
     googleEnabled: env.GOOGLE_CLIENT_ID !== undefined && env.GOOGLE_CLIENT_SECRET !== undefined,

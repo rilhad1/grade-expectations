@@ -45,3 +45,12 @@ export async function versionedUpdate<T>(opts: {
   }
   return row;
 }
+
+/** Відкидає ключі зі значенням undefined (Prisma із exactOptionalPropertyTypes не приймає їх у data). */
+export function definedOnly<T extends object>(
+  obj: T,
+): { [K in keyof T]?: Exclude<T[K], undefined> } {
+  return Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== undefined)) as {
+    [K in keyof T]?: Exclude<T[K], undefined>;
+  };
+}

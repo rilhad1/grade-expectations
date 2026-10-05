@@ -7,3 +7,4 @@ export * from './entities.js';
 export * from './me.js';
 export * from './dto/academic.js';
 export * from './dto/common.js';
+export * from './dto/directory.js';
