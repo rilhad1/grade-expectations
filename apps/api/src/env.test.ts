@@ -4,12 +4,23 @@ import { loadEnv } from './env.js';
 
 describe('loadEnv', () => {
   it('підставляє значення за замовчуванням', () => {
-    const env = loadEnv({ DATABASE_URL: 'postgresql://x' });
+    const env = loadEnv({ DATABASE_URL: 'postgresql://x', BETTER_AUTH_SECRET: 'x'.repeat(32) });
     expect(env.API_PORT).toBe(3000);
     expect(env.NODE_ENV).toBe('development');
   });
 
   it('падає без DATABASE_URL', () => {
-    expect(() => loadEnv({})).toThrow();
+    expect(() => loadEnv({ BETTER_AUTH_SECRET: 'x'.repeat(32) })).toThrow();
+  });
+
+  it('падає, якщо секрет Better Auth коротший за 32 символи', () => {
+    expect(() =>
+      loadEnv({ DATABASE_URL: 'postgresql://x', BETTER_AUTH_SECRET: 'short' }),
+    ).toThrow();
+  });
+
+  it('Google необов’язковий', () => {
+    const env = loadEnv({ DATABASE_URL: 'postgresql://x', BETTER_AUTH_SECRET: 'x'.repeat(32) });
+    expect(env.GOOGLE_CLIENT_ID).toBeUndefined();
   });
 });

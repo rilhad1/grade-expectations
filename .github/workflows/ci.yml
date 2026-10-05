@@ -20,6 +20,9 @@ jobs:
     env:
       DATABASE_URL: postgresql://ge:ge@localhost:5432/ge_test
       TEST_DATABASE_URL: postgresql://ge:ge@localhost:5432/ge_test
+      BETTER_AUTH_SECRET: ci-only-secret-0123456789abcdef0123456789
+      WEB_ORIGIN: http://localhost:5173
+      DEMO_PASSWORD: ci-demo-password
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

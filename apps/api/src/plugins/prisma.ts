@@ -8,7 +8,6 @@ declare module 'fastify' {
   }
 }
 
-// TODO(етап 2): Prisma-розширення, що додає organizationId до кожного запиту (tenant-ізоляція).
 export const prismaPlugin = fp((app: FastifyInstance, opts: { databaseUrl: string }) => {
   const prisma = new PrismaClient({ datasourceUrl: opts.databaseUrl });
   app.decorate('prisma', prisma);

@@ -16,6 +16,8 @@ pnpm dev          # Postgres у Docker + api (:3000) + web (:5173)
 pnpm dev:apps     # лише api і web, якщо Postgres уже запущено локально
 ```
 
+Демо-вхід після `pnpm db:seed`: `teacher@demo.local`, `dekanat@demo.local`, `both@demo.local`, пароль — `DEMO_PASSWORD` з `.env`. Вхід через Google вмикається змінними `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`.
+
 Перевірка: `curl localhost:3000/api/v1/health` → `{"status":"ok","db":"ok"}`. OpenAPI: `/api/v1/openapi.json`.
 
 Локальний Postgres без Docker:

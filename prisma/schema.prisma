@@ -143,17 +143,69 @@ model Organization {
 }
 
 model User {
-  id        String    @id @db.Uuid
-  email     String    @unique
-  fullName  String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  version   Int       @default(0)
-  deletedAt DateTime?
+  id            String    @id @db.Uuid
+  email         String    @unique
+  fullName      String // Better Auth: поле `name`
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  version       Int       @default(0)
+  deletedAt     DateTime?
 
   memberships Membership[]
   loads       TeachingLoad[]
   lessons     Lesson[]
+  sessions    Session[]
+  accounts    Account[]
+}
+
+// ── Better Auth (серверні таблиці; не синхронізуються на пристрої) ──
+model Session {
+  id        String   @id @db.Uuid
+  userId    String   @db.Uuid
+  token     String   @unique
+  expiresAt DateTime
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Account {
+  id                    String    @id @db.Uuid
+  userId                String    @db.Uuid
+  accountId             String
+  providerId            String // "credential" | "google"
+  password              String?
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id @db.Uuid
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
 }
 
 model Membership {

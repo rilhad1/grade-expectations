@@ -14,6 +14,7 @@ import {
 } from '@ge/domain';
 import { defaultGradingRules, type IsoDate } from '@ge/shared';
 import { Prisma, PrismaClient } from '@prisma/client';
+import { hashPassword } from 'better-auth/crypto';
 
 const prisma = new PrismaClient();
 
@@ -238,7 +239,29 @@ async function main(): Promise<void> {
   });
 
   await prisma.user.createMany({
-    data: Object.values(users).map((u) => ({ id: u.id, email: u.email, fullName: u.fullName })),
+    data: Object.values(users).map((u) => ({
+      id: u.id,
+      email: u.email,
+      fullName: u.fullName,
+      emailVerified: true,
+    })),
+    ...insert,
+  });
+
+  // Пароль демо-користувачів береться зі змінної середовища (див. .env.example), у коді його немає
+  const demoPassword = process.env['DEMO_PASSWORD'];
+  if (demoPassword === undefined || demoPassword.length < 8) {
+    throw new Error('Задай DEMO_PASSWORD (мінімум 8 символів) у .env — див. .env.example');
+  }
+  const passwordHash = await hashPassword(demoPassword);
+  await prisma.account.createMany({
+    data: Object.entries(users).map(([k, u]) => ({
+      id: seedId(`account:${k}`),
+      userId: u.id,
+      accountId: u.id,
+      providerId: 'credential',
+      password: passwordHash,
+    })),
     ...insert,
   });
   await prisma.membership.createMany({

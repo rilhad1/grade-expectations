@@ -1,0 +1,72 @@
+import type { Role } from '@ge/shared';
+import type { FastifyInstance, FastifyRequest } from 'fastify';
+import fp from 'fastify-plugin';
+
+import { createAuth, type Auth } from '../auth.js';
+import type { Env } from '../env.js';
+import { unauthenticated } from '../errors.js';
+
+import { forOrganization, type TenantClient } from './tenant.js';
+
+export interface AuthContext {
+  user: { id: string; email: string; fullName: string };
+  organization: { id: string; title: string };
+  roles: readonly Role[];
+  /** Клієнт Prisma з ізоляцією за коледжем. */
+  db: TenantClient;
+}
+
+declare module 'fastify' {
+  interface FastifyInstance {
+    auth: Auth;
+    requireAuth: (request: FastifyRequest) => Promise<AuthContext>;
+  }
+  interface FastifyRequest {
+    authContext?: AuthContext;
+  }
+}
+
+function toHeaders(request: FastifyRequest): Headers {
+  const headers = new Headers();
+  for (const [key, value] of Object.entries(request.headers)) {
+    if (Array.isArray(value))
+      value.forEach((v) => {
+        headers.append(key, v);
+      });
+    else if (value !== undefined) headers.set(key, value);
+  }
+  return headers;
+}
+
+/**
+ * Читає сесію Better Auth, знаходить членство в коледжі й будує контекст запиту.
+ * Користувач без членства вважається неавтентифікованим (немає доступу до жодного коледжу).
+ * MVP: один коледж на користувача; TODO: вибір активного коледжу, коли їх буде кілька.
+ */
+export const sessionPlugin = fp((app: FastifyInstance, opts: { env: Env }) => {
+  const auth = createAuth(app.prisma, opts.env);
+  app.decorate('auth', auth);
+
+  app.decorate('requireAuth', async (request: FastifyRequest): Promise<AuthContext> => {
+    if (request.authContext) return request.authContext;
+
+    const session = await auth.api.getSession({ headers: toHeaders(request) });
+    if (!session) throw unauthenticated();
+
+    const membership = await app.prisma.membership.findFirst({
+      where: { userId: session.user.id, deletedAt: null },
+      include: { organization: { select: { id: true, title: true } } },
+      orderBy: { createdAt: 'asc' },
+    });
+    if (!membership) throw unauthenticated();
+
+    const context: AuthContext = {
+      user: { id: session.user.id, email: session.user.email, fullName: session.user.name },
+      organization: membership.organization,
+      roles: membership.roles,
+      db: forOrganization(app.prisma, membership.organizationId),
+    };
+    request.authContext = context;
+    return context;
+  });
+});
