@@ -316,11 +316,13 @@ export const groupDetailDtoSchema = groupDtoSchema.extend({
       status: EnrollmentStatus.schema,
       fromDate: isoDateSchema,
       toDate: isoDateSchema.nullable(),
+      version: z.number().int(),
       student: z.object({
         id: uuidSchema,
         lastName: z.string(),
         firstName: z.string(),
         middleName: z.string().nullable(),
+        version: z.number().int(),
       }),
     }),
   ),

@@ -291,6 +291,9 @@ importers:
       '@emotion/styled':
         specifier: 11.14.1
         version: 11.14.1(@emotion/react@11.14.0(@types/react@19.3.0)(react@19.3.0))(@types/react@19.3.0)(react@19.3.0)
+      '@ge/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
       '@ge/shared':
         specifier: workspace:*
         version: link:../../packages/shared

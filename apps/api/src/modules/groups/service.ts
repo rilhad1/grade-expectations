@@ -102,11 +102,13 @@ export async function getGroup(ctx: AuthContext, id: string): Promise<GroupDetai
       status: e.status,
       fromDate: isoOf(e.fromDate),
       toDate: isoOrNull(e.toDate),
+      version: e.version,
       student: {
         id: e.student.id,
         lastName: e.student.lastName,
         firstName: e.student.firstName,
         middleName: e.student.middleName,
+        version: e.student.version,
       },
     })),
     subgroups: row.subgroups.map((s) => ({

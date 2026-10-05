@@ -1,0 +1,35 @@
+import type { Role } from '@ge/shared';
+
+import { uk } from '../shared/i18n/uk';
+
+export interface NavItem {
+  to:
+    | '/'
+    | '/admin/schedule-builder'
+    | '/admin/semesters'
+    | '/admin/groups'
+    | '/admin/loads'
+    | '/admin/requests'
+    | '/admin/directory'
+    | '/admin/moderation';
+  label: string;
+  /** Показувати лічильник нових запитів. */
+  badge?: 'requests';
+}
+
+const teacher: NavItem[] = [{ to: '/', label: uk.nav.today }];
+
+const moderator: NavItem[] = [
+  { to: '/', label: uk.nav.today },
+  { to: '/admin/schedule-builder', label: uk.nav.scheduleBuilder },
+  { to: '/admin/semesters', label: uk.nav.semesters },
+  { to: '/admin/groups', label: uk.nav.groups },
+  { to: '/admin/loads', label: uk.nav.loads },
+  { to: '/admin/requests', label: uk.nav.requests, badge: 'requests' },
+  { to: '/admin/directory', label: uk.nav.directory },
+  { to: '/admin/moderation', label: uk.nav.moderation },
+];
+
+/** Навігація залежить від активної ролі (перемикач у меню користувача). */
+export const navFor = (role: Role | null): NavItem[] =>
+  role === 'MODERATOR' ? moderator : teacher;
