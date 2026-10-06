@@ -21,7 +21,7 @@ test.describe('офлайн «На парі»: зміни без мережі с
     await expect(page.getByText('Присутні 25 з 25')).toBeVisible();
 
     await context.setOffline(true);
-    await expect(page.getByRole('status')).toContainText('Офлайн');
+    await expect(page.getByRole('banner').getByRole('status')).toContainText('Офлайн');
 
     await rows.first().click(); // «н»
     await page
@@ -31,11 +31,15 @@ test.describe('офлайн «На парі»: зміни без мережі с
     await page.getByRole('button', { name: '9', exact: true }).click();
     await expect(page.getByText('Присутні 24 з 25')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Усна 9' })).toBeVisible();
-    await expect(page.getByRole('status')).toContainText('Офлайн · 2 змін на пристрої');
+    await expect(page.getByRole('banner').getByRole('status')).toContainText(
+      'Офлайн · 2 змін на пристрої',
+    );
 
     // сервер змін ще не бачить
     await context.setOffline(false);
-    await expect(page.getByRole('status')).toHaveCount(0, { timeout: 30_000 });
+    await expect(page.getByRole('banner').getByRole('status')).toContainText('Синхронізовано', {
+      timeout: 30_000,
+    });
 
     const detail = await page.request.get(`/api/v1/lessons/${lessonId}`);
     const body = (await detail.json()) as {

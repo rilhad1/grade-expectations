@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Сьогодні — викладач</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ge{--bg:#F7F5F0;--surface:#FFFFFF;--surface-2:#FBFAF7;--sunken:#F1EEE7;--line:#E4E0D6;--line-2:#D3CEC2;--text:#1F2328;--text-2:#4E545B;--text-3:#676C73;--accent:#1F3A5F;--accent-soft:#E7EDF4;--accent-line:#B9C8DA;--n-bg:#F7E4E1;--n-fg:#8F2B22;--np-bg:#F9ECD4;--np-fg:#7A4A06;--z-bg:#E3EBF7;--z-fg:#1E4D8A;--ok:#2E6A3E;--ok-bg:#E5F1E8;--warn:#8A5A0B;--warn-bg:#FBF0DB;--err:#A3352B;--err-bg:#FBE9E6;--d1:#4C6A92;--d1s:#EAF0F7;--d2:#3D7A72;--d2s:#E5F1EF;--d3:#7A5C8C;--d3s:#F1EBF5;--d4:#94701F;--d4s:#F6EFDF;font-family:'Golos Text',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.45;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+.ge *{box-sizing:border-box}
+.ge h1,.ge h2,.ge h3,.ge p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 14px;border-radius:6px;border:1px solid var(--line-2);background:var(--surface);color:var(--text);font:inherit;font-weight:500;cursor:pointer;white-space:nowrap;text-decoration:none}
+.btn-p{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
+.btn-lg{height:48px;padding:0 22px;font-size:15px}
+.btn-g{background:transparent;border-color:transparent;color:var(--accent)}
+.btn:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.ic{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.bdg{display:inline-flex;align-items:center;gap:6px;height:22px;padding:0 8px;border-radius:11px;font-size:12px;font-weight:600;white-space:nowrap}
+.muted{color:var(--text-3)}.s2{color:var(--text-2)}
+.lbl{font-size:12px;font-weight:600;color:var(--text-3)}
+.bar{height:6px;border-radius:3px;background:var(--sunken);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:3px;background:var(--accent)}
+.dot{width:8px;height:8px;border-radius:2px;flex:none;display:inline-block}
+</style>
+</helmet>
+<div class="ge" style="width: 1440px; height: 1000px; display: grid; grid-template-columns: 248px minmax(0, 1fr); overflow: hidden">
+  <dc-import name="Sidebar" role="teacher" active="today" height="1000" user="Бойчук В.В." hint-size="248px,1000px"></dc-import>
+  <div style="display: flex; flex-direction: column; min-width: 0">
+    <dc-import name="Topbar" sync="ok" hint-size="1192px,64px"></dc-import>
+
+    <main style="padding: 28px 32px; display: flex; flex-direction: column; gap: 24px; min-width: 0">
+      <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 16px">
+        <div style="display: flex; flex-direction: column; gap: 2px">
+          <h1 style="font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -0.01em">Сьогодні</h1>
+          <p class="s2 num">понеділок, 5 жовтня 2026 · 4 пари · 1 проведено</p>
+        </div>
+        <a class="btn" href="Schedule.dc.html"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="17" rx="2"></rect><path d="M3 9h18M9 9v12M15 9v12"></path></svg>Розклад тижня</a>
+      </div>
+
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) 368px; gap: 24px; align-items: start">
+        <div style="display: flex; flex-direction: column; gap: 24px; min-width: 0">
+
+          <section class="card" aria-labelledby="cur" style="padding: 24px; display: flex; flex-direction: column; gap: 20px; border-color: var(--accent-line)">
+            <div style="display: flex; align-items: center; gap: 12px">
+              <span class="bdg num" style="background: var(--accent); color: #FFFFFF">2 пара</span>
+              <span class="num" style="font-weight: 600; font-size: 15px">10:00–11:20</span>
+              <span class="bdg" style="background: var(--ok-bg); color: var(--ok)"><span class="dot" style="background: var(--ok); border-radius: 4px"></span>Пара триває</span>
+              <div style="flex: 1"></div>
+              <span class="muted sm" style="font-size: 13px">Практична</span>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px">
+              <h2 id="cur" style="display: flex; align-items: center; gap: 12px; font-size: 28px; line-height: 36px; font-weight: 600; letter-spacing: -0.015em"><span class="dot" style="width: 12px; height: 12px; border-radius: 3px; background: var(--d1)"></span>Інформатика</h2>
+              <div class="s2" style="display: flex; align-items: center; gap: 16px; font-size: 15px">
+                <span style="font-weight: 600; color: var(--text)">ПДт-12</span>
+                <span>вся група · 25 студентів</span>
+                <span style="display: inline-flex; align-items: center; gap: 6px"><svg class="ic" viewBox="0 0 24 24" style="width: 16px; height: 16px"><path d="M12 21s7-6.2 7-12a7 7 0 0 0-14 0c0 5.8 7 12 7 12z"></path><circle cx="12" cy="9" r="2.5"></circle></svg>ауд. 214</span>
+              </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 14px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 6px">
+              <span class="lbl">Тема</span>
+              <span style="font-weight: 500">Алгоритми та їх властивості</span>
+              <span class="muted" style="font-size: 13px">· тема 10 з 36 за планом</span>
+              <div style="flex: 1"></div>
+              <button class="btn btn-g" type="button" style="height: 28px; padding: 0 8px; font-size: 13px">Змінити тему</button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 8px">
+              <div class="bar" style="height: 8px; border-radius: 4px" role="progressbar" aria-valuemin="0" aria-valuemax="80" aria-valuenow="42" aria-label="Минуло часу пари"><i style="width: 52.5%; background: var(--ok)"></i></div>
+              <div class="num s2" style="display: flex; justify-content: space-between; font-size: 13px"><span>Минуло 42 хв</span><span>до дзвінка 38 хв · 11:20</span></div>
+            </div>
+            <div style="display: flex; gap: 12px; align-items: center">
+              <a class="btn btn-p btn-lg" href="LessonMobile.dc.html" style="min-width: 220px">
+                <svg class="ic" viewBox="0 0 24 24"><path d="M7 5v14l11-7z"></path></svg>Почати пару</a>
+              <a class="btn btn-lg" href="Gradebook.dc.html">Відкрити журнал</a>
+              <div style="flex: 1"></div>
+              <span class="muted" style="font-size: 13px">Відвідуваність і оцінки можна ставити з телефона</span>
+            </div>
+          </section>
+
+          <section aria-labelledby="day" style="display: flex; flex-direction: column; gap: 12px">
+            <div style="display: flex; align-items: center; justify-content: space-between">
+              <h2 id="day" style="font-size: 16px; font-weight: 600">Пари сьогодні</h2>
+              <span class="muted num" style="font-size: 13px">нижній тиждень · пари «лише у верхній» не показано</span>
+            </div>
+            <div class="card" style="overflow: hidden">
+              <div style="display: grid; grid-template-columns: 40px 96px minmax(0, 1fr) 120px 180px 188px; align-items: center; gap: 16px; padding: 14px 20px; border-bottom: 1px solid var(--line)">
+                <span class="num" style="width: 28px; height: 28px; border-radius: 14px; background: var(--ok-bg); color: var(--ok); display: flex; align-items: center; justify-content: center"><svg class="ic" viewBox="0 0 24 24" style="width: 16px; height: 16px; stroke-width: 2.2"><path d="m5 12 5 5 9-10"></path></svg></span>
+                <span class="num s2">8:30–9:50</span>
+                <span style="display: flex; align-items: center; gap: 8px; font-weight: 500"><span class="dot" style="background: var(--d1)"></span>Інформатика</span>
+                <span style="font-weight: 600">ПДт-11</span>
+                <span class="s2">ауд. 214 · лекція</span>
+                <span class="num" style="display: flex; align-items: center; gap: 8px; justify-content: flex-end"><span class="s2">Проведено</span><span class="bdg" style="background: var(--sunken); color: var(--text)">22/25</span></span>
+              </div>
+              <div style="display: grid; grid-template-columns: 40px 96px minmax(0, 1fr) 120px 180px 188px; align-items: center; gap: 16px; padding: 14px 20px; border-bottom: 1px solid var(--line); background: var(--accent-soft)">
+                <span class="num" style="width: 28px; height: 28px; border-radius: 14px; background: var(--accent); color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px">2</span>
+                <span class="num" style="font-weight: 600">10:00–11:20</span>
+                <span style="display: flex; align-items: center; gap: 8px; font-weight: 500"><span class="dot" style="background: var(--d1)"></span>Інформатика</span>
+                <span style="font-weight: 600">ПДт-12</span>
+                <span class="s2">ауд. 214 · практична</span>
+                <span style="display: flex; justify-content: flex-end"><span class="bdg" style="background: var(--ok-bg); color: var(--ok)">Триває</span></span>
+              </div>
+              <div style="display: grid; grid-template-columns: 40px 96px minmax(0, 1fr) 120px 180px 188px; align-items: center; gap: 16px; padding: 14px 20px; border-bottom: 1px solid var(--line)">
+                <span class="num" style="width: 28px; height: 28px; border-radius: 14px; border: 1px solid var(--line-2); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; color: var(--text-2)">3</span>
+                <span class="num s2">11:40–13:00</span>
+                <span style="display: flex; align-items: center; gap: 8px; font-weight: 500"><span class="dot" style="background: var(--d2)"></span>Метрологія ІОС</span>
+                <span style="font-weight: 600">ПДт-13</span>
+                <span class="s2">ауд. 305 · лекція</span>
+                <span style="display: flex; justify-content: flex-end" class="muted">Заплановано</span>
+              </div>
+              <div style="display: grid; grid-template-columns: 40px 96px minmax(0, 1fr) 120px 180px 188px; align-items: center; gap: 16px; padding: 14px 20px">
+                <span class="num" style="width: 28px; height: 28px; border-radius: 14px; border: 1px solid var(--line-2); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; color: var(--text-2)">4</span>
+                <span class="num s2">13:10–14:30</span>
+                <span style="display: flex; align-items: center; gap: 8px; font-weight: 500"><span class="dot" style="background: var(--d3)"></span>Основи програмування</span>
+                <span style="font-weight: 600">ПДт-12 <span class="s2" style="font-weight: 400">· 1 пгр.</span></span>
+                <span class="s2">комп. клас 2 · лаб.</span>
+                <span style="display: flex; justify-content: flex-end" class="muted">Заплановано</span>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <aside style="display: flex; flex-direction: column; gap: 16px">
+          <section class="card" aria-labelledby="ev" style="padding: 20px; display: flex; flex-direction: column; gap: 14px">
+            <h2 id="ev" style="font-size: 15px; font-weight: 600">Найближчі події</h2>
+            <div style="display: flex; gap: 12px; align-items: flex-start">
+              <div class="num" style="width: 44px; flex: none; border: 1px solid var(--line-2); border-radius: 6px; text-align: center; padding: 4px 0; line-height: 1.15"><div style="font-size: 11px; color: var(--text-3); font-weight: 600">ЧТ</div><div style="font-size: 17px; font-weight: 600">8</div></div>
+              <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+                <span style="font-weight: 500">1-ша рубіжна атестація</span>
+                <span class="s2" style="font-size: 13px">Інформатика · ПДт-12</span>
+                <span class="num" style="font-size: 12px; font-weight: 600; color: var(--warn)">через 3 дні</span>
+              </div>
+            </div>
+            <div style="display: flex; gap: 12px; align-items: flex-start">
+              <div class="num" style="width: 44px; flex: none; border: 1px solid var(--line-2); border-radius: 6px; text-align: center; padding: 4px 0; line-height: 1.15"><div style="font-size: 11px; color: var(--text-3); font-weight: 600">ЧТ</div><div style="font-size: 17px; font-weight: 600">8</div></div>
+              <div style="display: flex; flex-direction: column; gap: 2px; min-width: 0">
+                <span style="font-weight: 500">ДКР з Метрології</span>
+                <span class="s2" style="font-size: 13px">ПДт-13 · 3 пара · ауд. 305</span>
+                <span class="num muted" style="font-size: 12px; font-weight: 600">четвер</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="card" aria-labelledby="risk" style="padding: 20px; display: flex; flex-direction: column; gap: 12px">
+            <div style="display: flex; align-items: baseline; justify-content: space-between">
+              <h2 id="risk" style="font-size: 15px; font-weight: 600">Зона ризику <span class="num muted" style="font-weight: 500">· 4</span></h2>
+              <a href="Gradebook.dc.html" style="font-size: 13px; color: var(--accent)">У журналі</a>
+            </div>
+            <p class="muted" style="font-size: 12px">Середній бал нижче 4 або понад 30% пропусків</p>
+            <div style="display: flex; flex-direction: column">
+              <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line)"><span style="flex: 1; min-width: 0"><span style="font-weight: 500">Бондар Максим</span> <span class="muted" style="font-size: 12px">ПДт-12</span></span><span class="bdg num" style="background: #FBECE9; color: var(--n-fg)">сер. 3,6</span></div>
+              <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line)"><span style="flex: 1; min-width: 0"><span style="font-weight: 500">Савчук Олена</span> <span class="muted" style="font-size: 12px">ПДт-12</span></span><span class="bdg num" style="background: var(--np-bg); color: var(--np-fg)">пропуски 34%</span></div>
+              <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line)"><span style="flex: 1; min-width: 0"><span style="font-weight: 500">Литвин Денис</span> <span class="muted" style="font-size: 12px">ПДт-13</span></span><span class="bdg num" style="background: #FBECE9; color: var(--n-fg)">сер. 3,8</span><span class="bdg num" style="background: var(--np-bg); color: var(--np-fg)">31%</span></div>
+              <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line)"><span style="flex: 1; min-width: 0"><span style="font-weight: 500">Гнатюк Софія</span> <span class="muted" style="font-size: 12px">ПДт-11</span></span><span class="bdg num" style="background: var(--np-bg); color: var(--np-fg)">пропуски 32%</span></div>
+            </div>
+          </section>
+
+          <section class="card" aria-labelledby="hrs" style="padding: 20px; display: flex; flex-direction: column; gap: 14px">
+            <div style="display: flex; align-items: baseline; justify-content: space-between">
+              <h2 id="hrs" style="font-size: 15px; font-weight: 600">Вичитка годин</h2>
+              <a href="HoursReport.dc.html" style="font-size: 13px; color: var(--accent)">Детально</a>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px">
+              <div style="display: flex; justify-content: space-between; font-size: 13px"><span style="display: flex; align-items: center; gap: 6px"><span class="dot" style="background: var(--d1)"></span>Інформатика · ПДт-11</span><span class="num s2">48 з 72 год</span></div>
+              <div class="bar"><i style="width: 66.7%; background: var(--d1)"></i></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px">
+              <div style="display: flex; justify-content: space-between; font-size: 13px"><span style="display: flex; align-items: center; gap: 6px"><span class="dot" style="background: var(--d1)"></span>Інформатика · ПДт-12</span><span class="num s2">46 з 72 год</span></div>
+              <div class="bar"><i style="width: 63.9%; background: var(--d1)"></i></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px">
+              <div style="display: flex; justify-content: space-between; font-size: 13px"><span style="display: flex; align-items: center; gap: 6px"><span class="dot" style="background: var(--d2)"></span>Метрологія ІОС · ПДт-13</span><span class="num" style="color: var(--warn); font-weight: 500">26 з 54 год · −4</span></div>
+              <div class="bar"><i style="width: 48.1%; background: var(--d2)"></i></div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 6px">
+              <div style="display: flex; justify-content: space-between; font-size: 13px"><span style="display: flex; align-items: center; gap: 6px"><span class="dot" style="background: var(--d3)"></span>Осн. програмування · ПДт-12</span><span class="num s2">22 з 36 год</span></div>
+              <div class="bar"><i style="width: 61.1%; background: var(--d3)"></i></div>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

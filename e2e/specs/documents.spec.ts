@@ -11,7 +11,7 @@ test.describe('атестація, відомість, календар і ви�
     await login(page, users.teacher);
     await page
       .getByRole('navigation', { name: 'Меню' })
-      .getByRole('link', { name: 'Атестація' })
+      .getByRole('link', { name: 'Атестації' })
       .click();
     await expect(page.getByRole('heading', { name: 'Атестація' })).toBeVisible();
     await page

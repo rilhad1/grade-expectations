@@ -1,0 +1,459 @@
+{
+  "v": 3,
+  "attachments": {},
+  "boards": {
+    "MoreMobile.dc.html": {
+      "h": 844,
+      "page": "teacher",
+      "title": "1 · «Ще» — мобільний",
+      "w": 390,
+      "x": 1990,
+      "y": 0
+    },
+    "StatementDialog.dc.html": {
+      "h": 620,
+      "page": "teacher",
+      "title": "8 · Діалог відомості",
+      "w": 720,
+      "x": 3040,
+      "y": 6184
+    },
+    "HoursReport.dc.html": {
+      "h": 1000,
+      "page": "teacher",
+      "title": "Вичитка годин",
+      "w": 1440,
+      "x": 0,
+      "y": 7964
+    },
+    "DataCalendar.dc.html": {
+      "h": 900,
+      "page": "teacher",
+      "title": "Дані й календар",
+      "w": 1440,
+      "x": 1520,
+      "y": 7964
+    },
+    "Directories.dc.html": {
+      "h": 1000,
+      "page": "moderator",
+      "title": "Довідники",
+      "w": 1440,
+      "x": 1520,
+      "y": 1460
+    },
+    "Attestation.dc.html": {
+      "h": 1400,
+      "page": "teacher",
+      "title": "8 · Атестація",
+      "w": 1440,
+      "x": 0,
+      "y": 6184
+    },
+    "DesignSystem.dc.html": {
+      "h": 3400,
+      "page": "ds",
+      "title": "12 · Дизайн-система",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Gradebook.dc.html": {
+      "h": 1040,
+      "is_interactive": true,
+      "page": "teacher",
+      "title": "3 · Журнал — десктоп",
+      "w": 1440,
+      "x": 0,
+      "y": 3324
+    },
+    "GradebookMobile.dc.html": {
+      "h": 1160,
+      "page": "teacher",
+      "title": "3 · Журнал — мобільний",
+      "w": 390,
+      "x": 3040,
+      "y": 3324
+    },
+    "LessonDark.dc.html": {
+      "h": 844,
+      "page": "teacher",
+      "title": "2 · На парі — темна тема",
+      "w": 390,
+      "x": 1880,
+      "y": 2100
+    },
+    "LessonDone.dc.html": {
+      "h": 844,
+      "page": "teacher",
+      "title": "2 · Пару завершено",
+      "w": 390,
+      "x": 1410,
+      "y": 2100
+    },
+    "LessonGrade.dc.html": {
+      "h": 844,
+      "page": "teacher",
+      "title": "2 · Шторка оцінки",
+      "w": 390,
+      "x": 940,
+      "y": 2100
+    },
+    "LessonHold.dc.html": {
+      "h": 844,
+      "page": "teacher",
+      "title": "2 · Утримання і свайп",
+      "w": 390,
+      "x": 470,
+      "y": 2100
+    },
+    "LessonMobile.dc.html": {
+      "h": 844,
+      "is_interactive": true,
+      "page": "teacher",
+      "title": "2 · На парі — інтерактивний",
+      "w": 390,
+      "x": 0,
+      "y": 2100
+    },
+    "Login.dc.html": {
+      "h": 900,
+      "page": "start",
+      "title": "10 · Вхід",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "Main.dc.html": {
+      "h": 1000,
+      "is_interactive": true,
+      "page": "teacher",
+      "title": "1 · Сьогодні — десктоп",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "MobileNav.dc.html": {
+      "h": 80,
+      "page": "ds",
+      "title": "Компонент · Нижня панель",
+      "w": 390,
+      "x": 1848,
+      "y": 184
+    },
+    "MyDisciplines.dc.html": {
+      "h": 1100,
+      "page": "teacher",
+      "title": "11 · Мої дисципліни",
+      "w": 1440,
+      "x": 1520,
+      "y": 6184
+    },
+    "OnboardingModerator.dc.html": {
+      "h": 900,
+      "page": "start",
+      "title": "10 · Онбординг модератора — імпорт",
+      "w": 1440,
+      "x": 4560,
+      "y": 0
+    },
+    "OnboardingRules.dc.html": {
+      "h": 900,
+      "page": "start",
+      "title": "10 · Онбординг викладача — 2",
+      "w": 1440,
+      "x": 3040,
+      "y": 0
+    },
+    "OnboardingTeacher.dc.html": {
+      "h": 900,
+      "page": "start",
+      "title": "10 · Онбординг викладача — 1",
+      "w": 1440,
+      "x": 1520,
+      "y": 0
+    },
+    "PublishDialog.dc.html": {
+      "h": 560,
+      "page": "moderator",
+      "title": "5 · Діалог публікації",
+      "w": 720,
+      "x": 1520,
+      "y": 0
+    },
+    "Requests.dc.html": {
+      "h": 1000,
+      "page": "moderator",
+      "title": "6 · Запити на перенесення",
+      "w": 1440,
+      "x": 0,
+      "y": 1460
+    },
+    "Schedule.dc.html": {
+      "h": 1000,
+      "page": "teacher",
+      "title": "4 · Розклад — тиждень",
+      "w": 1440,
+      "x": 0,
+      "y": 4784
+    },
+    "ScheduleBuilder.dc.html": {
+      "h": 1080,
+      "page": "moderator",
+      "title": "5 · Конструктор розкладу — 3 конфлікти",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "ScheduleMobile.dc.html": {
+      "h": 1000,
+      "page": "teacher",
+      "title": "4 · Розклад — день",
+      "w": 390,
+      "x": 1520,
+      "y": 4784
+    },
+    "Sidebar.dc.html": {
+      "h": 1000,
+      "page": "ds",
+      "title": "Компонент · Бічна панель",
+      "w": 248,
+      "x": 1520,
+      "y": 0
+    },
+    "States.dc.html": {
+      "h": 1840,
+      "page": "states",
+      "title": "Стани системи",
+      "w": 1440,
+      "x": 0,
+      "y": 0
+    },
+    "StudentCard.dc.html": {
+      "h": 1040,
+      "page": "teacher",
+      "title": "9 · Картка студента",
+      "w": 1440,
+      "x": 1520,
+      "y": 3324
+    },
+    "TodayMobile.dc.html": {
+      "h": 1720,
+      "page": "teacher",
+      "title": "1 · Сьогодні — мобільний",
+      "w": 390,
+      "x": 1520,
+      "y": 0
+    },
+    "Topbar.dc.html": {
+      "h": 64,
+      "page": "ds",
+      "title": "Компонент · Шапка",
+      "w": 1192,
+      "x": 1848,
+      "y": 0
+    },
+    "WizardStep1.dc.html": {
+      "h": 1000,
+      "page": "moderator",
+      "title": "7 · Новий семестр — крок 1",
+      "w": 1440,
+      "x": 0,
+      "y": 2840
+    },
+    "WizardStep2.dc.html": {
+      "h": 1000,
+      "page": "moderator",
+      "title": "7 · Крок 2 — переведення груп",
+      "w": 1440,
+      "x": 1520,
+      "y": 2840
+    },
+    "WizardStep3.dc.html": {
+      "h": 1000,
+      "page": "moderator",
+      "title": "7 · Крок 3 — навантаження",
+      "w": 1440,
+      "x": 3040,
+      "y": 2840
+    },
+    "WizardStep4.dc.html": {
+      "h": 1000,
+      "page": "moderator",
+      "title": "7 · Крок 4 — шаблон розкладу",
+      "w": 1440,
+      "x": 4560,
+      "y": 2840
+    }
+  },
+  "createdOnFiles": {
+    "at": "2026-10-05T07:40:00Z",
+    "v": 1
+  },
+  "designSystems": [],
+  "launch": {
+    "page": "teacher",
+    "view": "canvas"
+  },
+  "notes": {
+    "d1": {
+      "kind": "title1",
+      "maxW": 3040,
+      "page": "ds",
+      "text": "Дизайн-система і спільні компоненти",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "m1": {
+      "kind": "title1",
+      "maxW": 2240,
+      "page": "moderator",
+      "text": "Конструктор розкладу",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "m2": {
+      "kind": "title1",
+      "maxW": 2960,
+      "page": "moderator",
+      "text": "Запити і довідники",
+      "w": 240,
+      "x": 0,
+      "y": 1160
+    },
+    "m3": {
+      "kind": "title1",
+      "maxW": 6000,
+      "page": "moderator",
+      "text": "Майстер «Новий семестр»",
+      "w": 240,
+      "x": 0,
+      "y": 2540
+    },
+    "s1": {
+      "kind": "title1",
+      "maxW": 6000,
+      "page": "start",
+      "text": "Вхід і перший запуск",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "t6": {
+      "kind": "title1",
+      "maxW": 2960,
+      "page": "teacher",
+      "text": "Вичитка годин і дані",
+      "w": 240,
+      "x": 0,
+      "y": 7664
+    },
+    "t1": {
+      "kind": "title1",
+      "maxW": 2380,
+      "page": "teacher",
+      "text": "Сьогодні",
+      "w": 240,
+      "x": 0,
+      "y": -300
+    },
+    "t2": {
+      "kind": "title1",
+      "maxW": 2270,
+      "page": "teacher",
+      "text": "На парі — головний екран продукту",
+      "w": 240,
+      "x": 0,
+      "y": 1800
+    },
+    "t3": {
+      "kind": "title1",
+      "maxW": 3430,
+      "page": "teacher",
+      "text": "Журнал і картка студента",
+      "w": 240,
+      "x": 0,
+      "y": 3024
+    },
+    "t4": {
+      "kind": "title1",
+      "maxW": 1910,
+      "page": "teacher",
+      "text": "Розклад",
+      "w": 240,
+      "x": 0,
+      "y": 4484
+    },
+    "t5": {
+      "kind": "title1",
+      "maxW": 3760,
+      "page": "teacher",
+      "text": "Атестація і мої дисципліни",
+      "w": 240,
+      "x": 0,
+      "y": 5884
+    }
+  },
+  "order": [
+    "Main.dc.html",
+    "TodayMobile.dc.html",
+    "LessonMobile.dc.html",
+    "LessonHold.dc.html",
+    "LessonGrade.dc.html",
+    "LessonDone.dc.html",
+    "LessonDark.dc.html",
+    "Gradebook.dc.html",
+    "StudentCard.dc.html",
+    "GradebookMobile.dc.html",
+    "Schedule.dc.html",
+    "ScheduleMobile.dc.html",
+    "Attestation.dc.html",
+    "MyDisciplines.dc.html",
+    "ScheduleBuilder.dc.html",
+    "PublishDialog.dc.html",
+    "Requests.dc.html",
+    "WizardStep1.dc.html",
+    "WizardStep2.dc.html",
+    "WizardStep3.dc.html",
+    "WizardStep4.dc.html",
+    "Login.dc.html",
+    "OnboardingTeacher.dc.html",
+    "OnboardingRules.dc.html",
+    "OnboardingModerator.dc.html",
+    "States.dc.html",
+    "DesignSystem.dc.html",
+    "Sidebar.dc.html",
+    "Topbar.dc.html",
+    "MobileNav.dc.html",
+    "MoreMobile.dc.html",
+    "StatementDialog.dc.html",
+    "HoursReport.dc.html",
+    "DataCalendar.dc.html",
+    "Directories.dc.html"
+  ],
+  "pages": [
+    {
+      "id": "teacher",
+      "name": "Викладач"
+    },
+    {
+      "id": "moderator",
+      "name": "Модератор"
+    },
+    {
+      "id": "start",
+      "name": "Вхід і онбординг"
+    },
+    {
+      "id": "states",
+      "name": "Стани"
+    },
+    {
+      "id": "ds",
+      "name": "Дизайн-система"
+    }
+  ],
+  "title": "Grade Expectations"
+}

@@ -46,7 +46,7 @@ describe('GradeSheet', () => {
 
   it('тип оцінки можна змінити перед вибором числа', () => {
     const { onSave } = setup('TWELVE');
-    fireEvent.click(screen.getByRole('button', { name: uk.lesson.gradeKinds.LAB }));
+    fireEvent.click(screen.getByRole('radio', { name: uk.lesson.gradeKinds.LAB }));
     fireEvent.click(screen.getByRole('button', { name: '12' }));
     expect(onSave).toHaveBeenCalledWith({ kind: 'LAB', value: 12 });
   });

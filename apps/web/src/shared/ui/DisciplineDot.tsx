@@ -1,7 +1,15 @@
 import { Box } from '@mui/material';
 
-/** Мітка дисципліни: однакового кольору в розкладі, журналі та фільтрах. */
-export function DisciplineDot({ color, size = 10 }: { color: string; size?: number }) {
+/** Мітка дисципліни: однакового кольору в розкладі, журналі, картках і фільтрах. */
+export function DisciplineDot({
+  color,
+  size = 10,
+  gap = 1,
+}: {
+  color: string;
+  size?: number;
+  gap?: number;
+}) {
   return (
     <Box
       component="span"
@@ -10,11 +18,13 @@ export function DisciplineDot({ color, size = 10 }: { color: string; size?: numb
         display: 'inline-block',
         width: size,
         height: size,
-        borderRadius: '50%',
+        borderRadius: `${Math.max(2, Math.round(size / 4))}px`,
         bgcolor: color,
-        mr: 1,
+        mr: gap,
         flexShrink: 0,
       }}
     />
   );
 }
+
+export { DisciplineDot as DisciplineMark };

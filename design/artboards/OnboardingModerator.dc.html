@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Онбординг модератора — імпорт студентів</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ge{--bg:#F7F5F0;--surface:#FFFFFF;--surface-2:#FBFAF7;--sunken:#F1EEE7;--line:#E4E0D6;--line-2:#D3CEC2;--text:#1F2328;--text-2:#4E545B;--text-3:#676C73;--accent:#1F3A5F;--accent-soft:#E7EDF4;--accent-line:#B9C8DA;--ok:#2E6A3E;--ok-bg:#E5F1E8;--err:#A3352B;--err-fg:#8F2B22;--err-bg:#FBE9E6;--warn:#7A4A06;--warn-bg:#FBF0DB;font-family:'Golos Text',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.45;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+.ge *{box-sizing:border-box}
+.ge h1,.ge h2,.ge h3,.ge p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:6px;border:1px solid var(--line-2);background:var(--surface);color:var(--text);font:inherit;font-weight:500;cursor:pointer;white-space:nowrap;text-decoration:none}
+.btn-p{background:var(--accent);border-color:var(--accent);color:#FFFFFF;font-weight:600}
+.ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.stp{display:flex;align-items:center;gap:12px;margin:0;padding:0}
+.stp li{display:flex;align-items:center;gap:10px;list-style:none;font-size:14px;color:var(--text-3);font-weight:500}
+.stp li i{width:28px;height:28px;border-radius:14px;border:1.5px solid var(--line-2);display:flex;align-items:center;justify-content:center;font-style:normal;font-size:13px;font-weight:600;background:var(--surface)}
+.stp li[aria-current=step]{color:var(--text);font-weight:600}
+.stp li[aria-current=step] i{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
+.stp li.done{color:var(--text-2)}
+.stp li.done i{background:var(--ok-bg);border-color:var(--ok-bg);color:var(--ok)}
+.stp .ln{flex:1;height:1px;background:var(--line-2);min-width:24px}
+.tr{display:grid;grid-template-columns:52px 96px minmax(0,1fr) minmax(0,1fr) minmax(0,1fr) 96px minmax(0,1.4fr);gap:0;align-items:stretch;min-height:38px;border-bottom:1px solid var(--line);font-size:13px}
+.tr > span{display:flex;align-items:center;padding:0 10px;border-left:1px solid var(--line)}
+.tr > span:first-child{border-left:0;justify-content:flex-end;color:var(--text-3);font-variant-numeric:tabular-nums;font-size:12px}
+.th{background:var(--surface-2);font-weight:600;color:var(--text-3);font-size:12px}
+.th select{height:28px;border:1px solid var(--line-2);border-radius:6px;background:var(--surface);font:inherit;font-size:12px;font-weight:600;color:var(--text);padding:0 6px;width:100%}
+.bad{background:var(--err-bg) !important;box-shadow:inset 0 0 0 1.5px var(--err);color:var(--err-fg);font-weight:600}
+.er{background:#FDF7F6}
+.muted{color:var(--text-3)}.s2{color:var(--text-2)}
+</style>
+</helmet>
+<div class="ge" style="width: 1440px; height: 900px; display: flex; flex-direction: column">
+  <header style="height: 64px; display: flex; align-items: center; gap: 16px; padding: 0 40px; border-bottom: 1px solid var(--line); background: var(--surface)">
+    <div aria-hidden="true" style="width: 28px; height: 28px; border-radius: 6px; background: var(--accent); display: flex; flex-direction: column; justify-content: center; gap: 3px; padding: 0 7px"><i style="display: block; height: 2px; background: #FFFFFF"></i><i style="display: block; height: 2px; width: 70%; background: #FFFFFF"></i><i style="display: block; height: 2px; width: 45%; background: #FFFFFF"></i></div>
+    <span style="font-weight: 600">Grade Expectations</span>
+    <span class="muted" style="font-size: 13px">· налаштування Демо-коледжу</span>
+    <div style="flex: 1"></div>
+    <button type="button" class="btn" style="height: 36px; border-color: transparent; color: var(--text-2)">Пропустити крок</button>
+  </header>
+
+  <main style="flex: 1; display: flex; justify-content: center; padding: 32px 40px">
+    <div style="width: 1120px; display: flex; flex-direction: column; gap: 20px">
+      <ol class="stp" aria-label="Кроки налаштування">
+        <li class="done"><i>✓</i>Навчальний рік і семестр</li><span class="ln"></span>
+        <li aria-current="step"><i>2</i>Групи і студенти</li><span class="ln"></span>
+        <li><i>3</i>Запрошення викладачів</li>
+      </ol>
+
+      <div style="display: flex; align-items: flex-end; gap: 16px">
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px">
+          <h1 style="font-size: 26px; line-height: 34px; font-weight: 600; letter-spacing: -0.015em">Імпорт студентів з Excel</h1>
+          <p class="s2">Перевірте, як розпізнано стовпці. Рядки з помилками можна виправити тут або пропустити.</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 8px">
+          <svg class="ic" viewBox="0 0 24 24" style="width: 20px; height: 20px; color: var(--ok)"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"></path><path d="M14 3v5h5M9 12l6 6M15 12l-6 6"></path></svg>
+          <span style="display: flex; flex-direction: column"><b style="font-weight: 600; font-size: 13px">Контингент_2026.xlsx</b><span class="num muted" style="font-size: 12px">аркуш «Студенти» · 77 рядків</span></span>
+          <button type="button" style="height: 28px; padding: 0 10px; border: 0; background: transparent; color: var(--accent); font: inherit; font-size: 13px; font-weight: 500; cursor: pointer">Замінити</button>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 10px">
+        <span style="display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px; border-radius: 14px; background: var(--ok-bg); color: var(--ok); font-size: 13px; font-weight: 600" class="num">74 готові</span>
+        <span style="display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 12px; border-radius: 14px; background: var(--err-bg); color: var(--err-fg); font-size: 13px; font-weight: 600" class="num">3 з помилками</span>
+        <span class="s2 num" style="font-size: 13px; display: flex; align-items: center">3 групи: ПДт-11, ПДт-12, ПДт-13 · ПДт-12 з підгрупами</span>
+        <div style="flex: 1"></div>
+        <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2)"><input type="checkbox" style="width: 16px; height: 16px; accent-color: #1F3A5F">Показувати лише помилки</label>
+      </div>
+
+      <div role="table" aria-label="Попередній перегляд імпорту" style="background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden">
+        <div class="tr th" role="row"><span>Рядок</span><span><select aria-label="Стовпець A"><option>Група</option></select></span><span><select aria-label="Стовпець B"><option>Прізвище</option></select></span><span><select aria-label="Стовпець C"><option>Ім’я</option></select></span><span><select aria-label="Стовпець D"><option>По батькові</option></select></span><span><select aria-label="Стовпець E"><option>Підгрупа</option></select></span><span>Перевірка</span></div>
+        <div class="tr" role="row"><span>14</span><span>ПДт-11</span><span>Гнатюк</span><span>Софія</span><span>Ігорівна</span><span class="muted">—</span><span style="color: var(--ok); gap: 6px"><svg class="ic" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"></path></svg>Готово</span></div>
+        <div class="tr er" role="row"><span>27</span><span class="bad">ПДт-14</span><span>Прокопенко</span><span>Віталій</span><span>Олегович</span><span class="muted">—</span><span style="color: var(--err-fg); font-weight: 500">Групи ПДт-14 немає. <button type="button" style="margin-left: 6px; border: 0; background: none; padding: 0; font: inherit; color: var(--accent); text-decoration: underline; cursor: pointer">Створити</button></span></div>
+        <div class="tr" role="row"><span>28</span><span>ПДт-12</span><span>Андрієнко</span><span>Богдан</span><span>Сергійович</span><span class="num">1</span><span style="color: var(--ok); gap: 6px"><svg class="ic" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"></path></svg>Готово</span></div>
+        <div class="tr er" role="row"><span>41</span><span>ПДт-12</span><span>Коваленко</span><span>Анна</span><span>Петрівна</span><span class="num">1</span><span style="color: var(--err-fg); font-weight: 500">Можливий дубль рядка 39</span></div>
+        <div class="tr" role="row"><span>42</span><span>ПДт-12</span><span>Кравець</span><span>Юлія</span><span>Андріївна</span><span class="num">1</span><span style="color: var(--ok); gap: 6px"><svg class="ic" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"></path></svg>Готово</span></div>
+        <div class="tr er" role="row"><span>56</span><span>ПДт-12</span><span>Савчук</span><span class="bad">порожньо</span><span>Миколаївна</span><span class="bad num">3</span><span style="color: var(--err-fg); font-weight: 500">Немає імені · підгрупа лише 1 або 2</span></div>
+        <div class="tr" role="row" style="border-bottom: 0"><span>57</span><span>ПДт-12</span><span>Сидоренко</span><span>Владислав</span><span>Іванович</span><span class="num">2</span><span style="color: var(--ok); gap: 6px"><svg class="ic" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"></path></svg>Готово</span></div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 12px; margin-top: auto">
+        <a href="#" class="btn">Назад</a>
+        <div style="flex: 1"></div>
+        <span class="muted" style="font-size: 13px">Рядки з помилками не імпортуються</span>
+        <button type="button" class="btn btn-p">Імпортувати 74 студенти</button>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

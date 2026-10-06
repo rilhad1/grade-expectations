@@ -1,20 +1,22 @@
 import type { GradeEntry, LessonDetailDto, RosterEntry } from '@ge/shared';
-import { Box, ButtonBase, Chip, IconButton, Menu, MenuItem, Typography } from '@mui/material';
+import { Box, ButtonBase, Menu, MenuItem, Typography } from '@mui/material';
 import { useRef, useState } from 'react';
 
 import { uk } from '../../shared/i18n/uk';
+import { GradeChip } from '../../shared/ui/GradeChip';
+import { StatusChip } from '../../shared/ui/StatusChip';
 
-import { gradeLabel, gradeTone, toggleAbsent } from './model';
+import { gradeLabel, toggleAbsent } from './model';
 
 type Status = RosterEntry['attendance'];
 const STATUSES: Status[] = ['PRESENT', 'ABSENT', 'EXCUSED', 'LATE'];
 const LONG_PRESS_MS = 450;
 
-const statusStyle: Record<Status, { bg: string; fg: string }> = {
-  PRESENT: { bg: 'transparent', fg: 'text.primary' },
-  ABSENT: { bg: '#f3d9d6', fg: '#8c2f27' },
-  EXCUSED: { bg: '#f6e7c8', fg: '#7a5200' },
-  LATE: { bg: '#d8e5f5', fg: '#1d4e89' },
+const rowBg: Record<Status, string> = {
+  PRESENT: 'background.paper',
+  ABSENT: 'ge.att.absent.row',
+  EXCUSED: 'ge.att.excused.row',
+  LATE: 'background.paper',
 };
 
 /**
@@ -39,8 +41,8 @@ export function RosterRow({
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressed = useRef(false);
-  const style = statusStyle[entry.attendance];
   const fullName = `${entry.lastName} ${entry.firstName}`;
+  const away = entry.attendance === 'ABSENT' || entry.attendance === 'EXCUSED';
 
   const start = (target: HTMLElement) => {
     longPressed.current = false;
@@ -61,10 +63,11 @@ export function RosterRow({
         alignItems: 'center',
         gap: 1,
         minHeight: 60,
-        px: 1,
+        pl: 1,
+        pr: 1.5,
         borderBottom: 1,
         borderColor: 'divider',
-        bgcolor: style.bg,
+        bgcolor: rowBg[entry.attendance],
       }}
     >
       <ButtonBase
@@ -93,69 +96,66 @@ export function RosterRow({
         }}
         sx={{
           flexGrow: 1,
+          minWidth: 0,
           justifyContent: 'flex-start',
           textAlign: 'left',
-          minHeight: 56,
+          minHeight: 60,
           borderRadius: '6px',
-          px: 1,
-          gap: 1.5,
+          px: 0.5,
+          gap: 1,
         }}
       >
-        <Typography sx={{ width: 24, color: 'text.secondary', fontVariantNumeric: 'tabular-nums' }}>
+        <Typography
+          className="tnum"
+          sx={{ width: 22, textAlign: 'right', fontSize: 13, color: 'ge.text3', flexShrink: 0 }}
+        >
           {index}
         </Typography>
-        <Typography sx={{ flexGrow: 1, fontSize: 17, color: style.fg }}>{fullName}</Typography>
-        {entry.attendance !== 'PRESENT' && (
-          <Chip
-            size="small"
-            label={uk.lesson.attendanceShort[entry.attendance]}
-            sx={{
-              fontWeight: 700,
-              bgcolor: 'transparent',
-              color: style.fg,
-              border: 1,
-              borderColor: style.fg,
-            }}
-          />
-        )}
+        <Typography
+          noWrap
+          sx={{
+            flexGrow: 1,
+            minWidth: 0,
+            fontSize: 16,
+            color: away ? 'text.secondary' : 'text.primary',
+          }}
+        >
+          {fullName}
+        </Typography>
+        <StatusChip status={entry.attendance} />
       </ButtonBase>
 
-      <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
-        {entry.grades.map((g) => {
-          const tone = gradeTone(scale, g.value);
-          return (
-            <Chip
-              key={g.id}
-              clickable
-              label={gradeLabel(scale, g.value)}
-              onClick={() => {
-                onEditGrade(g);
-              }}
-              aria-label={`${uk.lesson.gradeKinds[g.kind]} ${gradeLabel(scale, g.value)}`}
-              sx={{
-                fontVariantNumeric: 'tabular-nums',
-                fontWeight: 600,
-                minWidth: 40,
-                bgcolor: tone === 'low' ? '#f3d9d6' : tone === 'high' ? '#d9ecd9' : undefined,
-              }}
-            />
-          );
-        })}
-        <IconButton
+      <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexShrink: 0 }}>
+        {entry.grades.map((g) => (
+          <ButtonBase
+            key={g.id}
+            onClick={() => {
+              onEditGrade(g);
+            }}
+            aria-label={`${uk.lesson.gradeKinds[g.kind]} ${gradeLabel(scale, g.value)}`}
+            sx={{ borderRadius: '6px', minWidth: 30 }}
+          >
+            <GradeChip value={g.value} scale={scale} />
+          </ButtonBase>
+        ))}
+        <ButtonBase
           aria-label={uk.lesson.addGradeFor(fullName)}
           onClick={onAddGrade}
           sx={{
-            width: 48,
-            height: 48,
-            fontSize: 14,
-            fontWeight: 700,
+            height: 44,
+            px: 1.25,
             border: 1,
-            borderColor: 'divider',
-            borderRadius: '8px',
+            borderColor: 'ge.line2',
+            borderRadius: '6px',
+            bgcolor: 'background.paper',
+            color: 'primary.main',
+            fontSize: 14,
+            fontWeight: 600,
+            whiteSpace: 'nowrap',
           }}
         >
-          +
-        </IconButton>
+          {uk.lesson.addGrade}
+        </ButtonBase>
       </Box>
 
       <Menu
@@ -164,6 +164,7 @@ export function RosterRow({
         onClose={() => {
           setAnchor(null);
         }}
+        slotProps={{ paper: { sx: { width: 260 } } }}
       >
         {STATUSES.map((s) => (
           <MenuItem
@@ -173,8 +174,9 @@ export function RosterRow({
               onAttendance(s);
               setAnchor(null);
             }}
-            sx={{ minHeight: 48 }}
+            sx={{ minHeight: 48, gap: 1.5 }}
           >
+            <StatusChip status={s} present />
             {uk.lesson.attendance[s]}
           </MenuItem>
         ))}

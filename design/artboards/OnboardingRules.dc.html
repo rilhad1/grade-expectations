@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Онбординг викладача — крок 2</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ge{--bg:#F7F5F0;--surface:#FFFFFF;--surface-2:#FBFAF7;--sunken:#F1EEE7;--line:#E4E0D6;--line-2:#D3CEC2;--text:#1F2328;--text-2:#4E545B;--text-3:#676C73;--accent:#1F3A5F;--accent-soft:#E7EDF4;--accent-line:#B9C8DA;--ok:#2E6A3E;--ok-bg:#E5F1E8;font-family:'Golos Text',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.45;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+.ge *{box-sizing:border-box}
+.ge h1,.ge h2,.ge h3,.ge p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:44px;padding:0 18px;border-radius:6px;border:1px solid var(--line-2);background:var(--surface);color:var(--text);font:inherit;font-weight:500;cursor:pointer;white-space:nowrap;text-decoration:none}
+.btn-p{background:var(--accent);border-color:var(--accent);color:#FFFFFF;font-weight:600}
+.seg{display:grid;padding:3px;gap:3px;background:var(--sunken);border:1px solid var(--line-2);border-radius:8px}
+.seg button{height:36px;border:0;border-radius:6px;background:transparent;font:inherit;font-size:13px;font-weight:500;color:var(--text-2);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--surface);color:var(--text);box-shadow:0 0 0 1px var(--line-2);font-weight:600}
+.tab{display:flex;align-items:center;gap:8px;height:40px;padding:0 14px;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;background:transparent;font:inherit;font-weight:500;color:var(--text-2);cursor:pointer}
+.tab[aria-selected=true]{border-bottom-color:var(--accent);color:var(--text);font-weight:600}
+.tab i{width:8px;height:8px;border-radius:2px}
+.wt{display:grid;grid-template-columns:minmax(0,1fr) 128px;align-items:center;min-height:48px;border-bottom:1px solid var(--line)}
+.stepper{display:grid;grid-template-columns:36px 1fr 36px;height:36px;border:1px solid var(--line-2);border-radius:6px;overflow:hidden;background:var(--surface)}
+.stepper button{border:0;background:var(--surface-2);font:inherit;font-size:16px;color:var(--text-2);cursor:pointer}
+.stepper span{display:flex;align-items:center;justify-content:center;font-weight:600;font-variant-numeric:tabular-nums;border-left:1px solid var(--line);border-right:1px solid var(--line)}
+.g{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:28px;padding:0 6px;border-radius:6px;font-weight:600;font-variant-numeric:tabular-nums;background:var(--sunken)}
+.muted{color:var(--text-3)}.s2{color:var(--text-2)}
+</style>
+</helmet>
+<div class="ge" style="width: 1440px; height: 900px; display: flex; flex-direction: column">
+  <header style="height: 64px; display: flex; align-items: center; gap: 16px; padding: 0 40px; border-bottom: 1px solid var(--line); background: var(--surface)">
+    <div aria-hidden="true" style="width: 28px; height: 28px; border-radius: 6px; background: var(--accent); display: flex; flex-direction: column; justify-content: center; gap: 3px; padding: 0 7px"><i style="display: block; height: 2px; background: #FFFFFF"></i><i style="display: block; height: 2px; width: 70%; background: #FFFFFF"></i><i style="display: block; height: 2px; width: 45%; background: #FFFFFF"></i></div>
+    <span style="font-weight: 600">Grade Expectations</span>
+    <div style="flex: 1"></div>
+    <div style="display: flex; align-items: center; gap: 10px; width: 280px"><span class="num s2" style="font-size: 13px; white-space: nowrap">Крок 2 з 2</span><span role="progressbar" aria-valuenow="2" aria-valuemin="0" aria-valuemax="2" style="flex: 1; height: 6px; border-radius: 3px; background: var(--sunken); overflow: hidden"><i style="display: block; width: 100%; height: 100%; background: var(--accent)"></i></span></div>
+    <button type="button" class="btn" style="height: 36px; border-color: transparent; color: var(--text-2)">Пропустити крок</button>
+  </header>
+
+  <main style="flex: 1; display: flex; justify-content: center; padding: 40px">
+    <div style="width: 1000px; display: flex; flex-direction: column; gap: 24px">
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <h1 style="font-size: 28px; line-height: 36px; font-weight: 600; letter-spacing: -0.015em">Як ви оцінюєте?</h1>
+        <p class="s2" style="font-size: 16px">За цими правилами журнал підкаже оцінку за рубіжну атестацію. Остаточну оцінку завжди ставите ви. Змінити можна будь-коли в «Моїх дисциплінах».</p>
+      </div>
+
+      <div role="tablist" aria-label="Дисципліна" style="display: flex; gap: 4px; border-bottom: 1px solid var(--line-2)">
+        <button type="button" role="tab" aria-selected="true" class="tab"><i style="background: #4C6A92"></i>Інформатика</button>
+        <button type="button" role="tab" aria-selected="false" class="tab"><i style="background: #3D7A72"></i>Метрологія ІОС</button>
+        <button type="button" role="tab" aria-selected="false" class="tab"><i style="background: #7A5C8C"></i>Основи програмування</button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 24px; align-items: start">
+        <div style="background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 18px">
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <span id="scl" style="font-size: 13px; font-weight: 600; color: var(--text-2)">Шкала</span>
+            <div class="seg" role="group" aria-labelledby="scl" style="grid-template-columns: repeat(4, minmax(0, 1fr))"><button type="button" aria-pressed="true">12-бальна</button><button type="button" aria-pressed="false">5-бальна</button><button type="button" aria-pressed="false">100-бальна</button><button type="button" aria-pressed="false">зарах. / не зарах.</button></div>
+          </div>
+          <div style="display: flex; flex-direction: column">
+            <span style="font-size: 13px; font-weight: 600; color: var(--text-2); margin-bottom: 4px">Наскільки важить кожен тип оцінки</span>
+            <div class="wt"><span>Контрольна робота</span><div class="stepper"><button type="button" aria-label="Менше">−</button><span>×2</span><button type="button" aria-label="Більше">+</button></div></div>
+            <div class="wt"><span>Практична, лабораторна, самостійна</span><div class="stepper"><button type="button" aria-label="Менше">−</button><span>×1</span><button type="button" aria-label="Більше">+</button></div></div>
+            <div class="wt" style="border-bottom: 0"><span>Усна відповідь</span><div class="stepper"><button type="button" aria-label="Менше">−</button><span>×0,5</span><button type="button" aria-label="Більше">+</button></div></div>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px">
+            <label style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 13px; font-weight: 600; color: var(--text-2)">Мінімум оцінок за період</span><input value="3" style="height: 40px; border: 1px solid var(--line-2); border-radius: 6px; padding: 0 12px; font: inherit; font-variant-numeric: tabular-nums; color: var(--text)"></label>
+            <label style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 13px; font-weight: 600; color: var(--text-2)">«н/а», якщо неповажних пропусків понад</span><span style="display: flex; align-items: center; gap: 8px"><input value="30" style="width: 100%; height: 40px; border: 1px solid var(--line-2); border-radius: 6px; padding: 0 12px; font: inherit; font-variant-numeric: tabular-nums; color: var(--text)"><span class="muted">%</span></span></label>
+          </div>
+          <label style="display: flex; align-items: center; gap: 10px; color: var(--text-2)"><input type="checkbox" checked style="width: 18px; height: 18px; accent-color: #1F3A5F">Застосувати ці правила до всіх моїх дисциплін</label>
+        </div>
+
+        <aside style="background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: flex; flex-direction: column; gap: 14px">
+          <h2 style="font-size: 15px; font-weight: 600">Приклад розрахунку</h2>
+          <div style="display: flex; flex-direction: column; gap: 8px; font-size: 13px">
+            <div style="display: flex; justify-content: space-between; align-items: center"><span class="s2">Практична ×1</span><span style="display: flex; gap: 4px"><span class="g">9</span><span class="g" style="background: #E6F2E9">10</span><span class="g">8</span></span></div>
+            <div style="display: flex; justify-content: space-between; align-items: center"><span class="s2">Контрольна ×2</span><span style="display: flex; gap: 4px"><span class="g">7</span></span></div>
+            <div style="display: flex; justify-content: space-between; align-items: center"><span class="s2">Усна ×0,5</span><span style="display: flex; gap: 4px"><span class="g" style="background: #E6F2E9">11</span></span></div>
+            <div style="display: flex; justify-content: space-between; align-items: center"><span class="s2">Неповажні пропуски</span><span class="num">1 з 10 · 10%</span></div>
+          </div>
+          <div style="height: 1px; background: var(--line)"></div>
+          <div style="display: flex; align-items: baseline; justify-content: space-between"><span style="font-weight: 600">Пропонована оцінка</span><span class="num" style="font-size: 28px; font-weight: 600">8</span></div>
+          <p class="num muted" style="font-size: 12px">(9 + 10 + 8 + 7×2 + 11×0,5) ÷ 5,5 = 8,45 → 8</p>
+        </aside>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; gap: 12px; margin-top: auto">
+        <a href="OnboardingTeacher.dc.html" class="btn">Назад</a>
+        <a href="Main.dc.html" class="btn btn-p">Готово — до «Сьогодні»</a>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

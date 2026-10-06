@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Журнал — десктоп</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="{{rootStyle}}">
+  <dc-import name="Sidebar" role="teacher" active="journal" height="1040" user="Бойчук В.В." hint-size="248px,1040px"></dc-import>
+  <div style="display: flex; flex-direction: column; min-width: 0">
+    <dc-import name="Topbar" sync="syncing" hint-size="1192px,64px"></dc-import>
+    <main style="padding: 20px 32px; display: flex; flex-direction: column; gap: 12px; min-width: 0">
+      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap">
+        <h1 style="margin: 0 8px 0 0; font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -0.01em">Журнал</h1>
+        <button type="button" aria-haspopup="listbox" style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 10px 0 12px; border: 1px solid var(--line-2); border-radius: 6px; background: var(--surface); font: inherit; font-weight: 500; color: var(--text); cursor: pointer"><span style="width: 8px; height: 8px; border-radius: 2px; background: #4C6A92"></span>Інформатика<svg viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: none; stroke: var(--text-3); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round"><path d="m6 9 6 6 6-6"></path></svg></button>
+        <div role="group" aria-label="Група" style="display: inline-flex; padding: 2px; gap: 2px; background: var(--sunken); border: 1px solid var(--line-2); border-radius: 8px">
+          <button type="button" aria-pressed="false" style="height: 30px; padding: 0 12px; border: 0; border-radius: 6px; background: transparent; font: inherit; font-size: 13px; font-weight: 500; color: var(--text-2); cursor: pointer">ПДт-11</button>
+          <button type="button" aria-pressed="true" style="height: 30px; padding: 0 12px; border: 0; border-radius: 6px; background: var(--surface); box-shadow: 0 0 0 1px var(--line-2); font: inherit; font-size: 13px; font-weight: 600; color: var(--text); cursor: pointer">ПДт-12</button>
+          <button type="button" aria-pressed="false" style="height: 30px; padding: 0 12px; border: 0; border-radius: 6px; background: transparent; font: inherit; font-size: 13px; font-weight: 500; color: var(--text-2); cursor: pointer">ПДт-13</button>
+        </div>
+        <button type="button" aria-haspopup="listbox" style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 10px 0 12px; border: 1px solid var(--line-2); border-radius: 6px; background: var(--surface); font: inherit; color: var(--text); cursor: pointer; font-variant-numeric: tabular-nums"><span style="color: var(--text-3); font-size: 13px">Період</span>1 вер – 15 жовт<svg viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: none; stroke: var(--text-3); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round"><path d="m6 9 6 6 6-6"></path></svg></button>
+        <div style="flex: 1"></div>
+        <span style="display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-3)">
+          <span>Л — лекція</span><span>ПР — практична</span><span>ЛР — лабораторна</span><span>КР — контрольна</span>
+        </span>
+        <button type="button" style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 14px; border: 1px solid var(--line-2); border-radius: 6px; background: var(--surface); font: inherit; font-weight: 500; color: var(--text); cursor: pointer">Експорт</button>
+      </div>
+      <div style="display: flex; gap: 16px; font-size: 12px; color: var(--text-3)">
+        <span><b style="color: var(--text-2); font-weight: 600">← → ↑ ↓</b> перехід</span>
+        <span><b style="color: var(--text-2); font-weight: 600">1–12</b> оцінка</span>
+        <span><b style="color: var(--text-2); font-weight: 600">Н</b> відсутній</span>
+        <span><b style="color: var(--text-2); font-weight: 600">Enter</b> далі</span>
+        <span><b style="color: var(--text-2); font-weight: 600">Delete</b> очистити</span>
+        <span>Клік на прізвище — картка студента</span>
+      </div>
+
+      <div tabindex="0" role="grid" aria-label="Журнал: Інформатика, ПДт-12" onKeyDown="{{onKey}}" style="border: 1px solid var(--line); border-radius: 10px; background: var(--surface); outline: none; width: 1078px; max-width: 100%">
+        <div style="{{gridRow}};height: 24px; border-bottom: 1px solid var(--line)">
+          <span style="grid-column: 1 / span 2; border-right: 1px solid var(--line)"></span>
+          <span style="grid-column: span 11; display: flex; align-items: center; gap: 6px; padding: 0 10px; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 600; border-right: 2px solid var(--accent); white-space: nowrap; overflow: hidden">1-ша рубіжна атестація · 1 вер – 8 жовт</span>
+          <span style="grid-column: span 2; display: flex; align-items: center; padding: 0 8px; background: var(--sunken); color: var(--text-3); font-size: 11px; font-weight: 600; white-space: nowrap; overflow: hidden">ДКР · до 20 лист.</span>
+          <span style="grid-column: span 3; border-left: 1px solid var(--line-2); background: var(--surface-2)"></span>
+        </div>
+        <div style="{{gridRow}};height: 34px; border-bottom: 1px solid var(--line-2); font-size: 12px; color: var(--text-3)">
+          <span style="display: flex; align-items: center; justify-content: center">№</span>
+          <span style="display: flex; align-items: center; padding: 0 8px; border-right: 1px solid var(--line); font-weight: 600; color: var(--text-2)">Студент</span>
+          <sc-for list="{{cols}}" as="c" hint-placeholder-count="13">
+            <span style="{{c.style}}"><b style="{{c.typeStyle}}">{{c.type}}</b><span>{{c.label}}</span></span>
+          </sc-for>
+          <span style="display: flex; align-items: center; justify-content: center; border-left: 1px solid var(--line-2); background: var(--surface-2); font-weight: 600; color: var(--text-2)">Сер.</span>
+          <span style="display: flex; align-items: center; justify-content: center; border-left: 1px solid var(--line); background: var(--surface-2); font-weight: 600; color: var(--text-2)">Пропуски</span>
+          <span style="display: flex; flex-direction: column; align-items: center; justify-content: center; border-left: 1px solid var(--line); background: var(--surface-2); font-weight: 600; color: var(--text-2); line-height: 1.1"><span>Прогноз</span><span style="font-size: 10px; font-weight: 500">1-ша руб.</span></span>
+        </div>
+        <sc-for list="{{rows}}" as="r" hint-placeholder-count="25">
+          <div style="{{r.style}}">
+            <span style="display: flex; align-items: center; justify-content: center; font-size: 12px; color: var(--text-3); font-variant-numeric: tabular-nums">{{r.no}}</span>
+            <button type="button" tabindex="-1" onClick="{{r.open}}" style="{{r.nameStyle}}">{{r.short}}</button>
+            <sc-for list="{{r.cells}}" as="c" hint-placeholder-count="13">
+              <button type="button" tabindex="-1" role="gridcell" aria-label="{{c.aria}}" onClick="{{c.pick}}" style="{{c.style}}">
+                <span>{{c.text}}</span>
+                <sc-if value="{{c.editing}}" hint-placeholder-val="{{ false }}"><span style="width: 1px; height: 15px; background: var(--text); margin-left: 1px"></span></sc-if>
+                <sc-if value="{{c.pending}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="position: absolute; right: 3px; top: 3px; width: 5px; height: 5px; border-radius: 3px; background: #B57A12"></span></sc-if>
+                <sc-if value="{{c.error}}" hint-placeholder-val="{{ false }}"><span aria-hidden="true" style="position: absolute; right: 2px; top: 2px; width: 11px; height: 11px; border-radius: 6px; background: var(--err); color: #FFFFFF; font-size: 9px; font-weight: 700; line-height: 11px; text-align: center">!</span></sc-if>
+                <sc-if value="{{c.tip}}" hint-placeholder-val="{{ false }}">
+                  <span role="tooltip" style="position: absolute; left: 50%; bottom: 34px; transform: translateX(-50%); z-index: 6; background: #1F2328; color: #FFFFFF; font-size: 12px; font-weight: 500; line-height: 16px; padding: 6px 10px; border-radius: 6px; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,.18); text-align: left">Практична · 7 вер. · виставлено з телефона<br><span style="color: #B9BEC5">Бойчук В.В. · 10:47</span></span>
+                </sc-if>
+              </button>
+            </sc-for>
+            <span style="{{r.avgStyle}}">{{r.avg}}</span>
+            <span style="display: flex; align-items: center; justify-content: center; gap: 3px; border-left: 1px solid var(--line); font-size: 13px; font-variant-numeric: tabular-nums">{{r.abs}}<span style="color: var(--text-3); font-size: 12px">{{r.excused}}</span></span>
+            <span style="display: flex; align-items: center; justify-content: center; border-left: 1px solid var(--line)"><span style="{{r.progStyle}}">{{r.prog}}</span></span>
+          </div>
+        </sc-for>
+      </div>
+    </main>
+  </div>
+
+  <div role="alertdialog" aria-labelledby="cf-t" style="position: absolute; right: 24px; bottom: 24px; width: 380px; background: var(--surface); border: 1px solid var(--line-2); border-radius: 10px; box-shadow: 0 12px 32px rgba(31,35,40,.16); padding: 16px; display: flex; flex-direction: column; gap: 12px; z-index: 8">
+    <div style="display: flex; gap: 10px; align-items: flex-start">
+      <svg viewBox="0 0 24 24" style="width: 20px; height: 20px; flex: none; fill: none; stroke: #B57A12; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round"><path d="M12 3 2 20h20z"></path><path d="M12 10v4M12 17h.01"></path></svg>
+      <div style="display: flex; flex-direction: column; gap: 2px">
+        <span id="cf-t" style="font-weight: 600">Цю оцінку змінено на іншому пристрої</span>
+        <span style="font-size: 13px; color: var(--text-2); font-variant-numeric: tabular-nums">Олійник Катерина · КР · 28 вер.</span>
+      </div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; font-size: 13px">
+      <div style="padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px"><div style="color: var(--text-3)">Моя · цей комп’ютер</div><div style="font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums">9</div></div>
+      <div style="padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px"><div style="color: var(--text-3)">Нова · телефон, 10:39</div><div style="font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums">8</div></div>
+    </div>
+    <div style="display: flex; gap: 8px; justify-content: flex-end">
+      <button type="button" style="height: 36px; padding: 0 14px; border: 1px solid var(--line-2); border-radius: 6px; background: var(--surface); font: inherit; font-weight: 500; color: var(--text); cursor: pointer">Залишити мою</button>
+      <button type="button" style="height: 36px; padding: 0 14px; border: 1px solid var(--accent); border-radius: 6px; background: var(--accent); font: inherit; font-weight: 500; color: #FFFFFF; cursor: pointer">Взяти нову</button>
+    </div>
+  </div>
+
+  <sc-if value="{{panelOpen}}" hint-placeholder-val="{{ false }}">
+    <button type="button" aria-label="Закрити картку" onClick="{{closePanel}}" style="position: absolute; inset: 0; z-index: 20; border: 0; background: rgba(20,22,26,.32); cursor: pointer"></button>
+    <aside role="dialog" aria-labelledby="sp-name" style="position: absolute; top: 0; right: 0; bottom: 0; width: 520px; z-index: 21; background: var(--surface); border-left: 1px solid var(--line-2); box-shadow: -12px 0 32px rgba(31,35,40,.12); display: flex; flex-direction: column">
+      <div style="padding: 20px 24px; border-bottom: 1px solid var(--line); display: flex; gap: 14px; align-items: flex-start">
+        <span aria-hidden="true" style="width: 48px; height: 48px; border-radius: 24px; background: var(--sunken); border: 1px solid var(--line-2); display: flex; align-items: center; justify-content: center; font-weight: 600; color: var(--text-2); flex: none">{{pInitials}}</span>
+        <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+          <h2 id="sp-name" style="margin: 0; font-size: 20px; line-height: 26px; font-weight: 600">{{pName}}</h2>
+          <div style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2)">
+            <span>ПДт-12 · 1 курс</span>
+            <span style="display: inline-flex; align-items: center; height: 22px; padding: 0 8px; border-radius: 11px; background: #E5F1E8; color: #2E6A3E; font-size: 12px; font-weight: 600">Навчається</span>
+            <span>з 1 вер. 2026</span>
+          </div>
+        </div>
+        <button type="button" aria-label="Закрити" onClick="{{closePanel}}" style="width: 36px; height: 36px; border: 0; border-radius: 6px; background: transparent; color: var(--text-2); cursor: pointer; display: flex; align-items: center; justify-content: center"><svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round"><path d="M6 6l12 12M18 6 6 18"></path></svg></button>
+      </div>
+      <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 24px">
+        <section style="display: flex; flex-direction: column; gap: 10px">
+          <h3 style="margin: 0; font-size: 14px; font-weight: 600">Зведення по дисциплінах</h3>
+          <div style="border: 1px solid var(--line); border-radius: 10px; overflow: hidden; font-size: 13px">
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) 52px 88px 68px 52px; gap: 8px; padding: 8px 12px; background: var(--surface-2); color: var(--text-3); font-size: 12px; font-weight: 600; border-bottom: 1px solid var(--line)"><span>Дисципліна</span><span style="text-align: right">Сер.</span><span style="text-align: right">Пропуски</span><span style="text-align: right">1-ша руб.</span><span style="text-align: right">ДКР</span></div>
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) 52px 88px 68px 52px; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--line); align-items: center; font-variant-numeric: tabular-nums"><span style="display: flex; align-items: center; gap: 6px; font-weight: 500"><i style="width: 8px; height: 8px; border-radius: 2px; background: #4C6A92"></i>Інформатика</span><span style="text-align: right; font-weight: 600">{{pAvg}}</span><span style="text-align: right">{{pAbs}}</span><span style="text-align: right; color: var(--text-3)">прогн. {{pProg}}</span><span style="text-align: right; color: var(--text-3)">—</span></div>
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) 52px 88px 68px 52px; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--line); align-items: center; font-variant-numeric: tabular-nums"><span style="display: flex; align-items: center; gap: 6px; font-weight: 500"><i style="width: 8px; height: 8px; border-radius: 2px; background: #7A5C8C"></i>Основи програмування</span><span style="text-align: right; font-weight: 600">10,1</span><span style="text-align: right">1 <span style="color: var(--text-3)">(1 пов.)</span></span><span style="text-align: right; color: var(--text-3)">прогн. 10</span><span style="text-align: right; color: var(--text-3)">—</span></div>
+            <div style="display: grid; grid-template-columns: minmax(0, 1fr) 52px 88px 68px 52px; gap: 8px; padding: 10px 12px; align-items: center; font-variant-numeric: tabular-nums"><span style="display: flex; align-items: center; gap: 6px; font-weight: 500"><i style="width: 8px; height: 8px; border-radius: 2px; background: #94701F"></i>Вища математика</span><span style="text-align: right; font-weight: 600">8,2</span><span style="text-align: right">3 <span style="color: var(--text-3)">(2 пов.)</span></span><span style="text-align: right; color: var(--text-3)">прогн. 8</span><span style="text-align: right; color: var(--text-3)">—</span></div>
+          </div>
+          <p style="margin: 0; font-size: 12px; color: var(--text-3)">Результати модулів з’являться після закриття періоду 1-ї рубіжної атестації (8 жовт.).</p>
+        </section>
+
+        <section style="display: flex; flex-direction: column; gap: 10px">
+          <h3 style="margin: 0; font-size: 14px; font-weight: 600">Останні оцінки і пропуски</h3>
+          <div style="display: flex; flex-direction: column">
+            <div style="display: grid; grid-template-columns: 72px minmax(0, 1fr) 40px; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13px"><span style="color: var(--text-3); font-variant-numeric: tabular-nums">5 жовт.</span><span>Інформатика · практична</span><span style="justify-self: end; min-width: 28px; height: 24px; border-radius: 4px; background: #E6F2E9; font-weight: 600; display: flex; align-items: center; justify-content: center; font-variant-numeric: tabular-nums">10</span></div>
+            <div style="display: grid; grid-template-columns: 72px minmax(0, 1fr) 40px; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13px"><span style="color: var(--text-3); font-variant-numeric: tabular-nums">2 жовт.</span><span>Вища математика · практична</span><span style="justify-self: end; min-width: 28px; height: 24px; border-radius: 4px; background: #F7E4E1; color: #8F2B22; font-weight: 700; display: flex; align-items: center; justify-content: center">н</span></div>
+            <div style="display: grid; grid-template-columns: 72px minmax(0, 1fr) 40px; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13px"><span style="color: var(--text-3); font-variant-numeric: tabular-nums">30 вер.</span><span>Основи програмування · лабораторна</span><span style="justify-self: end; min-width: 28px; height: 24px; border-radius: 4px; background: #E6F2E9; font-weight: 600; display: flex; align-items: center; justify-content: center; font-variant-numeric: tabular-nums">11</span></div>
+            <div style="display: grid; grid-template-columns: 72px minmax(0, 1fr) 40px; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13px"><span style="color: var(--text-3); font-variant-numeric: tabular-nums">28 вер.</span><span>Інформатика · контрольна</span><span style="justify-self: end; min-width: 28px; height: 24px; border-radius: 4px; background: #F1EEE7; font-weight: 600; display: flex; align-items: center; justify-content: center; font-variant-numeric: tabular-nums">9</span></div>
+            <div style="display: grid; grid-template-columns: 72px minmax(0, 1fr) 40px; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); font-size: 13px"><span style="color: var(--text-3); font-variant-numeric: tabular-nums">25 вер.</span><span>Вища математика · лекція <span style="color: var(--text-3)">· довідка</span></span><span style="justify-self: end; min-width: 28px; height: 24px; border-radius: 4px; background: #F9ECD4; color: #7A4A06; font-weight: 700; display: flex; align-items: center; justify-content: center">нп</span></div>
+            <div style="display: grid; grid-template-columns: 72px minmax(0, 1fr) 40px; gap: 12px; align-items: center; padding: 8px 0; font-size: 13px"><span style="color: var(--text-3); font-variant-numeric: tabular-nums">23 вер.</span><span>Основи програмування · самостійна</span><span style="justify-self: end; min-width: 28px; height: 24px; border-radius: 4px; background: #E6F2E9; font-weight: 600; display: flex; align-items: center; justify-content: center; font-variant-numeric: tabular-nums">10</span></div>
+          </div>
+        </section>
+
+        <section style="display: flex; flex-direction: column; gap: 8px">
+          <label for="sp-note" style="font-size: 14px; font-weight: 600">Нотатка викладача</label>
+          <textarea id="sp-note" rows="3" style="border: 1px solid var(--line-2); border-radius: 6px; padding: 10px 12px; font: inherit; font-size: 14px; color: var(--text); background: var(--surface); resize: vertical">Готується до олімпіади з інформатики, просила додаткові задачі на рекурсію.</textarea>
+          <span style="font-size: 12px; color: var(--text-3)">Нотатку бачите лише ви</span>
+        </section>
+      </div>
+    </aside>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"panel":{"editor":"int","default":0},"$preview":{"width":1440,"height":1040}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const NAMES = ['Андрієнко Богдан','Бондар Максим','Васильчук Дарина','Гнатюк Софія','Гончаренко Тарас','Дмитренко Вікторія','Єременко Артем','Захарчук Марія','Іваницький Назар','Коваленко Анна','Кравець Юлія','Лисенко Роман','Мазур Христина','Мельник Остап','Нестерук Ілля','Олійник Катерина','Павлюк Денис','Романюк Аліна','Савчук Олена','Сидоренко Владислав','Ткачук Ірина','Федорів Марко','Харченко Діана','Шевчук Андрій','Яковенко Поліна'];
+    const MEANS = [8.4,3.6,9.1,6.2,7.0,9.6,6.6,8.8,7.4,10.0,8.0,5.8,9.2,7.2,6.8,8.4,6.3,10.4,5.4,4.9,10.6,7.6,11.0,6.9,9.0];
+    const ABS = { 2: 0.24, 4: 0.16, 19: 0.3, 20: 0.18 };
+    const COLS = [['3','вер','Л'],['7','вер','ПР'],['10','вер','Л'],['14','вер','ПР'],['17','вер','Л'],['21','вер','ЛР'],['24','вер','Л'],['28','вер','КР'],['1','жовт','Л'],['5','жовт','ПР'],['8','жовт','КР'],['12','жовт','Л'],['15','жовт','ПР']];
+    const HELD = 10;
+    const TODAY = { 2: 'н', 4: 'нп', 17: 'з', 20: 'н', 8: 9, 10: 10, 14: 7, 19: 4, 21: 11, 23: 12 };
+    const st = this.state || {};
+    const sel = st.sel || { r: 10, c: 9 };
+    const editing = st.editing !== undefined ? st.editing : true;
+    const edits = st.edits || {};
+    const panelProp = Number(this.props.panel ?? 0);
+    const panelFor = st.panelFor !== undefined ? st.panelFor : panelProp;
+
+    const rng = (seed) => { let a = seed; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; };
+    const base = [];
+    for (let i = 0; i < 25; i++) {
+      const no = i + 1, R = rng(no * 7919 + 13), mean = MEANS[i], ar = ABS[no] || 0.05;
+      const row = [];
+      for (let c = 0; c < COLS.length; c++) {
+        if (c >= HELD) { row.push(''); continue; }
+        if (c === 9) { row.push(TODAY[no] !== undefined ? TODAY[no] : ''); continue; }
+        const t = COLS[c][2], x = R();
+        if (x < ar) row.push(R() < 0.35 ? 'нп' : 'н');
+        else if (x < ar + 0.025) row.push('з');
+        else if (t !== 'Л' || R() < 0.16) row.push(Math.max(1, Math.min(12, Math.round(mean + (R() - 0.5) * 3.2))));
+        else row.push('');
+      }
+      base.push(row);
+    }
+    base[13][1] = 7;
+    base[15][7] = 9;
+
+    const val = (r, c) => { const k = r + '-' + c; return edits[k] !== undefined ? edits[k] : base[r - 1][c]; };
+    const fmt = (n) => n.toFixed(1).replace('.', ',');
+    const gridCols = 'display:grid;grid-template-columns:36px 196px repeat(13, 46px) 64px 92px 92px';
+    const cellBg = (v) => typeof v === 'number' ? (v <= 3 ? '#FBECE9' : v >= 10 ? '#E6F2E9' : 'transparent') : v === 'н' ? '#F7E4E1' : v === 'нп' ? '#F9ECD4' : v === 'з' ? '#E3EBF7' : 'transparent';
+    const cellFg = (v) => v === 'н' ? '#8F2B22' : v === 'нп' ? '#7A4A06' : v === 'з' ? '#1E4D8A' : 'var(--text)';
+
+    const cols = COLS.map(([d, m, t], c) => ({
+      label: d + ' ' + m,
+      type: t,
+      typeStyle: 'font-size:10px;font-weight:700;' + (t === 'КР' ? 'color:var(--accent);' : 'color:var(--text-2);'),
+      style: 'display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.15;font-size:11px;font-variant-numeric:tabular-nums;border-left:1px solid var(--line);' + (c >= HELD ? 'background:var(--surface-2);' : '') + (c === 9 ? 'background:var(--accent-soft);color:var(--accent);font-weight:600;' : '') + (c === 10 ? 'border-right:2px solid var(--accent);' : '')
+    }));
+
+    const rows = NAMES.map((name, i) => {
+      const r = i + 1;
+      const parts = name.split(' ');
+      const short = parts[0] + ' ' + parts[1].slice(0, 1) + '.';
+      let sum = 0, cnt = 0, n = 0, np = 0;
+      const cells = COLS.map((col, c) => {
+        const v = val(r, c);
+        if (typeof v === 'number') { sum += v; cnt++; }
+        if (v === 'н') n++;
+        if (v === 'нп') np++;
+        const isSel = sel.r === r && sel.c === c;
+        const isErr = r === 21 && c === 9 && edits['21-9'] === undefined;
+        const isConflict = r === 16 && c === 7;
+        const isPending = r === 19 && c === 9;
+        let ring = '';
+        if (isSel) ring = 'box-shadow:inset 0 0 0 2px var(--accent);z-index:2;';
+        else if (isErr) ring = 'box-shadow:inset 0 0 0 1.5px var(--err);';
+        else if (isConflict) ring = 'box-shadow:inset 0 0 0 1.5px #B57A12;';
+        const bg = isSel && editing ? 'var(--surface)' : (c >= HELD ? 'var(--surface-2)' : cellBg(v));
+        return {
+          text: v === '' ? '' : String(v),
+          aria: name + ', ' + col[0] + ' ' + col[1] + ', ' + (v === '' ? 'порожньо' : v),
+          editing: isSel && editing,
+          pending: isPending,
+          error: isErr,
+          tip: r === 14 && c === 1,
+          pick: () => this.setState({ sel: { r, c }, editing: false, buf: '' }),
+          style: 'position:relative;display:flex;align-items:center;justify-content:center;height:30px;padding:0;border:0;border-left:1px solid var(--line);font:inherit;font-size:13px;font-variant-numeric:tabular-nums;cursor:cell;' + (typeof v === 'number' ? 'font-weight:500;' : 'font-weight:700;font-size:12px;') + 'color:' + cellFg(v) + ';background:' + bg + ';' + ring + (c === 10 ? 'border-right:2px solid var(--accent);' : '')
+        };
+      });
+      const avg = cnt ? sum / cnt : null;
+      const unexc = n / HELD;
+      const na = cnt < 3 || unexc > 0.3;
+      const prog = na ? 'н/а' : String(Math.floor(avg + 0.5));
+      const progN = na ? 0 : Math.floor(avg + 0.5);
+      const zebra = r % 2 === 0 ? 'background:var(--surface-2);' : '';
+      return {
+        no: r, short, cells,
+        avg: avg === null ? '—' : fmt(avg),
+        abs: String(n + np),
+        excused: np ? '(' + np + ' пов.)' : '',
+        prog,
+        progStyle: 'display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:22px;padding:0 6px;border-radius:4px;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;' + (na ? 'background:#FBF0DB;color:#7A4A06;' : progN <= 3 ? 'background:#FBECE9;' : progN >= 10 ? 'background:#E6F2E9;' : ''),
+        avgStyle: 'display:flex;align-items:center;justify-content:center;border-left:1px solid var(--line-2);font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;' + (avg !== null && avg < 4 ? 'color:#8F2B22;' : ''),
+        style: gridCols + ';height:30px;border-bottom:1px solid var(--line);' + zebra + (sel.r === r ? 'background:#F3F1EA;' : ''),
+        nameStyle: 'display:flex;align-items:center;height:30px;padding:0 8px;border:0;border-right:1px solid var(--line);background:transparent;font:inherit;font-size:13px;color:var(--text);text-align:left;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;' + (panelFor === r ? 'color:var(--accent);font-weight:600;' : ''),
+        open: () => this.setState({ panelFor: r }),
+        _avg: avg, _n: n, _np: np, _prog: prog
+      };
+    });
+
+    const onKey = (e) => {
+      const k = e.key;
+      let { r, c } = sel;
+      const move = (dr, dc) => { e.preventDefault(); this.setState({ sel: { r: Math.min(25, Math.max(1, r + dr)), c: Math.min(HELD - 1, Math.max(0, c + dc)) }, editing: false, buf: '' }); };
+      if (k === 'ArrowUp') return move(-1, 0);
+      if (k === 'ArrowDown' || k === 'Enter') return move(1, 0);
+      if (k === 'ArrowLeft') return move(0, -1);
+      if (k === 'ArrowRight' || k === 'Tab') return move(0, 1);
+      const key = r + '-' + c;
+      if (k === 'Delete' || k === 'Backspace') { e.preventDefault(); this.setState({ edits: Object.assign({}, edits, { [key]: '' }), editing: false, buf: '' }); return; }
+      if (k === 'н' || k === 'Н' || k === 'y' || k === 'Y') { e.preventDefault(); this.setState({ edits: Object.assign({}, edits, { [key]: 'н' }), editing: true, buf: '' }); return; }
+      if (/^[0-9]$/.test(k)) {
+        e.preventDefault();
+        const prev = st.buf || '';
+        let nv = Number(prev + k);
+        if (!(nv >= 1 && nv <= 12)) nv = Number(k);
+        if (nv < 1) return;
+        this.setState({ edits: Object.assign({}, edits, { [key]: nv }), editing: true, buf: prev === '' && k === '1' ? '1' : '' });
+      }
+    };
+
+    const p = panelFor ? rows[panelFor - 1] : null;
+    const pName = panelFor ? NAMES[panelFor - 1] : '';
+    return {
+      rootStyle: '--bg:#F7F5F0;--surface:#FFFFFF;--surface-2:#FBFAF7;--sunken:#F1EEE7;--line:#E4E0D6;--line-2:#D3CEC2;--text:#1F2328;--text-2:#4E545B;--text-3:#676C73;--accent:#1F3A5F;--accent-soft:#E7EDF4;--accent-line:#B9C8DA;--err:#A3352B;width:1440px;height:1040px;position:relative;overflow:hidden;display:grid;grid-template-columns:248px minmax(0,1fr);background:var(--bg);color:var(--text);font-family:\'Golos Text\',system-ui,-apple-system,sans-serif;font-size:14px;line-height:1.4;-webkit-font-smoothing:antialiased;box-sizing:border-box',
+      gridRow: gridCols,
+      cols, rows, onKey,
+      panelOpen: !!panelFor,
+      closePanel: () => this.setState({ panelFor: 0 }),
+      pName,
+      pInitials: pName ? pName.split(' ')[0][0] + pName.split(' ')[1][0] : '',
+      pAvg: p ? p.avg : '',
+      pAbs: p ? (p._n + p._np) + (p._np ? ' (' + p._np + ' пов.)' : '') : '',
+      pProg: p ? p._prog : ''
+    };
+  }
+}
+</script>
+</body>
+</html>

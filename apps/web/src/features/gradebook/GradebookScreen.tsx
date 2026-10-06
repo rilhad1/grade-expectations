@@ -1,27 +1,30 @@
 import type { GradebookDto } from '@ge/shared';
 import {
   Alert,
-  CircularProgress,
+  Box,
   List,
   ListItemButton,
-  ListItemText,
   MenuItem,
   Paper,
-  Stack,
   TextField,
   Typography,
   useMediaQuery,
   useTheme,
 } from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 
+import { q } from '../../api/queries';
+import { useCurrentSemester } from '../../app/SemesterSwitcher';
 import { uk } from '../../shared/i18n/uk';
 import { DisciplineDot } from '../../shared/ui/DisciplineDot';
 import { ErrorAlert } from '../../shared/ui/ErrorAlert';
+import { TableSkeleton } from '../../shared/ui/Skeletons';
 import { GradeSheet } from '../lesson/GradeSheet';
-import { defaultGradeKind, isValidGrade, scaleRange } from '../lesson/model';
+import { defaultGradeKind, gradeTone, isValidGrade, scaleRange } from '../lesson/model';
 
 import { GradebookGrid, type GridSelection } from './GradebookGrid';
+import { GradebookToolbar } from './GradebookToolbar';
 import { StudentPanel } from './StudentPanel';
 import { bufferIsFinal, interpretKey, moveSelection } from './model';
 import { useGradebook, type Range } from './useGradebook';
@@ -44,7 +47,19 @@ function periodOptions(data: GradebookDto | undefined) {
   return options;
 }
 
-export function GradebookScreen({ loadId }: { loadId: string }) {
+export function GradebookScreen({
+  loadId,
+  onPickLoad,
+}: {
+  loadId: string;
+  /** Перехід до журналу іншого навантаження (вибір дисципліни, групи, виду). */
+  onPickLoad?: (loadId: string) => void;
+}) {
+  const { semester } = useCurrentSemester();
+  const myLoads = useQuery({
+    ...q.loads(semester?.id ?? ''),
+    enabled: semester !== null && onPickLoad !== undefined,
+  });
   const theme = useTheme();
   const desktop = useMediaQuery(theme.breakpoints.up('md'));
   // Вибраний фільтр зберігає й власний діапазон: перелік періодів приходить разом із даними журналу
@@ -71,8 +86,7 @@ export function GradebookScreen({ loadId }: { loadId: string }) {
     setSelection({ row: 0, col: Math.max(0, Math.min(held, data.lessons.length - 1)) });
   }, [data]);
 
-  if (book.query.isPending)
-    return <CircularProgress sx={{ m: 4 }} aria-label={uk.common.loading} />;
+  if (book.query.isPending) return <TableSkeleton rows={8} cols={7} label={uk.common.loading} />;
   if (!data) return <ErrorAlert error={book.query.error} />;
 
   const scale = data.load.gradingRules.scale;
@@ -153,39 +167,52 @@ export function GradebookScreen({ loadId }: { loadId: string }) {
     }
   };
 
+  const periodSelect =
+    options.length > 1 ? (
+      <TextField
+        select
+        size="small"
+        label={uk.gradebook.period}
+        value={period.value}
+        onChange={(e) => {
+          const picked = options.find((o) => o.value === e.target.value);
+          if (picked) setPeriod({ value: picked.value, range: picked.range });
+        }}
+        sx={{ minWidth: 260, mb: onPickLoad ? 0 : 2 }}
+      >
+        {options.map((o) => (
+          <MenuItem key={o.value} value={o.value}>
+            {o.label}
+          </MenuItem>
+        ))}
+      </TextField>
+    ) : null;
+
   const mutationError = book.attendance.error ?? book.upsertGrade.error ?? book.clearGrade.error;
   const sheetCell = sheet ? sheet.student.cells[sheet.lessonId] : undefined;
   const sheetGrade = sheetCell?.grades.at(-1);
 
   return (
     <>
-      <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" sx={{ mb: 2 }}>
-        <Typography variant="h5" component="h1" sx={{ flexGrow: 1 }}>
-          <DisciplineDot color={data.load.discipline.color} size={12} />
-          {uk.gradebook.title}: {data.load.discipline.shortTitle} · {data.load.group.name}
-          {data.load.subgroup ? ` · ${data.load.subgroup.name}` : ''} ·{' '}
-          {uk.loads.kindsShort[data.load.kind]}
-        </Typography>
-        {options.length > 1 && (
-          <TextField
-            select
-            size="small"
-            label={uk.gradebook.period}
-            value={period.value}
-            onChange={(e) => {
-              const picked = options.find((o) => o.value === e.target.value);
-              if (picked) setPeriod({ value: picked.value, range: picked.range });
-            }}
-            sx={{ minWidth: 260 }}
-          >
-            {options.map((o) => (
-              <MenuItem key={o.value} value={o.value}>
-                {o.label}
-              </MenuItem>
-            ))}
-          </TextField>
-        )}
-      </Stack>
+      <Typography
+        variant="h5"
+        component="h1"
+        sx={{ mb: 1.5, display: 'flex', alignItems: 'center' }}
+      >
+        <DisciplineDot color={data.load.discipline.color} size={12} gap={1.25} />
+        {uk.gradebook.title}: {data.load.discipline.shortTitle} · {data.load.group.name}
+        {data.load.subgroup ? ` · ${data.load.subgroup.name}` : ''} ·{' '}
+        {uk.loads.kindsShort[data.load.kind]}
+      </Typography>
+      {onPickLoad && (
+        <GradebookToolbar
+          loads={myLoads.data ?? []}
+          currentId={loadId}
+          onPick={onPickLoad}
+          period={periodSelect}
+        />
+      )}
+      {!onPickLoad && periodSelect}
 
       <ErrorAlert error={mutationError} />
       {data.students.length === 0 && <Alert severity="info">{uk.gradebook.emptyStudents}</Alert>}
@@ -209,29 +236,65 @@ export function GradebookScreen({ loadId }: { loadId: string }) {
       )}
 
       {!desktop && (
-        <Paper variant="outlined">
+        <Paper variant="outlined" sx={{ overflow: 'hidden' }}>
           <List disablePadding>
-            {data.students.map((s) => {
-              const recent = data.lessons
-                .flatMap((l) => s.cells[l.id]?.grades.map((g) => g.value) ?? [])
-                .slice(-6);
+            {data.students.map((s, index) => {
+              const avg = s.summary.average;
+              const tone = avg === null ? 'none' : gradeTone(scale, Math.round(avg));
               return (
                 <ListItemButton
                   key={s.enrollmentId}
                   onClick={() => {
                     setPanel(s);
                   }}
-                  sx={{ minHeight: 56 }}
+                  sx={{ minHeight: 60, gap: 1.25, borderBottom: 1, borderColor: 'divider' }}
                 >
-                  <ListItemText
-                    primary={`${s.lastName} ${s.firstName}`}
-                    secondary={`${recent.join(', ') || uk.common.none} · ${uk.gradebook.average} ${s.summary.average === null ? uk.common.none : s.summary.average.toFixed(1).replace('.', ',')} · ${uk.gradebook.absences} ${s.summary.absences.unexcused} (${s.summary.absences.excused})`}
-                    slotProps={{
-                      primary: {
-                        sx: { color: s.summary.risk.length > 0 ? 'error.main' : undefined },
-                      },
+                  <Typography
+                    className="tnum"
+                    sx={{ width: 20, fontSize: 13, color: 'ge.text3', textAlign: 'right' }}
+                  >
+                    {index + 1}
+                  </Typography>
+                  <Typography
+                    noWrap
+                    sx={{ flex: 1, color: s.summary.risk.length > 0 ? 'ge.errFg' : 'text.primary' }}
+                  >
+                    {s.lastName} {s.firstName}
+                  </Typography>
+                  {s.summary.absences.unexcused > 0 && (
+                    <Typography
+                      className="tnum"
+                      sx={{
+                        fontSize: 14,
+                        color: s.summary.absencePercent > 30 ? 'ge.errFg' : 'text.secondary',
+                      }}
+                    >
+                      {s.summary.absences.unexcused} {uk.gradebook.absShort}
+                    </Typography>
+                  )}
+                  <Box
+                    component="span"
+                    className="tnum"
+                    sx={{
+                      minWidth: 40,
+                      height: 30,
+                      px: 0.75,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      borderRadius: '6px',
+                      fontSize: 15,
+                      fontWeight: 600,
+                      bgcolor:
+                        tone === 'low'
+                          ? 'ge.grade.low'
+                          : tone === 'high'
+                            ? 'ge.grade.high'
+                            : 'ge.sunken',
                     }}
-                  />
+                  >
+                    {avg === null ? uk.common.none : avg.toFixed(1).replace('.', ',')}
+                  </Box>
                 </ListItemButton>
               );
             })}

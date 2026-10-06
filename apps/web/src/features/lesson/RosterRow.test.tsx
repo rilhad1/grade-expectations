@@ -70,7 +70,7 @@ describe('RosterRow', () => {
     fireEvent.click(a.row); // клік після утримання ігнорується
     expect(a.onAttendance).not.toHaveBeenCalled();
 
-    fireEvent.click(screen.getByRole('menuitem', { name: uk.lesson.attendance.EXCUSED }));
+    fireEvent.click(screen.getByRole('menuitem', { name: `нп ${uk.lesson.attendance.EXCUSED}` }));
     expect(a.onAttendance).toHaveBeenCalledWith('EXCUSED');
   });
 

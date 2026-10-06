@@ -3,6 +3,7 @@ import {
   Alert,
   Box,
   Button,
+  ButtonBase,
   Dialog,
   DialogActions,
   DialogContent,
@@ -21,6 +22,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import { q } from '../../api/queries';
+import { disciplinePalette } from '../../app/theme';
 import { uk } from '../../shared/i18n/uk';
 import { DisciplineDot } from '../../shared/ui/DisciplineDot';
 import { ErrorAlert } from '../../shared/ui/ErrorAlert';
@@ -106,16 +108,31 @@ function DisciplineDialog({
                 </MenuItem>
               ))}
             </TextField>
-            <TextField
-              label={d.color}
-              type="color"
-              value={color}
-              onChange={(e) => {
-                setColor(e.target.value);
-              }}
-              sx={{ width: 140 }}
-              slotProps={{ inputLabel: { shrink: true } }}
-            />
+            <Box
+              role="radiogroup"
+              aria-label={d.color}
+              sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75, alignItems: 'center', flex: 1 }}
+            >
+              {[...new Set([color, ...disciplinePalette])].map((c, i) => (
+                <ButtonBase
+                  key={c}
+                  role="radio"
+                  aria-checked={c === color}
+                  aria-label={`${d.color} ${String(i + 1)}`}
+                  onClick={() => {
+                    setColor(c);
+                  }}
+                  sx={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: '6px',
+                    bgcolor: c,
+                    border: '2px solid',
+                    borderColor: c === color ? 'text.primary' : 'transparent',
+                  }}
+                />
+              ))}
+            </Box>
           </Stack>
         </Stack>
         <ErrorAlert error={save.error} />

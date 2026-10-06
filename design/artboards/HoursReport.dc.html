@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Вичитка годин</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ge{--bg:#F7F5F0;--surface:#FFFFFF;--surface-2:#FBFAF7;--sunken:#F1EEE7;--line:#E4E0D6;--line-2:#D3CEC2;--text:#1F2328;--text-2:#4E545B;--text-3:#676C73;--accent:#1F3A5F;--accent-soft:#E7EDF4;--accent-line:#B9C8DA;--ok:#2E6A3E;--ok-bg:#E5F1E8;--warn:#7A4A06;--warn-bg:#FBF0DB;font-family:'Golos Text',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.4;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+.ge *{box-sizing:border-box}
+.ge h1,.ge h2,.ge p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 14px;border-radius:6px;border:1px solid var(--line-2);background:var(--surface);color:var(--text);font:inherit;font-weight:500;cursor:pointer;white-space:nowrap}
+.ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.seg{display:inline-flex;padding:2px;gap:2px;background:var(--sunken);border:1px solid var(--line-2);border-radius:8px}
+.seg button{height:30px;padding:0 12px;border:0;border-radius:6px;background:transparent;font:inherit;font-size:13px;font-weight:500;color:var(--text-2);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--surface);color:var(--text);box-shadow:0 0 0 1px var(--line-2);font-weight:600}
+.stat{padding:16px;display:flex;flex-direction:column;gap:2px}
+.stat span{font-size:12px;font-weight:600;color:var(--text-3)}
+.stat b{font-size:26px;font-weight:600;font-variant-numeric:tabular-nums}
+.tr{display:grid;grid-template-columns:minmax(0,1.6fr) 110px 120px 72px 88px 88px 96px minmax(0,1fr);gap:12px;align-items:center;min-height:44px;padding:0 16px;border-bottom:1px solid var(--line)}
+.th{min-height:40px;background:var(--surface-2);font-size:12px;font-weight:600;color:var(--text-3)}
+.r{text-align:right;font-variant-numeric:tabular-nums}
+.dl{display:flex;align-items:center;gap:8px;font-weight:500}
+.dl i{width:8px;height:8px;border-radius:2px;flex:none}
+.bar{height:6px;border-radius:3px;background:var(--sunken);overflow:hidden;position:relative}
+.bar i{display:block;height:100%;border-radius:3px}
+.bar u{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--text-2)}
+.muted{color:var(--text-3)}.s2{color:var(--text-2)}
+</style>
+</helmet>
+<div class="ge" style="width: 1440px; height: 1000px; display: grid; grid-template-columns: 248px minmax(0, 1fr); overflow: hidden">
+  <dc-import name="Sidebar" role="teacher" active="hours" height="1000" user="Бойчук В.В." hint-size="248px,1000px"></dc-import>
+  <div style="display: flex; flex-direction: column; min-width: 0">
+    <dc-import name="Topbar" sync="ok" hint-size="1192px,64px"></dc-import>
+    <main style="padding: 20px 32px; display: flex; flex-direction: column; gap: 16px; min-width: 0">
+      <div style="display: flex; align-items: center; gap: 12px">
+        <h1 style="font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -0.01em; margin-right: 8px">Вичитка годин</h1>
+        <div class="seg" role="group" aria-label="Період"><button type="button" aria-pressed="true">Семестр</button><button type="button" aria-pressed="false">Вересень</button><button type="button" aria-pressed="false">Жовтень</button></div>
+        <span class="muted num" style="font-size: 13px">станом на 5 жовт. 2026</span>
+        <div style="flex: 1"></div>
+        <button type="button" class="btn"><svg class="ic" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg>Експорт CSV</button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px">
+        <div class="card stat"><span>План на семестр</span><b>306 <small class="muted" style="font-size: 14px; font-weight: 500">год</small></b></div>
+        <div class="card stat"><span>Вичитано</span><b>186 <small class="muted" style="font-size: 14px; font-weight: 500">год · 61%</small></b></div>
+        <div class="card stat"><span>Прогноз до 28 груд.</span><b>302 <small class="muted" style="font-size: 14px; font-weight: 500">год</small></b></div>
+        <div class="card stat" style="background: var(--warn-bg); border-color: #EBD3A4"><span style="color: var(--warn)">Не вистачає</span><b style="color: var(--warn)">−4 <small style="font-size: 14px; font-weight: 500">год · Метрологія</small></b></div>
+      </div>
+
+      <div class="card" role="table" aria-label="Вичитка годин за навантаженнями" style="overflow: hidden">
+        <div class="tr th" role="row"><span>Дисципліна</span><span>Група</span><span>Вид</span><span class="r">План</span><span class="r">Вичитано</span><span class="r">Прогноз</span><span class="r">Відхилення</span><span>Хід</span></div>
+        <div class="tr" role="row"><span class="dl"><i style="background: #4C6A92"></i>Інформатика</span><span>ПДт-11</span><span class="s2">Л · ПР · ЛР</span><span class="r">72</span><span class="r">48</span><span class="r">72</span><span class="r muted">0</span><span class="bar"><i style="width: 66.7%; background: #4C6A92"></i><u style="left: 62%"></u></span></div>
+        <div class="tr" role="row"><span class="dl"><i style="background: #4C6A92"></i>Інформатика</span><span>ПДт-12</span><span class="s2">Л · ПР · ЛР</span><span class="r">72</span><span class="r">46</span><span class="r">72</span><span class="r muted">0</span><span class="bar"><i style="width: 63.9%; background: #4C6A92"></i><u style="left: 62%"></u></span></div>
+        <div class="tr" role="row"><span class="dl"><i style="background: #4C6A92"></i>Інформатика</span><span>ПДт-13</span><span class="s2">Л · ПР · ЛР</span><span class="r">72</span><span class="r">44</span><span class="r">72</span><span class="r muted">0</span><span class="bar"><i style="width: 61.1%; background: #4C6A92"></i><u style="left: 62%"></u></span></div>
+        <div class="tr" role="row" style="background: #FEFAF1"><span class="dl"><i style="background: #3D7A72"></i>Метрологія ІОС</span><span>ПДт-13</span><span class="s2">Л · ПР</span><span class="r">54</span><span class="r">26</span><span class="r">50</span><span class="r" style="color: var(--warn); font-weight: 600">−4</span><span class="bar"><i style="width: 48.1%; background: #3D7A72"></i><u style="left: 55%"></u></span></div>
+        <div class="tr" role="row"><span class="dl"><i style="background: #7A5C8C"></i>Основи програмування</span><span>ПДт-12 · 1 пгр.</span><span class="s2">ЛР</span><span class="r">18</span><span class="r">12</span><span class="r">18</span><span class="r muted">0</span><span class="bar"><i style="width: 66.7%; background: #7A5C8C"></i><u style="left: 62%"></u></span></div>
+        <div class="tr" role="row"><span class="dl"><i style="background: #7A5C8C"></i>Основи програмування</span><span>ПДт-12 · 2 пгр.</span><span class="s2">ЛР</span><span class="r">18</span><span class="r">10</span><span class="r">18</span><span class="r muted">0</span><span class="bar"><i style="width: 55.6%; background: #7A5C8C"></i><u style="left: 62%"></u></span></div>
+        <div class="tr" role="row" style="border-bottom: 0; background: var(--surface-2); font-weight: 600"><span>Разом</span><span></span><span></span><span class="r">306</span><span class="r">186</span><span class="r">302</span><span class="r" style="color: var(--warn)">−4</span><span></span></div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 20px; font-size: 12px; color: var(--text-2)">
+        <span style="display: flex; align-items: center; gap: 6px"><i style="width: 2px; height: 12px; background: var(--text-2)"></i>де мало б бути станом на сьогодні</span>
+        <span>Прогноз — вичитані години плюс заплановані заняття до кінця семестру з урахуванням канікул.</span>
+      </div>
+
+      <div class="card" style="padding: 14px 16px; display: flex; align-items: center; gap: 12px">
+        <svg class="ic" viewBox="0 0 24 24" style="width: 18px; height: 18px; color: var(--warn)"><path d="M12 3 2 20h20z"></path><path d="M12 10v4M12 17h.01"></path></svg>
+        <span style="flex: 1"><b style="font-weight: 600">Метрологія ІОС, ПДт-13:</b> <span class="s2">2 заняття скасовано у вересні. Щоб вичитати план, потрібні ще 2 пари до 18 груд.</span></span>
+        <a href="Requests.dc.html" style="font-size: 13px; color: var(--accent); font-weight: 500">Запросити додаткову пару</a>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

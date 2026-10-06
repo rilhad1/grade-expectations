@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Мої дисципліни</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ge{--bg:#F7F5F0;--surface:#FFFFFF;--surface-2:#FBFAF7;--sunken:#F1EEE7;--line:#E4E0D6;--line-2:#D3CEC2;--text:#1F2328;--text-2:#4E545B;--text-3:#676C73;--accent:#1F3A5F;--accent-soft:#E7EDF4;--accent-line:#B9C8DA;--ok:#2E6A3E;--ok-bg:#E5F1E8;--warn:#7A4A06;font-family:'Golos Text',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.4;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+.ge *{box-sizing:border-box}
+.ge h1,.ge h2,.ge h3,.ge p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 14px;border-radius:6px;border:1px solid var(--line-2);background:var(--surface);color:var(--text);font:inherit;font-weight:500;cursor:pointer;white-space:nowrap}
+.ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.cf{display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:4px;font-size:11px;font-weight:600;letter-spacing:.02em}
+.cf-e{background:#1F3A5F;color:#FFFFFF}
+.cf-z{background:var(--surface);color:#1F3A5F;border:1px solid #1F3A5F}
+.ld{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border:0;border-bottom:1px solid var(--line);background:transparent;width:100%;text-align:left;font:inherit;color:var(--text);cursor:pointer}
+.bar{height:4px;border-radius:2px;background:var(--sunken);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:2px}
+.pr{display:grid;grid-template-columns:28px 32px minmax(0,1fr) 52px 48px 120px;align-items:center;gap:8px;min-height:40px;padding:0 12px;border-bottom:1px solid var(--line);background:var(--surface)}
+.grip{color:var(--text-3);display:flex;justify-content:center;cursor:grab}
+.ty{display:inline-flex;align-items:center;justify-content:center;height:20px;min-width:30px;padding:0 6px;border-radius:4px;font-size:11px;font-weight:700;background:var(--sunken);color:var(--text-2)}
+.lbl{font-size:13px;font-weight:500;color:var(--text-2)}
+.field{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:40px}
+.inp{height:32px;border:1px solid var(--line-2);border-radius:6px;background:var(--surface);padding:0 10px;font:inherit;color:var(--text);font-variant-numeric:tabular-nums}
+.muted{color:var(--text-3)}.s2{color:var(--text-2)}
+</style>
+</helmet>
+<div class="ge" style="width: 1440px; height: 1100px; display: grid; grid-template-columns: 248px minmax(0, 1fr); overflow: hidden">
+  <dc-import name="Sidebar" role="teacher" active="disc" height="1100" user="Бойчук В.В." hint-size="248px,1100px"></dc-import>
+  <div style="display: flex; flex-direction: column; min-width: 0">
+    <dc-import name="Topbar" sync="ok" hint-size="1192px,64px"></dc-import>
+    <main style="padding: 20px 32px; display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 24px; min-width: 0; align-items: start">
+      <section style="display: flex; flex-direction: column; gap: 12px">
+        <h1 style="font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -0.01em">Мої дисципліни</h1>
+        <p class="s2 num" style="font-size: 13px">I семестр · 5 навантажень · 186 з 306 год</p>
+        <div class="card" style="overflow: hidden">
+          <div style="padding: 10px 14px 6px; display: flex; align-items: center; gap: 8px; font-weight: 600"><i style="width: 8px; height: 8px; border-radius: 2px; background: #4C6A92"></i>Інформатика<span class="cf cf-e" style="margin-left: auto">Екзамен</span></div>
+          <button type="button" class="ld"><span style="display: flex; justify-content: space-between"><span>ПДт-11</span><span class="num s2" style="font-size: 13px">48 з 72 год</span></span><span class="bar"><i style="width: 66.7%; background: #4C6A92"></i></span></button>
+          <button type="button" class="ld" aria-current="true" style="background: var(--accent-soft)"><span style="display: flex; justify-content: space-between"><span style="font-weight: 600; color: var(--accent)">ПДт-12</span><span class="num s2" style="font-size: 13px">46 з 72 год</span></span><span class="bar" style="background: #D6DFEA"><i style="width: 63.9%; background: #4C6A92"></i></span></button>
+          <button type="button" class="ld"><span style="display: flex; justify-content: space-between"><span>ПДт-13</span><span class="num s2" style="font-size: 13px">44 з 72 год</span></span><span class="bar"><i style="width: 61.1%; background: #4C6A92"></i></span></button>
+          <div style="padding: 12px 14px 6px; display: flex; align-items: center; gap: 8px; font-weight: 600"><i style="width: 8px; height: 8px; border-radius: 2px; background: #3D7A72"></i>Метрологія ІОС<span class="cf cf-z" style="margin-left: auto">Залік</span></div>
+          <button type="button" class="ld"><span style="display: flex; justify-content: space-between"><span>ПДт-13</span><span class="num" style="font-size: 13px; color: var(--warn); font-weight: 500">26 з 54 год · −4</span></span><span class="bar"><i style="width: 48.1%; background: #3D7A72"></i></span></button>
+          <div style="padding: 12px 14px 6px; display: flex; align-items: center; gap: 8px; font-weight: 600"><i style="width: 8px; height: 8px; border-radius: 2px; background: #7A5C8C"></i>Основи програмування<span class="cf cf-z" style="margin-left: auto">Залік</span></div>
+          <button type="button" class="ld" style="border-bottom: 0"><span style="display: flex; justify-content: space-between"><span>ПДт-12 · ЛР, 2 підгрупи</span><span class="num s2" style="font-size: 13px">22 з 36 год</span></span><span class="bar"><i style="width: 61.1%; background: #7A5C8C"></i></span></button>
+        </div>
+      </section>
+
+      <section style="display: flex; flex-direction: column; gap: 16px; min-width: 0; padding-top: 4px">
+        <div style="display: flex; align-items: center; gap: 12px">
+          <h2 style="font-size: 20px; line-height: 28px; font-weight: 600; display: flex; align-items: center; gap: 10px"><i style="width: 10px; height: 10px; border-radius: 3px; background: #4C6A92"></i>Інформатика · ПДт-12</h2>
+          <span class="cf cf-e">Екзамен</span>
+          <span class="s2 num" style="font-size: 13px">72 год: Л 24 · ПР 36 · ЛР 12 · вичитано 46</span>
+          <div style="flex: 1"></div>
+          <a href="Gradebook.dc.html" style="font-size: 13px; color: var(--accent); font-weight: 500">Відкрити журнал</a>
+        </div>
+
+        <div style="display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 20px; align-items: start">
+          <div class="card" style="overflow: visible">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--line)">
+              <h3 style="font-size: 15px; font-weight: 600">Тематичний план <span class="muted num" style="font-weight: 500">· 36 тем</span></h3>
+              <div style="display: flex; gap: 8px"><button type="button" class="btn" style="height: 32px; font-size: 13px">Імпорт з Excel</button><button type="button" class="btn" style="height: 32px; font-size: 13px"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>Тема</button></div>
+            </div>
+            <div class="pr" style="min-height: 32px; background: var(--surface-2); font-size: 12px; font-weight: 600; color: var(--text-3)"><span></span><span>№</span><span>Тема</span><span>Вид</span><span style="text-align: right">Год</span><span>Заняття</span></div>
+            <div class="pr"><span class="grip" aria-hidden="true">⋮⋮</span><span class="num muted">1</span><span>Інформація та інформаційні процеси</span><span class="ty">Л</span><span class="num" style="text-align: right">2</span><span class="num" style="color: var(--ok); font-size: 13px">✓ 3 вер.</span></div>
+            <div class="pr"><span class="grip" aria-hidden="true">⋮⋮</span><span class="num muted">2</span><span>Системи числення</span><span class="ty">ПР</span><span class="num" style="text-align: right">2</span><span class="num" style="color: var(--ok); font-size: 13px">✓ 7 вер.</span></div>
+            <div class="pr"><span class="grip" aria-hidden="true">⋮⋮</span><span class="num muted">3</span><span>Кодування даних</span><span class="ty">Л</span><span class="num" style="text-align: right">2</span><span class="num" style="color: var(--ok); font-size: 13px">✓ 10 вер.</span></div>
+            <div class="pr"><span class="grip" aria-hidden="true">⋮⋮</span><span class="num muted">4</span><span>Кодування текстових і графічних даних</span><span class="ty">ПР</span><span class="num" style="text-align: right">2</span><span class="num" style="color: var(--ok); font-size: 13px">✓ 14 вер.</span></div>
+            <div class="pr"><span class="grip" aria-hidden="true">⋮⋮</span><span class="num muted">5</span><span>Апаратне забезпечення комп’ютера</span><span class="ty">Л</span><span class="num" style="text-align: right">2</span><span class="num" style="color: var(--ok); font-size: 13px">✓ 17 вер.</span></div>
+            <div class="pr"><span class="grip" aria-hidden="true">⋮⋮</span><span class="num muted">6</span><span>Операційні системи і файлова система</span><span class="ty">ЛР</span><span class="num" style="text-align: right">2</span><span class="num" style="color: var(--ok); font-size: 13px">✓ 21 вер.</span></div>
+            <div class="pr"><span class="grip" aria-hidden="true">⋮⋮</span><span class="num muted">7</span><span>Програмне забезпечення</span><span class="ty">Л</span><span class="num" style="text-align: right">2</span><span class="num" style="color: var(--ok); font-size: 13px">✓ 24 вер.</span></div>
+            <div class="pr"><span class="grip" aria-hidden="true">⋮⋮</span><span class="num muted">8</span><span>Контрольна робота № 1</span><span class="ty" style="background: var(--accent-soft); color: var(--accent)">КР</span><span class="num" style="text-align: right">2</span><span class="num" style="color: var(--ok); font-size: 13px">✓ 28 вер.</span></div>
+            <div class="pr"><span class="grip" aria-hidden="true">⋮⋮</span><span class="num muted">9</span><span>Поняття алгоритму</span><span class="ty">Л</span><span class="num" style="text-align: right">2</span><span class="num" style="color: var(--ok); font-size: 13px">✓ 1 жовт.</span></div>
+            <div class="pr" style="background: var(--accent-soft)"><span class="grip" aria-hidden="true">⋮⋮</span><span class="num muted">10</span><span style="font-weight: 600">Алгоритми та їх властивості</span><span class="ty">ПР</span><span class="num" style="text-align: right">2</span><span class="num" style="color: var(--accent); font-size: 13px; font-weight: 600">сьогодні, 2 пара</span></div>
+            <div class="pr"><span class="grip" aria-hidden="true">⋮⋮</span><span class="num muted">11</span><span>Рубіжна контрольна робота</span><span class="ty" style="background: var(--accent-soft); color: var(--accent)">КР</span><span class="num" style="text-align: right">2</span><span class="num s2" style="font-size: 13px">чт, 8 жовт.</span></div>
+            <div style="position: relative; height: 0"><div aria-hidden="true" style="position: absolute; left: 12px; right: 12px; top: -1px; height: 2px; background: var(--accent); border-radius: 1px"></div></div>
+            <div class="pr"><span class="grip" aria-hidden="true">⋮⋮</span><span class="num muted">12</span><span>Способи опису алгоритмів</span><span class="ty">Л</span><span class="num" style="text-align: right">2</span><span class="num s2" style="font-size: 13px">пн, 12 жовт.</span></div>
+            <div class="pr" style="position: relative; z-index: 2; margin: 0 -6px; border: 1px solid var(--accent-line); border-radius: 6px; box-shadow: 0 10px 24px rgba(31,35,40,.14); transform: translateY(-14px) rotate(-0.4deg); background: var(--surface)"><span class="grip" aria-hidden="true" style="color: var(--accent)">⋮⋮</span><span class="num muted">13</span><span style="font-weight: 500">Блок-схеми алгоритмів</span><span class="ty">ПР</span><span class="num" style="text-align: right">2</span><span class="num s2" style="font-size: 13px">чт, 15 жовт.</span></div>
+            <div class="pr"><span class="grip" aria-hidden="true">⋮⋮</span><span class="num muted">14</span><span>Лінійні алгоритми</span><span class="ty">ЛР</span><span class="num" style="text-align: right">2</span><span class="num s2" style="font-size: 13px">пн, 19 жовт.</span></div>
+            <div class="pr" style="border-bottom: 0; color: var(--text-3)"><span></span><span></span><span>ще 22 теми</span><span></span><span></span><span></span></div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 16px">
+            <div class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 6px">
+              <h3 style="font-size: 15px; font-weight: 600; margin-bottom: 6px">Правила оцінювання</h3>
+              <div class="field"><label class="lbl" for="sc">Шкала</label><select id="sc" class="inp" style="width: 150px"><option>12-бальна</option><option>5-бальна</option><option>100-бальна</option><option>зараховано / не зараховано</option></select></div>
+              <div style="font-size: 12px; font-weight: 600; color: var(--text-3); margin-top: 8px">Ваги типів оцінок</div>
+              <div class="field"><label class="lbl" for="w1">Контрольна</label><input id="w1" class="inp" value="2" style="width: 64px; text-align: right"></div>
+              <div class="field"><label class="lbl" for="w2">Практична</label><input id="w2" class="inp" value="1" style="width: 64px; text-align: right"></div>
+              <div class="field"><label class="lbl" for="w3">Лабораторна</label><input id="w3" class="inp" value="1" style="width: 64px; text-align: right"></div>
+              <div class="field"><label class="lbl" for="w4">Самостійна</label><input id="w4" class="inp" value="1" style="width: 64px; text-align: right"></div>
+              <div class="field"><label class="lbl" for="w5">Усна</label><input id="w5" class="inp" value="0,5" style="width: 64px; text-align: right"></div>
+              <div style="height: 1px; background: var(--line); margin: 8px 0"></div>
+              <div class="field"><label class="lbl" for="mn">Мінімум оцінок за період</label><input id="mn" class="inp" value="3" style="width: 64px; text-align: right"></div>
+              <div class="field"><label class="lbl" for="th">Поріг пропусків для «н/а»</label><span style="display: flex; align-items: center; gap: 6px"><input id="th" class="inp" value="30" style="width: 64px; text-align: right"><span class="muted">%</span></span></div>
+              <p class="muted" style="font-size: 12px; margin-top: 4px">Враховуються лише неповажні пропуски «н». Округлення до цілого: 8,5 → 9.</p>
+            </div>
+            <div class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 10px">
+              <h3 style="font-size: 15px; font-weight: 600">Контрольні роботи</h3>
+              <div style="display: flex; align-items: center; gap: 10px; font-size: 13px"><span class="ty" style="background: var(--accent-soft); color: var(--accent)">КР</span><span style="flex: 1">Контрольна № 1</span><span class="num s2">28 вер. · сер. 7,9</span></div>
+              <div style="display: flex; align-items: center; gap: 10px; font-size: 13px"><span class="ty" style="background: var(--accent-soft); color: var(--accent)">КР</span><span style="flex: 1">Рубіжна контрольна</span><span class="num s2">8 жовт.</span></div>
+              <div style="display: flex; align-items: center; gap: 10px; font-size: 13px"><span class="ty" style="background: var(--accent-soft); color: var(--accent)">ДКР</span><span style="flex: 1">Директорська контрольна</span><span class="num muted">16–20 лист.</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

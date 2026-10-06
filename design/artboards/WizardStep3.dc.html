@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Новий семестр — крок 3</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ge{--bg:#F7F5F0;--surface:#FFFFFF;--surface-2:#FBFAF7;--sunken:#F1EEE7;--line:#E4E0D6;--line-2:#D3CEC2;--text:#1F2328;--text-2:#4E545B;--text-3:#676C73;--accent:#1F3A5F;--accent-soft:#E7EDF4;--accent-line:#B9C8DA;--ok:#2E6A3E;--ok-bg:#E5F1E8;--warn:#7A4A06;--warn-bg:#FBF0DB;font-family:'Golos Text',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.4;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+.ge *{box-sizing:border-box}
+.ge h1,.ge h2,.ge h3,.ge p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border-radius:6px;border:1px solid var(--line-2);background:var(--surface);color:var(--text);font:inherit;font-weight:500;cursor:pointer;white-space:nowrap;text-decoration:none}
+.btn-p{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
+.ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.stp{display:flex;align-items:center;gap:12px}
+.stp li{display:flex;align-items:center;gap:10px;list-style:none;font-size:14px;color:var(--text-3);font-weight:500}
+.stp li i{width:28px;height:28px;border-radius:14px;border:1.5px solid var(--line-2);display:flex;align-items:center;justify-content:center;font-style:normal;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;background:var(--surface)}
+.stp li[aria-current=step]{color:var(--text);font-weight:600}
+.stp li[aria-current=step] i{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
+.stp li.done{color:var(--text-2)}
+.stp li.done i{background:var(--ok-bg);border-color:var(--ok-bg);color:var(--ok)}
+.stp .ln{flex:1;height:1px;background:var(--line-2);min-width:24px}
+.tr{display:grid;grid-template-columns:24px minmax(0,1.4fr) 90px minmax(0,1.3fr) 48px 48px 48px 128px;gap:12px;align-items:center;min-height:46px;padding:0 16px;border-bottom:1px solid var(--line)}
+.th{min-height:40px;background:var(--surface-2);font-size:12px;font-weight:600;color:var(--text-3)}
+.cb{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--line-2);display:inline-flex;align-items:center;justify-content:center;background:var(--surface)}
+.cb.on{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
+.cf{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 8px 0 10px;border-radius:6px;border:1px solid var(--line-2);background:var(--surface);font:inherit;font-size:13px;color:var(--text);cursor:pointer;justify-content:space-between;width:100%}
+.dl{display:flex;align-items:center;gap:8px}
+.dl i{width:8px;height:8px;border-radius:2px;flex:none}
+.h{text-align:right;font-variant-numeric:tabular-nums}
+.muted{color:var(--text-3)}.s2{color:var(--text-2)}
+</style>
+</helmet>
+<div class="ge" style="width: 1440px; height: 1000px; display: grid; grid-template-columns: 248px minmax(0, 1fr); overflow: hidden">
+  <dc-import name="Sidebar" role="moderator" active="semesters" height="1000" user="Левицька Г.М." hint-size="248px,1000px"></dc-import>
+  <div style="display: flex; flex-direction: column; min-width: 0; position: relative">
+    <dc-import name="Topbar" sync="ok" hint-size="1192px,64px"></dc-import>
+    <main style="padding: 20px 32px 100px; display: flex; flex-direction: column; gap: 18px; min-width: 0">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <span class="muted" style="font-size: 13px">Семестри · Новий семестр</span>
+        <h1 style="font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -0.01em">I семестр 2027/2028</h1>
+      </div>
+      <ol class="stp" aria-label="Кроки майстра" style="margin: 0; padding: 0">
+        <li class="done"><i>✓</i>Дати і періоди</li><span class="ln"></span>
+        <li class="done"><i>✓</i>Групи і контингент</li><span class="ln"></span>
+        <li aria-current="step"><i>3</i>Навантаження</li><span class="ln"></span>
+        <li><i>4</i>Шаблон розкладу</li>
+      </ol>
+
+      <div class="card" style="padding: 14px 16px; display: flex; align-items: center; gap: 14px">
+        <svg class="ic" viewBox="0 0 24 24" style="width: 20px; height: 20px; color: var(--accent)"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg>
+        <div style="flex: 1; display: flex; flex-direction: column">
+          <b style="font-weight: 600">Скопійовано з того самого семестру минулого року</b>
+          <span class="s2 num" style="font-size: 13px">I семестр 2026/2027 · 131 навантаження · групи замінено на наступний курс</span>
+        </div>
+        <button type="button" class="btn" style="height: 36px">Інше джерело</button>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 12px">
+        <span class="num" style="font-weight: 600">Обрано 130 з 131</span>
+        <span style="display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 12px; background: var(--warn-bg); color: var(--warn); font-size: 12px; font-weight: 600">1 потребує уваги</span>
+        <div style="flex: 1"></div>
+        <label style="position: relative; display: flex; align-items: center; width: 280px"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Фільтр</span><svg class="ic" viewBox="0 0 24 24" style="position: absolute; left: 10px; color: var(--text-3)"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><input placeholder="Дисципліна, група або викладач" style="width: 100%; height: 36px; border: 1px solid var(--line-2); border-radius: 6px; padding: 0 10px 0 32px; font: inherit; font-size: 13px; background: var(--surface); color: var(--text)"></label>
+      </div>
+
+      <div class="card" role="table" aria-label="Навантаження" style="overflow: hidden">
+        <div class="tr th" role="row"><span class="cb on" role="checkbox" aria-checked="mixed" aria-label="Обрати всі" style="font-size: 12px; font-weight: 700">−</span><span>Дисципліна</span><span>Група</span><span>Викладач</span><span class="h">Л</span><span class="h">ПР</span><span class="h">ЛР</span><span>Форма контролю</span></div>
+        <div class="tr" role="row"><span class="cb on" role="checkbox" aria-checked="true"><svg viewBox="0 0 24 24" style="width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round"><path d="m5 12 5 5 9-10"></path></svg></span><span class="dl"><i style="background: #4C6A92"></i>Інформатика</span><span>ПДт-21</span><span>Бойчук В.В.</span><span class="h">24</span><span class="h">36</span><span class="h">12</span><button type="button" class="cf">Екзамен<svg class="ic" viewBox="0 0 24 24" style="color: var(--text-3)"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+        <div class="tr" role="row"><span class="cb on" role="checkbox" aria-checked="true"><svg viewBox="0 0 24 24" style="width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round"><path d="m5 12 5 5 9-10"></path></svg></span><span class="dl"><i style="background: #4C6A92"></i>Інформатика</span><span>ПДт-22</span><span>Бойчук В.В.</span><span class="h">24</span><span class="h">36</span><span class="h">12</span><button type="button" class="cf">Екзамен<svg class="ic" viewBox="0 0 24 24" style="color: var(--text-3)"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+        <div class="tr" role="row" style="background: var(--warn-bg)"><span class="cb on" role="checkbox" aria-checked="true"><svg viewBox="0 0 24 24" style="width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round"><path d="m5 12 5 5 9-10"></path></svg></span><span class="dl"><i style="background: #4C6A92"></i>Інформатика</span><span>ПДт-23</span><span style="display: flex; flex-direction: column"><button type="button" class="cf" style="border-color: #D9B36A; height: 30px">Оберіть викладача<svg class="ic" viewBox="0 0 24 24" style="color: var(--text-3)"><path d="m6 9 6 6 6-6"></path></svg></button><span style="font-size: 12px; color: var(--warn); margin-top: 2px">Дорош М.С. більше не в штаті</span></span><span class="h">24</span><span class="h">36</span><span class="h">12</span><button type="button" class="cf">Екзамен<svg class="ic" viewBox="0 0 24 24" style="color: var(--text-3)"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+        <div class="tr" role="row"><span class="cb on" role="checkbox" aria-checked="true"><svg viewBox="0 0 24 24" style="width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round"><path d="m5 12 5 5 9-10"></path></svg></span><span class="dl"><i style="background: #3D7A72"></i>Метрологія інформаційно-обчислювальних систем</span><span>ПДт-23</span><span>Бойчук В.В.</span><span class="h">30</span><span class="h">24</span><span class="h muted">—</span><button type="button" class="cf">Залік<svg class="ic" viewBox="0 0 24 24" style="color: var(--text-3)"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+        <div class="tr" role="row"><span class="cb on" role="checkbox" aria-checked="true"><svg viewBox="0 0 24 24" style="width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round"><path d="m5 12 5 5 9-10"></path></svg></span><span class="dl"><i style="background: #7A5C8C"></i>Основи програмування</span><span>ПДт-21</span><span>Ковальчук Н.І.</span><span class="h">16</span><span class="h">20</span><span class="h muted">—</span><button type="button" class="cf">Залік<svg class="ic" viewBox="0 0 24 24" style="color: var(--text-3)"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+        <div class="tr" role="row"><span class="cb on" role="checkbox" aria-checked="true"><svg viewBox="0 0 24 24" style="width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round"><path d="m5 12 5 5 9-10"></path></svg></span><span class="dl"><i style="background: #7A5C8C"></i>Основи програмування <span class="muted" style="font-size: 12px">· 1 пгр.</span></span><span>ПДт-22</span><span>Бойчук В.В.</span><span class="h muted">—</span><span class="h muted">—</span><span class="h">18</span><button type="button" class="cf">Залік<svg class="ic" viewBox="0 0 24 24" style="color: var(--text-3)"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+        <div class="tr" role="row"><span class="cb on" role="checkbox" aria-checked="true"><svg viewBox="0 0 24 24" style="width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round"><path d="m5 12 5 5 9-10"></path></svg></span><span class="dl"><i style="background: #7A5C8C"></i>Основи програмування <span class="muted" style="font-size: 12px">· 2 пгр.</span></span><span>ПДт-22</span><span>Бойчук В.В.</span><span class="h muted">—</span><span class="h muted">—</span><span class="h">18</span><button type="button" class="cf">Залік<svg class="ic" viewBox="0 0 24 24" style="color: var(--text-3)"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+        <div class="tr" role="row"><span class="cb on" role="checkbox" aria-checked="true"><svg viewBox="0 0 24 24" style="width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round"><path d="m5 12 5 5 9-10"></path></svg></span><span class="dl"><i style="background: #94701F"></i>Вища математика</span><span>ПДт-21</span><span>Гуменюк О.П.</span><span class="h">32</span><span class="h">32</span><span class="h muted">—</span><button type="button" class="cf">Екзамен<svg class="ic" viewBox="0 0 24 24" style="color: var(--text-3)"><path d="m6 9 6 6 6-6"></path></svg></button></div>
+        <div class="tr" role="row"><span class="cb" role="checkbox" aria-checked="false"></span><span class="dl muted"><i style="background: #94701F; opacity: .5"></i>Вища математика <span style="font-size: 12px">· факультатив</span></span><span class="muted">ПДт-22</span><span class="muted">Гуменюк О.П.</span><span class="h muted">16</span><span class="h muted">—</span><span class="h muted">—</span><span class="muted" style="font-size: 13px">не копіювати</span></div>
+        <div class="tr" role="row" style="border-bottom: 0; color: var(--text-3)"><span></span><span>ще 122 навантаження</span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+      </div>
+    </main>
+    <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 72px; background: var(--surface); border-top: 1px solid var(--line-2); display: flex; align-items: center; gap: 12px; padding: 0 32px">
+      <a href="WizardStep2.dc.html" class="btn">Назад</a>
+      <div style="flex: 1"></div>
+      <span class="muted num" style="font-size: 13px">130 навантажень · 4 280 год за семестр</span>
+      <a href="WizardStep4.dc.html" class="btn btn-p">Далі: шаблон розкладу</a>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

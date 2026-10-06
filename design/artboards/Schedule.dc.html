@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Розклад — тиждень</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ge{--bg:#F7F5F0;--surface:#FFFFFF;--surface-2:#FBFAF7;--sunken:#F1EEE7;--line:#E4E0D6;--line-2:#D3CEC2;--text:#1F2328;--text-2:#4E545B;--text-3:#676C73;--accent:#1F3A5F;--accent-soft:#E7EDF4;--accent-line:#B9C8DA;--ok:#2E6A3E;--ok-bg:#E5F1E8;--warn:#7A4A06;--warn-bg:#F9ECD4;--err:#8F2B22;--err-bg:#F7E4E1;font-family:'Golos Text',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.4;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+.ge *{box-sizing:border-box}
+.ge h1,.ge p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 14px;border-radius:6px;border:1px solid var(--line-2);background:var(--surface);color:var(--text);font:inherit;font-weight:500;cursor:pointer;white-space:nowrap;text-decoration:none}
+.ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.seg{display:inline-flex;padding:2px;gap:2px;background:var(--sunken);border:1px solid var(--line-2);border-radius:8px}
+.seg button{height:30px;padding:0 12px;border:0;border-radius:6px;background:transparent;font:inherit;font-size:13px;font-weight:500;color:var(--text-2);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--surface);color:var(--text);box-shadow:0 0 0 1px var(--line-2);font-weight:600}
+.grid{display:grid;grid-template-columns:88px repeat(5,minmax(0,1fr));border:1px solid var(--line);border-radius:10px;background:var(--surface);overflow:visible}
+.hd{height:52px;display:flex;flex-direction:column;justify-content:center;padding:0 12px;border-bottom:1px solid var(--line-2);border-left:1px solid var(--line);font-size:13px;color:var(--text-2)}
+.hd b{font-size:15px;color:var(--text);font-weight:600}
+.tm{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;padding:10px 12px;border-bottom:1px solid var(--line);font-size:12px;color:var(--text-3);font-variant-numeric:tabular-nums}
+.tm b{font-size:15px;color:var(--text);font-weight:600}
+.cell{position:relative;height:132px;padding:6px;border-left:1px solid var(--line);border-bottom:1px solid var(--line)}
+.lc{position:relative;height:100%;display:flex;flex-direction:column;gap:3px;padding:8px 10px;border-radius:6px;border:1px solid transparent;font-size:13px;color:var(--text);text-align:left;width:100%;font:inherit;cursor:pointer}
+.lc .t{display:flex;align-items:center;gap:6px;font-weight:600;font-size:13px;line-height:17px}
+.lc .t i{width:8px;height:8px;border-radius:2px;flex:none}
+.lc .m{font-size:12px;color:var(--text-2);line-height:16px}
+.lc .k{position:absolute;top:8px;right:8px;font-size:11px;font-weight:700;color:var(--text-2)}
+.tag{display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 6px;border-radius:4px;font-size:11px;font-weight:600;align-self:flex-start;margin-top:auto}
+.d1{background:#EAF0F7;border-color:#D3DDEA}.d1 .t i{background:#4C6A92}
+.d2{background:#E5F1EF;border-color:#CBE2DE}.d2 .t i{background:#3D7A72}
+.d3{background:#F1EBF5;border-color:#E0D4E8}.d3 .t i{background:#7A5C8C}
+.d4{background:#F6EFDF;border-color:#E8DCC0}.d4 .t i{background:#94701F}
+.muted{color:var(--text-3)}
+</style>
+</helmet>
+<div class="ge" style="width: 1440px; height: 1000px; display: grid; grid-template-columns: 248px minmax(0, 1fr); overflow: hidden">
+  <dc-import name="Sidebar" role="teacher" active="schedule" height="1000" user="Бойчук В.В." hint-size="248px,1000px"></dc-import>
+  <div style="display: flex; flex-direction: column; min-width: 0">
+    <dc-import name="Topbar" sync="ok" hint-size="1192px,64px"></dc-import>
+    <main style="padding: 20px 32px; display: flex; flex-direction: column; gap: 16px; min-width: 0">
+      <div style="display: flex; align-items: center; gap: 12px">
+        <h1 style="font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -0.01em; margin-right: 8px">Розклад</h1>
+        <div class="seg" role="group" aria-label="Масштаб"><button type="button" aria-pressed="true">Тиждень</button><button type="button" aria-pressed="false">Місяць</button><button type="button" aria-pressed="false">Семестр</button></div>
+        <div style="display: flex; align-items: center; gap: 4px; margin-left: 8px">
+          <button type="button" class="btn" aria-label="Попередній тиждень" style="width: 36px; padding: 0"><svg class="ic" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"></path></svg></button>
+          <button type="button" class="btn">Сьогодні</button>
+          <button type="button" class="btn" aria-label="Наступний тиждень" style="width: 36px; padding: 0"><svg class="ic" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"></path></svg></button>
+        </div>
+        <span class="num" style="font-size: 16px; font-weight: 600; margin-left: 4px">5–9 жовтня 2026</span>
+        <span style="display: inline-flex; align-items: center; gap: 8px; height: 24px; padding: 0 10px 0 8px; border-radius: 12px; background: var(--accent-soft); border: 1px solid var(--accent-line); color: var(--accent); font-size: 12px; font-weight: 600"><span aria-hidden="true" style="display: flex; flex-direction: column; gap: 2px; width: 12px"><i style="display: block; height: 4px; border: 1px solid var(--accent); border-radius: 1px"></i><i style="display: block; height: 4px; background: var(--accent); border-radius: 1px"></i></span>Нижній тиждень</span>
+        <div style="flex: 1"></div>
+        <button type="button" class="btn"><svg class="ic" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4M12 13v5M9.5 15.5h5"></path></svg>Додати в Google Calendar</button>
+      </div>
+
+      <div class="grid">
+        <div style="border-bottom: 1px solid var(--line-2)"></div>
+        <div class="hd" style="background: var(--accent-soft); color: var(--accent)"><b style="color: var(--accent)">Пн, 5 жовт.</b>сьогодні</div>
+        <div class="hd"><b>Вт, 6 жовт.</b></div>
+        <div class="hd"><b>Ср, 7 жовт.</b></div>
+        <div class="hd"><b>Чт, 8 жовт.</b></div>
+        <div class="hd"><b>Пт, 9 жовт.</b></div>
+
+        <div class="tm"><b>1</b>8:30–9:50</div>
+        <div class="cell"><button type="button" class="lc d1"><span class="k">Л</span><span class="t"><i></i>Інформатика</span><span class="m">ПДт-11 · ауд. 214</span><span class="tag" style="background: var(--ok-bg); color: var(--ok)"><svg class="ic" viewBox="0 0 24 24" style="width: 12px; height: 12px; stroke-width: 2.4"><path d="m5 12 5 5 9-10"></path></svg>Проведено · 22/25</span></button></div>
+        <div class="cell"><div style="height: 100%; border: 1px dashed var(--line-2); border-radius: 6px; padding: 8px 10px; display: flex; flex-direction: column; gap: 3px; color: var(--text-3); font-size: 12px"><span style="font-weight: 600">Метрологія · ПДт-13</span><span>лише у верхній тиждень</span></div></div>
+        <div class="cell"><button type="button" class="lc d2"><span class="k">ПР</span><span class="t"><i></i>Метрологія ІОС</span><span class="m">ПДт-13 · ауд. 305</span><span class="tag" style="background: var(--accent-soft); color: var(--accent)"><svg class="ic" viewBox="0 0 24 24" style="width: 12px; height: 12px"><path d="M7 7h12l-3-3M17 17H5l3 3"></path></svg>Перенесено з пт, 9 жовт.</span></button></div>
+        <div class="cell"></div>
+        <div class="cell" style="z-index: 3">
+          <button type="button" class="lc d1" aria-haspopup="menu" aria-expanded="true" style="box-shadow: 0 0 0 2px var(--accent)"><span class="k">Л</span><span class="t"><i></i>Інформатика</span><span class="m">ПДт-13 · ауд. 214</span></button>
+          <div role="menu" style="position: absolute; top: 64px; left: 24px; width: 232px; background: var(--surface); border: 1px solid var(--line-2); border-radius: 10px; box-shadow: 0 12px 28px rgba(31,35,40,.16); padding: 6px; display: flex; flex-direction: column; z-index: 4">
+            <a href="Gradebook.dc.html" role="menuitem" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 6px; color: var(--text); text-decoration: none">Відкрити журнал</a>
+            <a href="#" role="menuitem" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 6px; color: var(--text); text-decoration: none">Деталі заняття</a>
+            <a href="Requests.dc.html" role="menuitem" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; border-radius: 6px; color: var(--text); text-decoration: none; background: var(--sunken); font-weight: 500"><svg class="ic" viewBox="0 0 24 24"><path d="M7 7h12l-3-3M17 17H5l3 3"></path></svg>Запит на перенесення</a>
+          </div>
+        </div>
+
+        <div class="tm"><b>2</b>10:00–11:20</div>
+        <div class="cell" style="background: #FBFCFE">
+          <button type="button" class="lc d1" style="box-shadow: 0 0 0 1.5px var(--accent)"><span class="k">ПР</span><span class="t"><i></i>Інформатика</span><span class="m">ПДт-12 · ауд. 214</span><span class="tag" style="background: var(--ok-bg); color: var(--ok)">Триває · до 11:20</span></button>
+          <div aria-hidden="true" style="position: absolute; left: 0; right: 0; top: 52%; height: 2px; background: #A3352B"><span style="position: absolute; left: -4px; top: -3px; width: 8px; height: 8px; border-radius: 4px; background: #A3352B"></span></div>
+        </div>
+        <div class="cell"><button type="button" class="lc d3"><span class="k">ПР</span><span class="t"><i></i>Основи програмування</span><span class="m">ПДт-11 · комп. клас 2</span></button></div>
+        <div class="cell"><button type="button" class="lc d1"><span class="k">ПР</span><span class="t"><i></i>Інформатика</span><span class="m">ПДт-11 · ауд. 214</span></button></div>
+        <div class="cell"><button type="button" class="lc d1"><span class="k">КР</span><span class="t"><i></i>Інформатика</span><span class="m">ПДт-12 · ауд. 214</span><span class="tag" style="background: var(--surface); color: var(--accent); border: 1px solid var(--accent-line)">1-ша рубіжна атестація</span></button></div>
+        <div class="cell"></div>
+
+        <div class="tm"><b>3</b>11:40–13:00</div>
+        <div class="cell"><button type="button" class="lc d2"><span class="k">Л</span><span class="t"><i></i>Метрологія ІОС</span><span class="m">ПДт-13 · ауд. 305</span></button></div>
+        <div class="cell"><button type="button" class="lc d1"><span class="k">Л</span><span class="t"><i></i>Інформатика</span><span class="m">ПДт-13 · ауд. 214</span></button></div>
+        <div class="cell"></div>
+        <div class="cell"><button type="button" class="lc d2"><span class="k">ДКР</span><span class="t"><i></i>Метрологія ІОС</span><span class="m">ПДт-13 · ауд. 305</span><span class="tag" style="background: var(--surface); color: var(--accent); border: 1px solid var(--accent-line)">Директорська контрольна</span></button></div>
+        <div class="cell"><div style="height: 100%; border: 1px dashed var(--line-2); border-radius: 6px; padding: 8px 10px; display: flex; flex-direction: column; gap: 3px; color: var(--text-3); font-size: 12px"><span style="font-weight: 600; text-decoration: line-through">Метрологія · ПДт-13</span><span>перенесено на ср, 7 жовт., 1 пара</span></div></div>
+
+        <div class="tm"><b>4</b>13:10–14:30</div>
+        <div class="cell"><button type="button" class="lc d3"><span class="k">ЛР</span><span class="t"><i></i>Основи програмування</span><span class="m">ПДт-12 · 1 підгрупа</span><span class="m">комп. клас 2</span></button></div>
+        <div class="cell"><button type="button" class="lc d3"><span class="k">ЛР</span><span class="t"><i></i>Основи програмування</span><span class="m">ПДт-12 · 2 підгрупа</span><span class="m">комп. клас 2</span><span class="tag" style="background: var(--surface); color: var(--text-2); border: 1px solid var(--line-2)">лише нижній</span></button></div>
+        <div class="cell"></div>
+        <div class="cell"><button type="button" class="lc" style="background: var(--surface-2); border: 1px dashed var(--line-2); color: var(--text-3)"><span class="k" style="color: var(--text-3)">ЛР</span><span class="t" style="text-decoration: line-through"><i style="background: #B8A9C2"></i>Основи програмування</span><span class="m" style="color: var(--text-3); text-decoration: line-through">ПДт-13 · комп. клас 2</span><span class="tag" style="background: var(--err-bg); color: var(--err)">Скасовано</span></button></div>
+        <div class="cell"><button type="button" class="lc d3"><span class="k">ЛР</span><span class="t"><i></i>Основи програмування</span><span class="m">ПДт-11 · комп. клас 2</span><span class="tag" style="background: var(--surface); color: #5B3F6D; border: 1px solid #D7C8E1">+ Додаткова пара</span></button></div>
+
+        <div class="tm" style="border-bottom: 0"><b>5</b>14:40–16:00</div>
+        <div class="cell" style="border-bottom: 0"></div>
+        <div class="cell" style="border-bottom: 0"></div>
+        <div class="cell" style="border-bottom: 0"><button type="button" class="lc d4"><span class="k">Л</span><span class="t"><i></i>Вища математика</span><span class="m">ПДт-12 · ауд. 101</span><span class="tag" style="background: var(--warn-bg); color: var(--warn)">Заміна · за Гуменюк О.П.</span></button></div>
+        <div class="cell" style="border-bottom: 0"></div>
+        <div class="cell" style="border-bottom: 0"></div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 20px; font-size: 12px; color: var(--text-2)">
+        <span style="display: flex; align-items: center; gap: 6px"><i style="width: 8px; height: 8px; border-radius: 2px; background: #4C6A92"></i>Інформатика</span>
+        <span style="display: flex; align-items: center; gap: 6px"><i style="width: 8px; height: 8px; border-radius: 2px; background: #3D7A72"></i>Метрологія ІОС</span>
+        <span style="display: flex; align-items: center; gap: 6px"><i style="width: 8px; height: 8px; border-radius: 2px; background: #7A5C8C"></i>Основи програмування</span>
+        <span style="display: flex; align-items: center; gap: 6px"><i style="width: 8px; height: 8px; border-radius: 2px; background: #94701F"></i>Вища математика</span>
+        <div style="flex: 1"></div>
+        <span class="muted">Розклад опублікував деканат 1 вер. · змінити пару можна через запит на перенесення</span>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

@@ -14,6 +14,9 @@ const api = vi.hoisted(() => ({
   documentFileUrl: (id: string) => `/api/v1/documents/${id}/file`,
 }));
 vi.mock('../../api/attestations', () => api);
+vi.mock('../../shared/ui/links', () => ({
+  LinkBase: ({ children }: { children: React.ReactNode }) => <a href="/x">{children}</a>,
+}));
 vi.mock('../../app/useMe', () => ({ useMe: () => ({ data: { features: { pdf: true } } }) }));
 
 const { AttestationScreen } = await import('./AttestationScreen');
@@ -22,6 +25,15 @@ const t = uk.attestations;
 const load = {
   id: 'load1',
   kind: 'LECTURE',
+  controlForm: 'EXAM',
+  gradingRules: {
+    scale: 'TWELVE',
+    weights: { TEST: 2, PRACTICE: 1, LAB: 1, ORAL: 0.5 },
+    minGrades: 3,
+    maxUnexcusedAbsencePercent: 30,
+    rounding: 'HALF_UP',
+    missedTest: 'IGNORE',
+  },
   discipline: { id: 'd', title: 'Інформатика', shortTitle: 'Інф', color: '#3B6EA5' },
   group: { id: 'g', name: 'ПДт-12' },
   subgroup: null,
@@ -101,8 +113,8 @@ describe('AttestationScreen', () => {
   it('показує модулі з прогресом і пропозиції з поясненнями', async () => {
     renderWithClient(<AttestationScreen loadId="load1" />);
     expect(await screen.findByText('Бондар Тест')).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: `${t.modules.INTERIM} · 0/2` })).toBeInTheDocument();
-    expect(screen.getByRole('tab', { name: `${t.modules.AVERAGE} · 0/2` })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: new RegExp(t.modules.INTERIM) })).toBeInTheDocument();
+    expect(screen.getByRole('tab', { name: new RegExp(t.modules.AVERAGE) })).toBeInTheDocument();
     expect(screen.getAllByText('пояснення Бондар').length).toBeGreaterThan(0);
     // значення поля за замовчуванням — пропозиція
     expect(screen.getByLabelText(`${t.grade}: Бондар`)).toHaveValue('11');
@@ -120,7 +132,8 @@ describe('AttestationScreen', () => {
         { enrollmentId: 'e2', final: 'н/а', comment: null, confirmed: true },
       ]);
     });
-    expect(await screen.findAllByLabelText(t.states.confirmed)).toHaveLength(2);
+    expect(await screen.findByRole('checkbox', { name: `${t.checked}: Бондар` })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: `${t.checked}: Мельник` })).toBeChecked();
   });
 
   it('редагована оцінка підтверджується окремо; некоректна блокує кнопку', async () => {
@@ -132,13 +145,16 @@ describe('AttestationScreen', () => {
     if (!row) throw new Error('немає рядка');
 
     fireEvent.change(input, { target: { value: '15' } });
-    expect(within(row).getByRole('button', { name: t.confirm })).toBeDisabled();
+    expect(within(row).getByRole('checkbox')).toBeDisabled();
 
     fireEvent.change(input, { target: { value: '10' } });
-    fireEvent.click(within(row).getByRole('button', { name: t.confirm }));
+    fireEvent.change(screen.getByLabelText(`${t.comment}: Бондар`), {
+      target: { value: 'Відмінна КР' },
+    });
+    fireEvent.click(within(row).getByRole('checkbox'));
     await waitFor(() => {
       expect(api.saveResults).toHaveBeenCalledWith('load1', 'INTERIM', [
-        { enrollmentId: 'e1', final: '10', comment: null, confirmed: true },
+        { enrollmentId: 'e1', final: '10', comment: 'Відмінна КР', confirmed: true },
       ]);
     });
   });

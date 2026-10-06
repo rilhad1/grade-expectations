@@ -20,9 +20,12 @@ beforeEach(async () => {
 });
 
 describe('SyncIndicator', () => {
-  it('нічого не показує, коли все збережено', () => {
-    const { container } = render(<SyncIndicator />);
-    expect(container).toBeEmptyDOMElement();
+  it('коли все збережено — «Синхронізовано» з часом останньої синхронізації', () => {
+    const view = render(<SyncIndicator />);
+    expect(screen.getByRole('status')).toHaveTextContent('Синхронізовано');
+    useSyncStore.setState({ lastSyncAt: '2026-10-12T07:41:00.000Z' });
+    view.rerender(<SyncIndicator />);
+    expect(screen.getByRole('status')).toHaveTextContent('Синхронізовано · 10:41');
   });
 
   it('офлайн показує кількість змін на пристрої', () => {
@@ -41,6 +44,9 @@ describe('SyncIndicator', () => {
     useSyncStore.setState({ problem: 'server' });
     view.rerender(<SyncIndicator />);
     expect(screen.getByRole('status')).toHaveTextContent(uk.sync.serverProblem);
+    useSyncStore.setState({ problem: null, online: false, pending: 0 });
+    view.rerender(<SyncIndicator />);
+    expect(screen.getByRole('status')).toHaveTextContent('Офлайн');
   });
 
   it('сповіщення відкриваються у діалозі й очищаються', async () => {

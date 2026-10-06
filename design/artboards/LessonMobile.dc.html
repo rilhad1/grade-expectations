@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>На парі</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="{{rootStyle}}">
+
+  <sc-if value="{{notDone}}" hint-placeholder-val="{{ true }}">
+    <header style="background: var(--surface); border-bottom: 1px solid var(--line); padding: 8px 12px 12px; display: flex; flex-direction: column; gap: 10px">
+      <div style="display: flex; align-items: center; gap: 8px">
+        <a href="TodayMobile.dc.html" aria-label="Назад до «Сьогодні»" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: var(--text); flex: none"><svg viewBox="0 0 24 24" style="width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round"><path d="M15 5l-7 7 7 7"></path></svg></a>
+        <div style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+          <span style="font-size: 17px; font-weight: 600; line-height: 22px">ПДт-12 · Інформатика</span>
+          <span style="font-size: 13px; color: var(--text-2); font-variant-numeric: tabular-nums">2 пара · 10:00–11:20 · ауд. 214</span>
+        </div>
+        <div role="timer" aria-label="До кінця пари 38 хвилин" style="display: flex; flex-direction: column; align-items: flex-end; padding: 4px 10px; border-radius: 8px; background: var(--sunken); flex: none">
+          <span style="font-size: 18px; font-weight: 600; font-variant-numeric: tabular-nums; line-height: 22px">38:12</span>
+          <span style="font-size: 11px; color: var(--text-3); line-height: 14px">до дзвінка</span>
+        </div>
+      </div>
+      <button type="button" aria-label="Змінити тему заняття" style="display: flex; align-items: center; gap: 10px; min-height: 44px; padding: 6px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--surface-2); font: inherit; color: var(--text); text-align: left; cursor: pointer">
+        <span style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+          <span style="font-size: 12px; color: var(--text-3); font-weight: 600">Тема · 10 з 36</span>
+          <span style="font-size: 15px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Алгоритми та їх властивості</span>
+        </span>
+        <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; fill: none; stroke: var(--text-3); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex: none"><path d="M4 20h4L19 9l-4-4L4 16z"></path></svg>
+      </button>
+      <div role="group" aria-label="Підгрупа" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 3px; gap: 3px; background: var(--sunken); border: 1px solid var(--line-2); border-radius: 8px">
+        <sc-for list="{{subs}}" as="sg" hint-placeholder-count="3">
+          <button type="button" aria-pressed="{{sg.pressed}}" onClick="{{sg.pick}}" style="{{sg.style}}">{{sg.label}}</button>
+        </sc-for>
+      </div>
+    </header>
+
+    <div role="status" style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 16px; background: var(--warn-bg); color: var(--warn); font-size: 13px; font-weight: 500; font-variant-numeric: tabular-nums; flex: none">
+      <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round"><path d="M3 3l18 18M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 5.2-2.8M19 13a10 10 0 0 0-2.4-1.7M2 9.5a15 15 0 0 1 4.3-2.8M22 9.5A15 15 0 0 0 10.5 5.1M12 20h.01"></path></svg>
+      Офлайн · {{pending}} змін збережено на пристрої
+    </div>
+
+    <div style="flex: 1; min-height: 0; overflow-y: auto; background: var(--surface)">
+      <sc-for list="{{items}}" as="it" hint-placeholder-count="9">
+        <div style="{{it.wrapStyle}}">
+          <sc-if value="{{it.swiped}}" hint-placeholder-val="{{ false }}">
+            <button type="button" style="position: absolute; right: 0; top: 0; bottom: 0; width: 96px; background: var(--accent); color: var(--on-accent); border: 0; font: inherit; font-size: 14px; font-weight: 600; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; cursor: pointer"><svg viewBox="0 0 24 24" style="width: 20px; height: 20px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round"><path d="M5 4h14v12l-4 4H5z"></path><path d="M15 20v-4h4M9 9h6M9 13h4"></path></svg>Нотатка</button>
+          </sc-if>
+          <div style="{{it.innerStyle}}">
+            <span style="width: 22px; font-size: 13px; color: var(--text-3); font-variant-numeric: tabular-nums; text-align: right; flex: none">{{it.no}}</span>
+            <button type="button" onClick="{{it.toggle}}" onContextMenu="{{it.hold}}" aria-label="{{it.aria}}" style="{{it.nameBtn}}">
+              <span style="{{it.nameStyle}}">{{it.name}}</span>
+              <sc-if value="{{it.hasChip}}" hint-placeholder-val="{{ false }}">
+                <span style="{{it.chipStyle}}">{{it.chip}}</span>
+              </sc-if>
+            </button>
+            <sc-for list="{{it.grades}}" as="g" hint-placeholder-count="0">
+              <span aria-label="{{g.aria}}" style="{{g.style}}">{{g.v}}</span>
+            </sc-for>
+            <button type="button" onClick="{{it.openGrade}}" aria-label="{{it.gradeAria}}" style="display: flex; align-items: center; justify-content: center; gap: 2px; height: 44px; padding: 0 10px; border: 1px solid var(--line-2); border-radius: 6px; background: var(--surface); color: var(--accent); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; flex: none; white-space: nowrap">+ оцінка</button>
+          </div>
+          <sc-if value="{{it.holdOpen}}" hint-placeholder-val="{{ false }}">
+            <div role="menu" aria-label="Статус: {{it.name}}" style="position: absolute; right: 12px; top: 54px; width: 260px; z-index: 10; background: var(--surface); border: 1px solid var(--line-2); border-radius: 10px; box-shadow: 0 12px 32px rgba(0,0,0,.18); padding: 6px; display: flex; flex-direction: column">
+              <button type="button" role="menuitem" onClick="{{it.setNp}}" style="display: flex; align-items: center; gap: 12px; height: 48px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; font: inherit; font-size: 15px; color: var(--text); text-align: left; cursor: pointer"><span style="min-width: 30px; height: 26px; border-radius: 4px; background: var(--np-bg); color: var(--np-fg); font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center">нп</span>Відсутній з поважної причини</button>
+              <button type="button" role="menuitem" onClick="{{it.setZ}}" style="display: flex; align-items: center; gap: 12px; height: 48px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; font: inherit; font-size: 15px; color: var(--text); text-align: left; cursor: pointer"><span style="min-width: 30px; height: 26px; border-radius: 4px; background: var(--z-bg); color: var(--z-fg); font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center">з</span>Запізнився</button>
+              <button type="button" role="menuitem" onClick="{{it.setN}}" style="display: flex; align-items: center; gap: 12px; height: 48px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; font: inherit; font-size: 15px; color: var(--text); text-align: left; cursor: pointer"><span style="min-width: 30px; height: 26px; border-radius: 4px; background: var(--n-bg); color: var(--n-fg); font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center">н</span>Відсутній</button>
+              <button type="button" role="menuitem" onClick="{{it.setP}}" style="display: flex; align-items: center; gap: 12px; height: 48px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; font: inherit; font-size: 15px; color: var(--text); text-align: left; cursor: pointer"><span style="min-width: 30px; height: 26px; border-radius: 4px; background: var(--sunken); color: var(--text-2); font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center">✓</span>Присутній</button>
+            </div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+
+    <footer style="flex: none; background: var(--surface); border-top: 1px solid var(--line); padding: 12px 16px 24px; display: flex; align-items: center; gap: 12px">
+      <div style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+        <span style="font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums">Присутні {{present}} з {{total}}</span>
+        <span style="font-size: 13px; color: var(--text-2); font-variant-numeric: tabular-nums">н {{cn}} · нп {{cnp}} · з {{cz}}</span>
+      </div>
+      <button type="button" onClick="{{finish}}" style="height: 52px; padding: 0 20px; border: 0; border-radius: 6px; background: var(--accent); color: var(--on-accent); font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; white-space: nowrap">Завершити пару</button>
+    </footer>
+  </sc-if>
+
+  <sc-if value="{{isDone}}" hint-placeholder-val="{{ false }}">
+    <header style="background: var(--surface); border-bottom: 1px solid var(--line); padding: 8px 12px; display: flex; align-items: center; gap: 8px; flex: none">
+      <a href="TodayMobile.dc.html" aria-label="Назад до «Сьогодні»" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; border-radius: 8px; color: var(--text)"><svg viewBox="0 0 24 24" style="width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round"><path d="M15 5l-7 7 7 7"></path></svg></a>
+      <span style="font-size: 17px; font-weight: 600">Підсумок пари</span>
+    </header>
+    <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 16px">
+      <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 10px">
+        <span style="width: 48px; height: 48px; border-radius: 24px; background: var(--ok-bg); color: var(--ok); display: flex; align-items: center; justify-content: center"><svg viewBox="0 0 24 24" style="width: 26px; height: 26px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round"><path d="m5 12 5 5 9-10"></path></svg></span>
+        <h1 style="margin: 0; font-size: 24px; line-height: 30px; font-weight: 600">Пару завершено</h1>
+        <p style="margin: 0; color: var(--text-2); font-size: 15px; font-variant-numeric: tabular-nums">Інформатика · ПДт-12 · 2 пара · о 11:18</p>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+        <div style="padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface)"><div style="font-size: 13px; color: var(--text-3); font-weight: 600">Присутні</div><div style="font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums">{{present}}<span style="font-size: 15px; color: var(--text-3); font-weight: 500"> з {{total}}</span></div></div>
+        <div style="padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface)"><div style="font-size: 13px; color: var(--text-3); font-weight: 600">Відсутні</div><div style="font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums">{{absent}}<span style="font-size: 15px; color: var(--text-3); font-weight: 500"> н {{cn}} · нп {{cnp}}</span></div></div>
+        <div style="padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface)"><div style="font-size: 13px; color: var(--text-3); font-weight: 600">Запізнилися</div><div style="font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums">{{cz}}</div></div>
+        <div style="padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface)"><div style="font-size: 13px; color: var(--text-3); font-weight: 600">Оцінок</div><div style="font-size: 26px; font-weight: 600; font-variant-numeric: tabular-nums">{{gradeCount}}</div></div>
+      </div>
+      <div style="padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); display: flex; flex-direction: column; gap: 8px">
+        <div style="font-size: 13px; color: var(--text-3); font-weight: 600">Відсутні на парі</div>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px">
+          <sc-for list="{{absentList}}" as="a" hint-placeholder-count="3">
+            <span style="display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 10px 0 4px; border-radius: 15px; background: var(--sunken); font-size: 14px"><span style="{{a.chipStyle}}">{{a.chip}}</span>{{a.name}}</span>
+          </sc-for>
+        </div>
+      </div>
+      <div style="padding: 14px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface)">
+        <div style="font-size: 13px; color: var(--text-3); font-weight: 600">Тема</div>
+        <div style="font-size: 15px">Алгоритми та їх властивості</div>
+      </div>
+      <div role="status" style="display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 10px; background: var(--warn-bg); color: var(--warn); font-size: 14px">
+        <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; flex: none; margin-top: 1px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round"><path d="M3 3l18 18M8.5 16.5a5 5 0 0 1 7 0M5 13a10 10 0 0 1 5.2-2.8M19 13a10 10 0 0 0-2.4-1.7M12 20h.01"></path></svg>
+        <span>Збережено на пристрої. Журнал оновиться, щойно з’явиться зв’язок.</span>
+      </div>
+      <div style="padding: 14px; border: 1px dashed var(--line-2); border-radius: 10px; font-size: 14px; color: var(--text-2)">Наступна: <b style="color: var(--text); font-weight: 600">3 пара · 11:40 · Метрологія · ПДт-13 · ауд. 305</b></div>
+    </div>
+    <footer style="flex: none; background: var(--surface); border-top: 1px solid var(--line); padding: 12px 16px 24px; display: flex; flex-direction: column; gap: 8px">
+      <a href="TodayMobile.dc.html" style="display: flex; align-items: center; justify-content: center; height: 52px; border-radius: 6px; background: var(--accent); color: var(--on-accent); font-size: 16px; font-weight: 600; text-decoration: none">До пар сьогодні</a>
+      <button type="button" onClick="{{undo}}" style="display: flex; align-items: center; justify-content: center; gap: 8px; height: 48px; border: 1px solid var(--line-2); border-radius: 6px; background: var(--surface); color: var(--text); font: inherit; font-size: 15px; font-weight: 500; cursor: pointer; font-variant-numeric: tabular-nums">Скасувати завершення <span style="color: var(--text-3)">· 9:41</span></button>
+    </footer>
+  </sc-if>
+
+  <sc-if value="{{sheetOpen}}" hint-placeholder-val="{{ false }}">
+    <button type="button" aria-label="Закрити шторку" onClick="{{closeSheet}}" style="position: absolute; inset: 0; z-index: 20; border: 0; background: var(--scrim); cursor: pointer"></button>
+    <div role="dialog" aria-label="Оцінка для {{sheetName}}" style="position: absolute; left: 0; right: 0; bottom: 0; z-index: 21; background: var(--surface); border-radius: 16px 16px 0 0; padding: 8px 16px 24px; display: flex; flex-direction: column; gap: 16px; box-shadow: 0 -8px 24px rgba(0,0,0,.14)">
+      <div style="width: 36px; height: 4px; border-radius: 2px; background: var(--line-2); align-self: center"></div>
+      <div style="display: flex; align-items: center; gap: 10px">
+        <div style="flex: 1; min-width: 0">
+          <div style="font-size: 13px; color: var(--text-3); font-weight: 600">Оцінка · 5 жовт.</div>
+          <div style="font-size: 19px; font-weight: 600">{{sheetName}}</div>
+        </div>
+        <sc-for list="{{sheetGrades}}" as="g" hint-placeholder-count="1">
+          <span style="{{g.style}}">{{g.v}}</span>
+        </sc-for>
+      </div>
+      <div role="radiogroup" aria-label="Тип оцінки" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+        <sc-for list="{{types}}" as="t" hint-placeholder-count="4">
+          <button type="button" role="radio" aria-checked="{{t.checked}}" onClick="{{t.pick}}" style="{{t.style}}">{{t.label}}</button>
+        </sc-for>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px">
+        <sc-for list="{{keys}}" as="k" hint-placeholder-count="12">
+          <button type="button" onClick="{{k.pick}}" aria-label="Оцінка {{k.v}}" style="{{k.style}}">{{k.v}}</button>
+        </sc-for>
+      </div>
+      <button type="button" onClick="{{closeSheet}}" style="height: 48px; border: 0; border-radius: 6px; background: transparent; color: var(--text-2); font: inherit; font-size: 15px; font-weight: 500; cursor: pointer">Скасувати</button>
+    </div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"screen":{"editor":"enum","options":["list","hold","grade","done"],"default":"list"},"dark":{"editor":"boolean","default":false},"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const NAMES = ['Андрієнко Богдан','Бондар Максим','Васильчук Дарина','Гнатюк Софія','Гончаренко Тарас','Дмитренко Вікторія','Єременко Артем','Захарчук Марія','Іваницький Назар','Коваленко Анна','Кравець Юлія','Лисенко Роман','Мазур Христина','Мельник Остап','Нестерук Ілля','Олійник Катерина','Павлюк Денис','Романюк Аліна','Савчук Олена','Сидоренко Владислав','Ткачук Ірина','Федорів Марко','Харченко Діана','Шевчук Андрій','Яковенко Поліна'];
+    const TYPE_NAMES = { 'У': 'усна', 'ПР': 'практична', 'ЛР': 'лабораторна', 'СР': 'самостійна' };
+    const st = this.state || {};
+    const pick = (k, d) => (st[k] !== undefined ? st[k] : d);
+    const scr0 = this.props.screen ?? 'list';
+    const scr = pick('screen', scr0);
+    const dark = this.props.dark === true || this.props.dark === 'true';
+    const statuses = pick('statuses', { 2: 'n', 4: 'np', 17: 'z', 20: 'n' });
+    const grades = pick('grades', { 8: [{ v: 9, t: 'ПР' }], 10: [{ v: 10, t: 'ПР' }], 14: [{ v: 7, t: 'У' }], 19: [{ v: 4, t: 'У' }], 21: [{ v: 11, t: 'ПР' }], 23: [{ v: 12, t: 'ПР' }] });
+    const sub = pick('sub', 0);
+    const gtype = pick('gtype', 'ПР');
+    const holdFor = pick('holdFor', scr0 === 'hold' ? 6 : null);
+    const sheetFor = pick('sheetFor', scr0 === 'grade' ? 10 : null);
+    const pending = pick('pending', 14);
+
+    const light = '--bg:#F7F5F0;--surface:#FFFFFF;--surface-2:#FBFAF7;--sunken:#F1EEE7;--line:#E4E0D6;--line-2:#D3CEC2;--text:#1F2328;--text-2:#4E545B;--text-3:#676C73;--accent:#1F3A5F;--accent-soft:#E7EDF4;--on-accent:#FFFFFF;--n-bg:#F7E4E1;--n-fg:#8F2B22;--np-bg:#F9ECD4;--np-fg:#7A4A06;--z-bg:#E3EBF7;--z-fg:#1E4D8A;--lo:#FBECE9;--hi:#E6F2E9;--ok:#2E6A3E;--ok-bg:#E5F1E8;--warn-bg:#FBF0DB;--warn:#7A4A06;--row-n:#FDF6F4;--row-np:#FEF9F0;--press:#F1EEE7;--scrim:rgba(20,22,26,.42);';
+    const darkV = '--bg:#14171B;--surface:#1B1F25;--surface-2:#20252B;--sunken:#262B32;--line:#2E343C;--line-2:#3B424B;--text:#E9E7E2;--text-2:#B6BBC2;--text-3:#979DA5;--accent:#9DB8DA;--accent-soft:#22344A;--on-accent:#0F1620;--n-bg:#4A2420;--n-fg:#F4BCB3;--np-bg:#46351A;--np-fg:#F2D29A;--z-bg:#1F3350;--z-fg:#B3CBEE;--lo:#3A2421;--hi:#1E3526;--ok:#8CCB9E;--ok-bg:#1E3526;--warn-bg:#3A2F17;--warn:#F2D29A;--row-n:#231B1B;--row-np:#221E16;--press:#262B32;--scrim:rgba(0,0,0,.62);';
+
+    const chipBase = 'display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:24px;padding:0 6px;border-radius:4px;font-size:13px;font-weight:700;flex:none;';
+    const chipFor = (s) => s === 'n' ? ['н', chipBase + 'background:var(--n-bg);color:var(--n-fg);'] : s === 'np' ? ['нп', chipBase + 'background:var(--np-bg);color:var(--np-fg);'] : s === 'z' ? ['з', chipBase + 'background:var(--z-bg);color:var(--z-fg);'] : ['', ''];
+    const gradeStyle = (v) => 'display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;padding:0 6px;border-radius:6px;font-size:15px;font-weight:600;font-variant-numeric:tabular-nums;flex:none;color:var(--text);background:' + (v <= 3 ? 'var(--lo)' : v >= 10 ? 'var(--hi)' : 'var(--sunken)') + ';';
+    const statusWord = { p: 'присутній', n: 'відсутній', np: 'відсутній з поважної причини', z: 'запізнився' };
+
+    const setStatus = (no, s) => () => {
+      const next = Object.assign({}, statuses);
+      if (s === 'p') delete next[no]; else next[no] = s;
+      this.setState({ statuses: next, holdFor: null, pending: pending + 1 });
+    };
+
+    const all = NAMES.map((name, i) => ({ name, no: i + 1 }));
+    const visible = all.filter((x) => sub === 0 || (sub === 1 ? x.no <= 13 : x.no > 13));
+
+    const items = visible.map(({ name, no }) => {
+      const s = statuses[no] || 'p';
+      const [chip, chipStyle] = chipFor(s);
+      const gs = (grades[no] || []).map((g) => ({ v: g.v, style: gradeStyle(g.v), aria: g.v + ', ' + TYPE_NAMES[g.t] }));
+      const swiped = scr === 'hold' && no === 8;
+      const holdOpen = holdFor === no && scr !== 'done';
+      const rowBg = s === 'n' ? 'var(--row-n)' : s === 'np' ? 'var(--row-np)' : holdOpen ? 'var(--press)' : 'var(--surface)';
+      return {
+        no, name, chip, chipStyle,
+        hasChip: s !== 'p',
+        grades: gs,
+        swiped, holdOpen,
+        aria: name + ' — ' + statusWord[s] + '. Натисніть, щоб змінити',
+        gradeAria: 'Поставити оцінку: ' + name,
+        wrapStyle: 'position:relative;border-bottom:1px solid var(--line);' + (swiped ? 'overflow:hidden;' : '') + (holdOpen ? 'z-index:5;' : ''),
+        innerStyle: 'display:flex;align-items:center;gap:8px;height:60px;padding:0 12px 0 8px;background:' + rowBg + ';' + (swiped ? 'transform:translateX(-96px);box-shadow:1px 0 0 var(--line);' : ''),
+        nameBtn: 'flex:1;min-width:0;height:60px;display:flex;align-items:center;gap:8px;border:0;background:transparent;padding:0 4px;font:inherit;text-align:left;cursor:pointer;color:var(--text);',
+        nameStyle: 'font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;' + (s === 'n' || s === 'np' ? 'color:var(--text-2);' : ''),
+        toggle: () => this.setState({ statuses: Object.assign({}, statuses, { [no]: s === 'p' ? 'n' : 'p' }), holdFor: null, pending: pending + 1 }),
+        hold: (e) => { if (e && e.preventDefault) e.preventDefault(); this.setState({ holdFor: no }); },
+        openGrade: () => this.setState({ sheetFor: no, holdFor: null }),
+        setNp: setStatus(no, 'np'), setZ: setStatus(no, 'z'), setN: setStatus(no, 'n'), setP: setStatus(no, 'p')
+      };
+    });
+
+    let cn = 0, cnp = 0, cz = 0;
+    visible.forEach(({ no }) => { const s = statuses[no]; if (s === 'n') cn++; if (s === 'np') cnp++; if (s === 'z') cz++; });
+    const total = visible.length;
+    const absentList = all.filter(({ no }) => statuses[no] === 'n' || statuses[no] === 'np').map(({ name, no }) => {
+      const [chip, chipStyle] = chipFor(statuses[no]);
+      return { name, chip, chipStyle: chipStyle.replace('min-width:28px;height:24px', 'min-width:26px;height:22px') + 'border-radius:11px;' };
+    });
+    let gradeCount = 0;
+    Object.keys(grades).forEach((k) => { gradeCount += grades[k].length; });
+
+    const segBase = 'height:40px;border:0;border-radius:6px;font:inherit;font-size:14px;font-weight:500;cursor:pointer;';
+    const subs = ['Вся група', '1 підгрупа', '2 підгрупа'].map((label, i) => ({
+      label,
+      pressed: sub === i ? 'true' : 'false',
+      pick: () => this.setState({ sub: i }),
+      style: segBase + (sub === i ? 'background:var(--surface);color:var(--text);box-shadow:0 0 0 1px var(--line-2);font-weight:600;' : 'background:transparent;color:var(--text-2);')
+    }));
+
+    const sheetOpen = sheetFor !== null && scr !== 'done';
+    const sheetName = sheetOpen ? NAMES[sheetFor - 1] : '';
+    const types = [['У', 'Усна'], ['ПР', 'Практична'], ['ЛР', 'Лабораторна'], ['СР', 'Самостійна']].map(([t, label]) => ({
+      label,
+      checked: gtype === t ? 'true' : 'false',
+      pick: () => this.setState({ gtype: t }),
+      style: 'height:44px;border-radius:6px;font:inherit;font-size:15px;font-weight:500;cursor:pointer;' + (gtype === t ? 'border:1.5px solid var(--accent);background:var(--accent-soft);color:var(--accent);font-weight:600;' : 'border:1px solid var(--line-2);background:var(--surface);color:var(--text);')
+    }));
+    const keys = [1,2,3,4,5,6,7,8,9,10,11,12].map((v) => ({
+      v,
+      pick: () => {
+        const next = Object.assign({}, grades);
+        next[sheetFor] = (next[sheetFor] || []).concat([{ v, t: gtype }]);
+        this.setState({ grades: next, sheetFor: null, pending: pending + 1 });
+      },
+      style: 'height:60px;border-radius:8px;border:1px solid var(--line-2);font:inherit;font-size:22px;font-weight:600;font-variant-numeric:tabular-nums;cursor:pointer;color:var(--text);background:' + (v <= 3 ? 'var(--lo)' : v >= 10 ? 'var(--hi)' : 'var(--surface)') + ';'
+    }));
+    const sheetGrades = sheetOpen ? (grades[sheetFor] || []).map((g) => ({ v: g.v, style: gradeStyle(g.v) })) : [];
+
+    return {
+      rootStyle: (dark ? darkV : light) + 'width:390px;height:844px;position:relative;overflow:hidden;display:flex;flex-direction:column;background:var(--bg);color:var(--text);font-family:\'Golos Text\',system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.4;-webkit-font-smoothing:antialiased;box-sizing:border-box;',
+      notDone: scr !== 'done',
+      isDone: scr === 'done',
+      items, subs, types, keys, sheetGrades, absentList,
+      present: total - cn - cnp, total, cn, cnp, cz,
+      absent: cn + cnp,
+      gradeCount,
+      pending,
+      sheetOpen, sheetName,
+      closeSheet: () => this.setState({ sheetFor: null }),
+      finish: () => this.setState({ screen: 'done', holdFor: null, sheetFor: null }),
+      undo: () => this.setState({ screen: 'list' })
+    };
+  }
+}
+</script>
+</body>
+</html>

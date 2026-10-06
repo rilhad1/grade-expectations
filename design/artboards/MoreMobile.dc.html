@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Ще — мобільний</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ge{--bg:#F7F5F0;--surface:#FFFFFF;--sunken:#F1EEE7;--line:#E4E0D6;--line-2:#D3CEC2;--text:#1F2328;--text-2:#4E545B;--text-3:#676C73;--accent:#1F3A5F;--accent-soft:#E7EDF4;--ok:#2E6A3E;font-family:'Golos Text',system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.4;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+.ge *{box-sizing:border-box}
+.ge h1,.ge p{margin:0}
+.it{display:flex;align-items:center;gap:14px;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line);color:var(--text);text-decoration:none;font-size:16px}
+.it svg{width:22px;height:22px;fill:none;stroke:var(--text-2);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.it .ch{margin-left:auto;width:18px;height:18px;stroke:var(--text-3)}
+.lbl{font-size:13px;font-weight:600;color:var(--text-3);padding:0 4px}
+.seg{display:grid;padding:3px;gap:3px;background:var(--sunken);border:1px solid var(--line-2);border-radius:8px}
+.seg button{height:42px;border:0;border-radius:6px;background:transparent;font:inherit;font-size:14px;font-weight:500;color:var(--text-2);cursor:pointer}
+.seg button[aria-checked=true],.seg button[aria-pressed=true]{background:var(--surface);color:var(--text);box-shadow:0 0 0 1px var(--line-2);font-weight:600}
+</style>
+</helmet>
+<div class="ge" style="width: 390px; height: 844px; position: relative; overflow: hidden">
+  <header style="padding: 16px; background: var(--surface); border-bottom: 1px solid var(--line); display: flex; align-items: center; gap: 12px">
+    <span aria-hidden="true" style="width: 44px; height: 44px; border-radius: 22px; background: var(--sunken); border: 1px solid var(--line-2); display: flex; align-items: center; justify-content: center; font-weight: 600; color: var(--text-2)">БВ</span>
+    <div style="display: flex; flex-direction: column; gap: 3px">
+      <span style="font-size: 17px; font-weight: 600">Бойчук В.В.</span>
+      <span style="align-self: flex-start; display: inline-flex; align-items: center; height: 20px; padding: 0 7px; border-radius: 10px; background: var(--accent-soft); color: var(--accent); font-size: 12px; font-weight: 600">Викладач</span>
+    </div>
+  </header>
+
+  <nav aria-label="Інші розділи" style="background: var(--surface); margin-top: 12px; border-top: 1px solid var(--line)">
+    <a class="it" href="Attestation.dc.html"><svg viewBox="0 0 24 24"><rect x="5" y="4" width="14" height="17" rx="2"></rect><path d="M9 4V3h6v1M9 13l2 2 4-4"></path></svg>Атестації<svg class="ch" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"></path></svg></a>
+    <a class="it" href="MyDisciplines.dc.html"><svg viewBox="0 0 24 24"><path d="M12 3 3 8l9 5 9-5z"></path><path d="m3 13 9 5 9-5"></path></svg>Мої дисципліни<svg class="ch" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"></path></svg></a>
+    <a class="it" href="HoursReport.dc.html"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg>Вичитка годин<svg class="ch" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"></path></svg></a>
+    <a class="it" href="DataCalendar.dc.html"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"></path></svg>Дані й календар<svg class="ch" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"></path></svg></a>
+  </nav>
+
+  <div style="padding: 20px 16px 0; display: flex; flex-direction: column; gap: 8px">
+    <span class="lbl" id="rl">Роль</span>
+    <div class="seg" role="group" aria-labelledby="rl" style="grid-template-columns: repeat(2, minmax(0, 1fr))"><button type="button" aria-pressed="true">Викладач</button><button type="button" aria-pressed="false">Модератор</button></div>
+  </div>
+  <div style="padding: 16px 16px 0; display: flex; flex-direction: column; gap: 8px">
+    <span class="lbl" id="tl">Тема</span>
+    <div class="seg" role="radiogroup" aria-labelledby="tl" style="grid-template-columns: repeat(3, minmax(0, 1fr))"><button type="button" role="radio" aria-checked="false">Світла</button><button type="button" role="radio" aria-checked="false">Темна</button><button type="button" role="radio" aria-checked="true">Як у системі</button></div>
+  </div>
+
+  <div role="status" style="margin: 20px 16px 0; display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--text-2)"><span style="width: 8px; height: 8px; border-radius: 4px; background: var(--ok)"></span>Синхронізовано о 10:41</div>
+
+  <a href="Login.dc.html" style="margin: 20px 16px 0; display: flex; align-items: center; justify-content: center; height: 48px; border: 1px solid var(--line-2); border-radius: 6px; background: var(--surface); color: var(--text); font-weight: 500; text-decoration: none">Вийти</a>
+
+  <div style="position: absolute; left: 0; bottom: 0">
+    <dc-import name="MobileNav" active="more" hint-size="390px,80px"></dc-import>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

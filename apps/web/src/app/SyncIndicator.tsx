@@ -1,8 +1,6 @@
-import CloudDoneIcon from '@mui/icons-material/CloudDone';
-import CloudOffIcon from '@mui/icons-material/CloudOff';
-import SyncIcon from '@mui/icons-material/Sync';
 import {
   Alert,
+  Box,
   Button,
   Chip,
   Dialog,
@@ -19,42 +17,90 @@ import { uk } from '../shared/i18n/uk';
 
 const t = uk.sync;
 
-/** Стан синхронізації в шапці: «Офлайн · 14 змін на пристрої», «Синхронізація…», застереження. */
+type Kind = 'ok' | 'syncing' | 'offline' | 'error';
+
+const hhmm = (iso: string | null): string | null =>
+  iso === null
+    ? null
+    : new Intl.DateTimeFormat('uk-UA', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false,
+        timeZone: 'Europe/Kyiv',
+      }).format(new Date(iso));
+
+const STYLE: Record<Kind, { color: string; bg: string; dot: string }> = {
+  ok: { color: 'text.secondary', bg: 'transparent', dot: 'ge.ok' },
+  syncing: { color: 'primary.main', bg: 'ge.accentSoft', dot: 'primary.main' },
+  offline: { color: 'ge.warn', bg: 'ge.warnBg', dot: 'ge.warnDot' },
+  error: { color: 'ge.errFg', bg: 'ge.errBg', dot: 'ge.err' },
+};
+
+/** Стан синхронізації в шапці: синхронізовано, синхронізація, офлайн, помилка + сповіщення. */
 export function SyncIndicator() {
-  const { online, syncing, pending, problem, notices } = useSyncStore();
+  const { online, syncing, pending, problem, notices, lastSyncAt } = useSyncStore();
   const [open, setOpen] = useState(false);
 
-  const label = !online
-    ? t.offline(pending)
-    : problem === 'auth'
-      ? t.authProblem
-      : problem === 'server'
-        ? t.serverProblem
-        : syncing || pending > 0
-          ? t.syncing(pending)
-          : null;
-  if (label === null && notices.length === 0) return null;
+  const kind: Kind = !online
+    ? 'offline'
+    : problem !== null
+      ? 'error'
+      : syncing || pending > 0
+        ? 'syncing'
+        : 'ok';
+  const label = {
+    ok: t.synced(hhmm(lastSyncAt)),
+    syncing: t.syncing(pending),
+    offline: t.offline(pending),
+    error: problem === 'auth' ? t.authProblem : problem === 'server' ? t.serverProblem : t.error,
+  }[kind];
+  const s = STYLE[kind];
 
-  const warn = !online || problem !== null;
   return (
     <>
-      <Stack direction="row" spacing={1}>
-        {label !== null && (
-          <Chip
-            size="small"
-            role="status"
-            icon={!online ? <CloudOffIcon /> : syncing ? <SyncIcon /> : <CloudDoneIcon />}
-            label={label}
-            color={warn ? 'warning' : 'default'}
-            onClick={() => {
-              if (online) void runSync();
-            }}
+      <Stack direction="row" spacing={1} alignItems="center">
+        <Box
+          role="status"
+          className="tnum"
+          onClick={
+            online && kind !== 'ok'
+              ? () => {
+                  void runSync();
+                }
+              : undefined
+          }
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            height: 28,
+            px: 1.25,
+            borderRadius: '14px',
+            fontSize: 13,
+            fontWeight: 500,
+            whiteSpace: 'nowrap',
+            color: s.color,
+            bgcolor: s.bg,
+            cursor: online && kind !== 'ok' ? 'pointer' : 'default',
+          }}
+        >
+          <Box
+            component="span"
+            aria-hidden
             sx={{
-              color: warn ? undefined : 'inherit',
-              bgcolor: warn ? undefined : 'rgba(255,255,255,.16)',
+              width: 8,
+              height: 8,
+              borderRadius: '50%',
+              flexShrink: 0,
+              bgcolor: s.dot,
+              ...(kind === 'syncing' && {
+                boxShadow:
+                  '0 0 0 3px color-mix(in srgb, var(--mui-palette-primary-main) 18%, transparent)',
+              }),
             }}
           />
-        )}
+          <span>{label}</span>
+        </Box>
         {notices.length > 0 && (
           <Chip
             size="small"

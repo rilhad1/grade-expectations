@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Стани системи</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ge{--bg:#F7F5F0;--surface:#FFFFFF;--surface-2:#FBFAF7;--sunken:#F1EEE7;--line:#E4E0D6;--line-2:#D3CEC2;--text:#1F2328;--text-2:#4E545B;--text-3:#676C73;--accent:#1F3A5F;--accent-soft:#E7EDF4;--accent-line:#B9C8DA;--ok:#2E6A3E;--ok-bg:#E5F1E8;--warn:#7A4A06;--warn-bg:#FBF0DB;--err:#A3352B;--err-fg:#8F2B22;--err-bg:#FBE9E6;font-family:'Golos Text',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.45;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+.ge *{box-sizing:border-box}
+.ge h1,.ge h2,.ge h3,.ge p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+.sec{display:flex;flex-direction:column;gap:12px}
+.cap{font-size:12px;font-weight:600;color:var(--text-3);letter-spacing:.02em}
+.sh{font-size:17px;font-weight:600}
+.frame{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 14px;border-radius:6px;border:1px solid var(--line-2);background:var(--surface);color:var(--text);font:inherit;font-weight:500;cursor:pointer;white-space:nowrap;text-decoration:none}
+.btn-p{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
+.ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.sk{background:#ECE8E0;border-radius:4px}
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding:40px 32px}
+.empty .ill{width:56px;height:56px;border-radius:28px;background:var(--sunken);display:flex;align-items:center;justify-content:center;color:var(--text-3)}
+.gc{display:flex;align-items:center;justify-content:center;width:48px;height:36px;border-left:1px solid var(--line);font-variant-numeric:tabular-nums;font-size:13px;position:relative}
+.muted{color:var(--text-3)}.s2{color:var(--text-2)}
+</style>
+</helmet>
+<div class="ge" style="width: 1440px; height: 1840px; padding: 48px 32px; display: flex; flex-direction: column; gap: 40px">
+  <div style="display: flex; flex-direction: column; gap: 6px">
+    <h1 style="font-size: 28px; line-height: 36px; font-weight: 600; letter-spacing: -0.015em">Стани системи</h1>
+    <p class="s2">Офлайн, синхронізація, конфлікт змін, архів, порожні стани, завантаження і помилки — як вони виглядають у продукті.</p>
+  </div>
+
+  <section class="sec">
+    <span class="cap">ШАПКА · СИНХРОНІЗАЦІЯ, ОФЛАЙН, ПОМИЛКА, АРХІВ</span>
+    <div class="frame"><dc-import name="Topbar" sync="ok" hint-size="1376px,64px"></dc-import></div>
+    <div class="frame"><dc-import name="Topbar" sync="syncing" hint-size="1376px,64px"></dc-import></div>
+    <div class="frame"><dc-import name="Topbar" sync="offline" hint-size="1376px,64px"></dc-import></div>
+    <div class="frame"><dc-import name="Topbar" sync="error" hint-size="1376px,64px"></dc-import></div>
+    <div class="frame">
+      <dc-import name="Topbar" sync="ok" archive="{{ true }}" hint-size="1376px,64px"></dc-import>
+      <div role="status" style="display: flex; align-items: center; gap: 12px; padding: 12px 32px; background: var(--sunken); border-top: 1px solid var(--line); font-size: 14px">
+        <svg class="ic" viewBox="0 0 24 24" style="width: 18px; height: 18px; color: var(--text-2)"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
+        <span style="flex: 1"><b style="font-weight: 600">II семестр 2025/2026 — архівний.</b> <span class="s2">Журнал, атестації й розклад доступні лише для читання.</span></span>
+        <button type="button" class="btn" style="height: 32px">Повернутися до поточного семестру</button>
+      </div>
+    </div>
+  </section>
+
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; align-items: start">
+    <section class="sec">
+      <span class="cap">КОНФЛІКТ ЗМІН</span>
+      <div class="frame" role="alertdialog" aria-labelledby="cf-h" style="padding: 20px; display: flex; flex-direction: column; gap: 14px; box-shadow: 0 12px 32px rgba(31,35,40,.10)">
+        <h2 id="cf-h" style="font-size: 16px; font-weight: 600">Цю оцінку змінено на іншому пристрої</h2>
+        <p class="s2" style="font-size: 13px">Мельник Остап · Інформатика · практична · 5 жовт.</p>
+        <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px">
+          <div style="padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px"><div class="muted" style="font-size: 12px">Моя · телефон, офлайн</div><div class="num" style="font-size: 20px; font-weight: 600">7</div></div>
+          <div style="padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px"><div class="muted" style="font-size: 12px">Нова · ноутбук, 10:51</div><div class="num" style="font-size: 20px; font-weight: 600">8</div></div>
+        </div>
+        <div style="display: flex; gap: 8px; justify-content: flex-end"><button type="button" class="btn">Залишити мою</button><button type="button" class="btn btn-p">Взяти нову</button></div>
+      </div>
+    </section>
+
+    <section class="sec">
+      <span class="cap">ПОМИЛКА ЗБЕРЕЖЕННЯ КЛІТИНКИ</span>
+      <div class="frame" style="padding-bottom: 72px">
+        <div style="display: flex; align-items: center; height: 36px; border-bottom: 1px solid var(--line); font-size: 12px; color: var(--text-3); font-weight: 600"><span style="flex: 1; padding: 0 12px">Студент</span><span class="gc" style="font-size: 11px">1 жовт</span><span class="gc" style="font-size: 11px">5 жовт</span><span class="gc" style="font-size: 11px">8 жовт</span></div>
+        <div style="display: flex; align-items: center; height: 36px; border-bottom: 1px solid var(--line)"><span style="flex: 1; padding: 0 12px; font-size: 13px">Савчук О.</span><span class="gc" style="background: #F7E4E1; color: #8F2B22; font-weight: 700; font-size: 12px">н</span><span class="gc" style="font-weight: 500">4<span aria-hidden="true" style="position: absolute; right: 4px; top: 4px; width: 5px; height: 5px; border-radius: 3px; background: #B57A12"></span></span><span class="gc"></span></div>
+        <div style="display: flex; align-items: center; height: 36px; border-bottom: 1px solid var(--line)"><span style="flex: 1; padding: 0 12px; font-size: 13px">Ткачук І.</span><span class="gc"></span><span class="gc" style="box-shadow: inset 0 0 0 1.5px var(--err); background: #E6F2E9; font-weight: 500">11<span aria-hidden="true" style="position: absolute; right: 2px; top: 2px; width: 12px; height: 12px; border-radius: 6px; background: var(--err); color: #FFFFFF; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center">!</span>
+          <span role="alert" style="position: absolute; top: 40px; right: -60px; width: 220px; z-index: 3; background: var(--surface); border: 1px solid #E3B8B1; border-radius: 8px; box-shadow: 0 8px 20px rgba(31,35,40,.12); padding: 10px 12px; display: flex; flex-direction: column; gap: 6px; text-align: left; font-size: 13px"><b style="color: var(--err-fg); font-weight: 600">Не вдалося зберегти</b><span class="s2">Сервер не відповідає. Оцінка лишається на цьому пристрої.</span><span style="display: flex; gap: 12px"><button type="button" style="border: 0; background: none; padding: 0; font: inherit; color: var(--accent); font-weight: 600; cursor: pointer">Повторити</button><button type="button" style="border: 0; background: none; padding: 0; font: inherit; color: var(--text-2); cursor: pointer">Скасувати зміну</button></span></span>
+        </span><span class="gc"></span></div>
+      </div>
+      <p class="muted" style="font-size: 12px">Крапка в куті — зміна ще чекає синхронізації.</p>
+    </section>
+
+    <section class="sec">
+      <span class="cap">ЗАВАНТАЖЕННЯ · СКЕЛЕТОНИ</span>
+      <div class="frame" aria-busy="true" aria-label="Завантаження" style="padding: 20px; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; gap: 10px"><span class="sk" style="width: 64px; height: 22px; border-radius: 11px"></span><span class="sk" style="width: 96px; height: 22px"></span></div>
+        <span class="sk" style="width: 60%; height: 28px"></span>
+        <span class="sk" style="width: 45%; height: 16px"></span>
+        <span class="sk" style="width: 100%; height: 40px; border-radius: 6px"></span>
+        <span class="sk" style="width: 220px; height: 48px; border-radius: 6px"></span>
+      </div>
+      <div class="frame" aria-hidden="true" style="padding: 8px 16px">
+        <div style="display: flex; gap: 16px; align-items: center; height: 40px; border-bottom: 1px solid var(--line)"><span class="sk" style="width: 28px; height: 28px; border-radius: 14px"></span><span class="sk" style="width: 70px; height: 14px"></span><span class="sk" style="flex: 1; height: 14px"></span></div>
+        <div style="display: flex; gap: 16px; align-items: center; height: 40px; border-bottom: 1px solid var(--line)"><span class="sk" style="width: 28px; height: 28px; border-radius: 14px"></span><span class="sk" style="width: 70px; height: 14px"></span><span class="sk" style="flex: 1; height: 14px; max-width: 70%"></span></div>
+        <div style="display: flex; gap: 16px; align-items: center; height: 40px"><span class="sk" style="width: 28px; height: 28px; border-radius: 14px"></span><span class="sk" style="width: 70px; height: 14px"></span><span class="sk" style="flex: 1; height: 14px; max-width: 80%"></span></div>
+      </div>
+    </section>
+  </div>
+
+  <section class="sec">
+    <span class="cap">СПОВІЩЕННЯ СИНХРОНІЗАЦІЇ</span>
+    <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px">
+      <div role="status" class="frame" style="padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; box-shadow: 0 8px 20px rgba(31,35,40,.08)"><svg class="ic" viewBox="0 0 24 24" style="width: 18px; height: 18px; color: var(--accent); margin-top: 1px"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5"></path></svg><span style="display: flex; flex-direction: column; gap: 2px"><b style="font-weight: 600">Зв’язок відновлено</b><span class="s2 num" style="font-size: 13px">Надсилаємо 14 змін з цього пристрою…</span></span></div>
+      <div role="status" class="frame" style="padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; box-shadow: 0 8px 20px rgba(31,35,40,.08)"><svg class="ic" viewBox="0 0 24 24" style="width: 18px; height: 18px; color: var(--ok); margin-top: 1px"><path d="m5 12 5 5 9-10"></path></svg><span style="display: flex; flex-direction: column; gap: 2px"><b style="font-weight: 600">Усі зміни збережено</b><span class="s2 num" style="font-size: 13px">14 змін · ПДт-12, Інформатика, 5 жовт.</span></span></div>
+      <div role="alert" class="frame" style="padding: 14px 16px; display: flex; gap: 12px; align-items: flex-start; border-color: #E3B8B1; box-shadow: 0 8px 20px rgba(31,35,40,.08)"><svg class="ic" viewBox="0 0 24 24" style="width: 18px; height: 18px; color: var(--err); margin-top: 1px"><path d="M12 3 2 20h20z"></path><path d="M12 10v4M12 17h.01"></path></svg><span style="display: flex; flex-direction: column; gap: 4px"><b style="font-weight: 600">2 зміни не прийнято</b><span class="s2" style="font-size: 13px">Семестр закрито для редагування, поки ви були офлайн.</span><button type="button" style="align-self: flex-start; border: 0; background: none; padding: 0; font: inherit; font-size: 13px; color: var(--accent); font-weight: 600; cursor: pointer">Переглянути зміни</button></span></div>
+    </div>
+  </section>
+
+  <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; align-items: stretch">
+    <section class="sec">
+      <span class="cap">ПОРОЖНІЙ СТАН · РОЗКЛАД</span>
+      <div class="frame empty" style="flex: 1">
+        <span class="ill"><svg class="ic" viewBox="0 0 24 24" style="width: 26px; height: 26px"><rect x="3" y="4" width="18" height="17" rx="2"></rect><path d="M3 9h18M9 9v12M15 9v12"></path></svg></span>
+        <h2 style="font-size: 16px; font-weight: 600">У цьому семестрі ще немає розкладу</h2>
+        <p class="s2" style="font-size: 14px; max-width: 320px">Деканат ще не опублікував його. Ви отримаєте сповіщення, щойно розклад з’явиться.</p>
+        <button type="button" class="btn">Переглянути минулий семестр</button>
+      </div>
+    </section>
+    <section class="sec">
+      <span class="cap">ПОРОЖНІЙ СТАН · ЖУРНАЛ</span>
+      <div class="frame empty" style="flex: 1">
+        <span class="ill"><svg class="ic" viewBox="0 0 24 24" style="width: 26px; height: 26px"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"></path><path d="M5 17a3 3 0 0 1 3-3h11"></path></svg></span>
+        <h2 style="font-size: 16px; font-weight: 600">Ще не проведено жодного заняття</h2>
+        <p class="s2" style="font-size: 14px; max-width: 320px">Перше заняття ПДт-12 — пн, 7 вер., 2 пара. Оцінки й пропуски з’являться тут, щойно ви почнете пару.</p>
+        <a href="Schedule.dc.html" class="btn">Відкрити розклад</a>
+      </div>
+    </section>
+    <section class="sec">
+      <span class="cap">МОДЕРУВАННЯ · РОЗДІЛ У РОЗРОБЦІ</span>
+      <div class="frame empty" style="flex: 1">
+        <span class="ill"><svg class="ic" viewBox="0 0 24 24" style="width: 26px; height: 26px"><path d="M12 3 4 6v6c0 4.5 3.4 8.2 8 9 4.6-.8 8-4.5 8-9V6z"></path></svg></span>
+        <h2 style="font-size: 16px; font-weight: 600">Розділ у розробці</h2>
+        <p class="s2" style="font-size: 14px; max-width: 320px">Порожній стан для частини модерування, права якої ще уточнюються. Розклад, групи, навантаження й довідники — в окремих розділах.</p>
+        <a href="ScheduleBuilder.dc.html" class="btn">До конструктора розкладу</a>
+      </div>
+    </section>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1840}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

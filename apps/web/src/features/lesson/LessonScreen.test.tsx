@@ -22,6 +22,7 @@ vi.mock('../../api/queries', () => ({
 }));
 vi.mock('../../shared/ui/links', () => ({
   LinkButton: ({ children }: { children: React.ReactNode }) => <a href="/x">{children}</a>,
+  LinkBase: ({ children }: { children: React.ReactNode }) => <a href="/">{children}</a>,
 }));
 
 const { LessonScreen } = await import('./LessonScreen');
@@ -164,8 +165,11 @@ describe('LessonScreen («На парі»)', () => {
   it('«Завершити пару» показує підсумок зі скасуванням і ставить зміну в чергу', async () => {
     renderWithClient(<LessonScreen lessonId="l1" />);
     fireEvent.click(await screen.findByRole('button', { name: uk.lesson.finish }));
-    expect(await screen.findByText(uk.lesson.finishedTitle + '.')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: uk.lesson.undo })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('heading', { name: uk.lesson.finishedTitle }),
+    ).toBeInTheDocument();
+    expect(screen.getByText(uk.lesson.finishedSummary(3, 3, 0))).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: new RegExp(uk.lesson.undo) })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: uk.lesson.finish })).not.toBeInTheDocument();
     expect((await db.outbox.toArray()).map((r) => r.op.type)).toEqual(['lesson.finish']);
   });

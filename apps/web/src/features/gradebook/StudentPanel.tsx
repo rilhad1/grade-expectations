@@ -1,9 +1,10 @@
 import type { GradebookDto } from '@ge/shared';
 import CloseIcon from '@mui/icons-material/Close';
-import { Box, Chip, Divider, Drawer, IconButton, Stack, Typography } from '@mui/material';
+import { Avatar, Box, Chip, Divider, Drawer, IconButton, Stack, Typography } from '@mui/material';
 
 import { formatDate } from '../../shared/format';
 import { uk } from '../../shared/i18n/uk';
+import { GradeChip, StatCard } from '../../shared/ui';
 
 const p = uk.gradebook.panel;
 
@@ -18,76 +19,98 @@ export function StudentPanel({
   onClose: () => void;
 }) {
   const s = student.summary;
+  const scale = data.load.gradingRules.scale;
+  type Ev = { id: string; date: string; node: 'grade' | 'att'; value?: number; text: string };
   const events = data.lessons
     .flatMap((lesson) => {
       const cell = student.cells[lesson.id];
       if (!cell) return [];
-      const items: { id: string; date: string; text: string }[] = cell.grades.map((g) => ({
+      const items: Ev[] = cell.grades.map((g) => ({
         id: g.id,
         date: lesson.date,
-        text: `${p.grade} ${g.value} (${uk.lesson.gradeKinds[g.kind]})`,
+        node: 'grade',
+        value: g.value,
+        text: `${p.grade} · ${uk.lesson.gradeKinds[g.kind]}`,
       }));
       if (cell.attendance === 'ABSENT')
-        items.push({ id: `${lesson.id}-a`, date: lesson.date, text: p.absent });
+        items.push({ id: `${lesson.id}-a`, date: lesson.date, node: 'att', text: p.absent });
       if (cell.attendance === 'EXCUSED')
-        items.push({ id: `${lesson.id}-e`, date: lesson.date, text: p.excused });
+        items.push({ id: `${lesson.id}-e`, date: lesson.date, node: 'att', text: p.excused });
       if (cell.attendance === 'LATE')
-        items.push({ id: `${lesson.id}-l`, date: lesson.date, text: p.late });
+        items.push({ id: `${lesson.id}-l`, date: lesson.date, node: 'att', text: p.late });
       return items;
     })
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, 12);
+  const initials = `${student.lastName[0] ?? ''}${student.firstName[0] ?? ''}`;
+  const lowAvg = s.average !== null && s.average < 4;
 
   return (
     <Drawer anchor="right" open onClose={onClose}>
       <Box
-        sx={{ width: { xs: '100vw', sm: 380 }, p: 2 }}
+        sx={{ width: { xs: '100vw', sm: 400 }, p: 2.5 }}
         role="complementary"
         aria-label={`${student.lastName} ${student.firstName}`}
       >
-        <Stack direction="row" alignItems="center" sx={{ mb: 1 }}>
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            {student.lastName} {student.firstName} {student.middleName ?? ''}
-          </Typography>
+        <Stack direction="row" alignItems="flex-start" spacing={1.5} sx={{ mb: 2 }}>
+          <Avatar
+            sx={{
+              width: 44,
+              height: 44,
+              bgcolor: 'ge.accentSoft',
+              color: 'primary.main',
+              fontSize: 16,
+              fontWeight: 600,
+            }}
+          >
+            {initials}
+          </Avatar>
+          <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+            <Typography variant="h6" sx={{ lineHeight: 1.3 }}>
+              {student.lastName} {student.firstName} {student.middleName ?? ''}
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              {p.group}: {data.load.group.name} ·{' '}
+              {uk.groups.enrollmentStatus[student.enrollmentStatus]}
+            </Typography>
+          </Box>
           <IconButton onClick={onClose} aria-label={uk.common.close}>
             <CloseIcon />
           </IconButton>
         </Stack>
-        <Typography variant="body2" color="text.secondary">
-          {p.group}: {data.load.group.name}
-        </Typography>
-        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-          {p.status}: {uk.groups.enrollmentStatus[student.enrollmentStatus]}
-        </Typography>
 
-        <Typography variant="subtitle2">
+        <Typography variant="subtitle2" sx={{ mb: 1 }}>
           {p.summary} · {data.load.discipline.shortTitle}
         </Typography>
-        <Stack spacing={0.5} sx={{ my: 1, fontVariantNumeric: 'tabular-nums' }}>
-          <Typography variant="body2">
-            {p.average}:{' '}
-            <strong>
-              {s.average === null ? uk.common.none : s.average.toFixed(1).replace('.', ',')}
-            </strong>
-          </Typography>
-          <Typography variant="body2">
-            {p.grades}: {s.gradesCount}
-          </Typography>
-          <Typography variant="body2">
-            {p.absences}: {s.absences.unexcused} / {s.absences.excused} / {s.absences.late}
-          </Typography>
-          <Typography variant="body2">
-            {p.proposal}: <strong>{s.proposal.value === 'NA' ? 'н/а' : s.proposal.value}</strong>{' '}
-            <Typography component="span" variant="caption" color="text.secondary">
-              ({s.proposal.explanation})
-            </Typography>
-          </Typography>
-        </Stack>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1 }}>
+          <StatCard
+            label={p.average}
+            tone={lowAvg ? 'warn' : 'default'}
+            value={s.average === null ? uk.common.none : s.average.toFixed(1).replace('.', ',')}
+            suffix={`· ${String(s.gradesCount)}`}
+          />
+          <StatCard
+            label={uk.gradebook.absencesHint}
+            value={s.absences.unexcused}
+            suffix={`/ ${String(s.absences.excused)} / ${String(s.absences.late)}`}
+          />
+          <StatCard
+            label={p.proposal}
+            value={s.proposal.value === 'NA' ? 'н/а' : s.proposal.value}
+          />
+        </Box>
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.75 }}>
+          {p.absences}
+        </Typography>
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+          {p.proposal}: {s.proposal.explanation}
+        </Typography>
         {s.risk.length > 0 && (
           <Chip
             color="error"
             variant="outlined"
             size="small"
+            sx={{ mt: 1.5 }}
             label={`${p.risk}: ${s.risk.map((r) => uk.today.riskReasons[r]).join(', ')}`}
           />
         )}
@@ -101,12 +124,43 @@ export function StudentPanel({
             {p.noEvents}
           </Typography>
         )}
-        {events.map((e) => (
-          <Typography key={e.id} variant="body2" sx={{ mb: 0.5 }}>
-            <span style={{ fontVariantNumeric: 'tabular-nums' }}>{formatDate(e.date)}</span> —{' '}
-            {e.text}
-          </Typography>
-        ))}
+        <Stack spacing={1}>
+          {events.map((e) => (
+            <Stack key={e.id} direction="row" alignItems="center" spacing={1.25}>
+              {e.node === 'grade' && e.value !== undefined ? (
+                <GradeChip value={e.value} scale={scale} size="sm" />
+              ) : (
+                <Box
+                  component="span"
+                  sx={{
+                    minWidth: 26,
+                    height: 24,
+                    borderRadius: '4px',
+                    bgcolor: 'ge.sunken',
+                    color: 'ge.text3',
+                    fontSize: 13,
+                    fontWeight: 600,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  н
+                </Box>
+              )}
+              <Typography variant="body2" sx={{ flexGrow: 1 }}>
+                {e.text}
+              </Typography>
+              <Typography
+                variant="caption"
+                color="text.secondary"
+                sx={{ fontVariantNumeric: 'tabular-nums' }}
+              >
+                {formatDate(e.date)}
+              </Typography>
+            </Stack>
+          ))}
+        </Stack>
       </Box>
     </Drawer>
   );
