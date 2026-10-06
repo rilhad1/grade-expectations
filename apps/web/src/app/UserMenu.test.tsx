@@ -16,6 +16,7 @@ const me = (roles: MeResponse['roles']): MeResponse => ({
   },
   organization: { id: '0198a3a0-0000-7000-8000-000000000002', title: 'Демо-коледж' },
   roles,
+  features: { pdf: false },
 });
 
 beforeEach(() => {

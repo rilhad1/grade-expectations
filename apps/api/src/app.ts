@@ -52,7 +52,7 @@ export async function buildApp(env: Env): Promise<FastifyInstance> {
   await app.register(permissionsPlugin);
   await app.register(jobsPlugin, { env });
   await app.register(healthRoutes, { prefix: '/api/v1' });
-  await app.register(authRoutes, { prefix: '/api/v1' });
+  await app.register(authRoutes, { prefix: '/api/v1', signInLimit: env.AUTH_SIGNIN_LIMIT });
   await app.register(semesterRoutes, { prefix: '/api/v1' });
   await app.register(directoryRoutes, { prefix: '/api/v1' });
   await app.register(groupRoutes, { prefix: '/api/v1' });

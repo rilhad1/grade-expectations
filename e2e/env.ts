@@ -17,4 +17,9 @@ export const serverEnv = {
   DEMO_PASSWORD,
   // Детермінований «сьогодні» на сервері (понеділок посеред семестру з сид-розкладом)
   FAKE_TODAY: FAKE_TODAY,
+  // global-setup перестворює БД уже після старту API, тож pg-boss втратив би свою схему;
+  // реальна черга перевіряється інтеграційним тестом plugins/jobs.test.ts
+  JOBS_DRIVER: 'inline',
+  // Сценарії логіняться десятки разів за хвилину з одного IP
+  AUTH_SIGNIN_LIMIT: '1000',
 };

@@ -14,6 +14,8 @@ const envSchema = z
       .string()
       .regex(/^\d{4}-\d{2}-\d{2}$/)
       .optional(),
+    /** Спроб входу за хвилину з однієї пари IP + пошта (ADR-012); e2e піднімає ліміт. */
+    AUTH_SIGNIN_LIMIT: z.coerce.number().int().positive().default(10),
     /** Фонові задачі: pg-boss у production, inline (одразу в процесі) у тестах. */
     JOBS_DRIVER: z.enum(['pgboss', 'inline']).default('pgboss'),
     /** Схема Postgres для таблиць pg-boss. */

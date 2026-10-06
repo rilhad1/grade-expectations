@@ -24,6 +24,7 @@ export const testEnv = (): Env => ({
   DATABASE_URL: testDatabaseUrl(),
   BETTER_AUTH_SECRET: 'test-only-secret-0123456789abcdef0123',
   WEB_ORIGIN,
+  AUTH_SIGNIN_LIMIT: 10,
   JOBS_DRIVER: 'inline',
   PGBOSS_SCHEMA: 'pgboss_test',
 });

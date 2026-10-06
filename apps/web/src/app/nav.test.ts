@@ -9,6 +9,9 @@ describe('navFor', () => {
       '/schedule',
       '/gradebook',
       '/my-disciplines',
+      '/attestations',
+      '/hours',
+      '/profile',
     ]);
   });
   it('модератор додатково бачить розділи деканату', () => {
@@ -23,6 +26,9 @@ describe('navFor', () => {
       '/schedule',
       '/gradebook',
       '/my-disciplines',
+      '/attestations',
+      '/hours',
+      '/profile',
     ]);
   });
 });

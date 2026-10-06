@@ -8,6 +8,9 @@ export interface NavItem {
     | '/gradebook'
     | '/schedule'
     | '/my-disciplines'
+    | '/attestations'
+    | '/hours'
+    | '/profile'
     | '/admin/schedule-builder'
     | '/admin/semesters'
     | '/admin/groups'
@@ -25,6 +28,9 @@ const teacher: NavItem[] = [
   { to: '/schedule', label: uk.nav.schedule },
   { to: '/gradebook', label: uk.nav.gradebook },
   { to: '/my-disciplines', label: uk.nav.myDisciplines },
+  { to: '/attestations', label: uk.nav.attestations },
+  { to: '/hours', label: uk.nav.hours },
+  { to: '/profile', label: uk.nav.profile },
 ];
 
 const moderator: NavItem[] = [
@@ -32,6 +38,9 @@ const moderator: NavItem[] = [
   { to: '/schedule', label: uk.nav.schedule },
   { to: '/gradebook', label: uk.nav.gradebook },
   { to: '/my-disciplines', label: uk.nav.myDisciplines },
+  { to: '/attestations', label: uk.nav.attestations },
+  { to: '/hours', label: uk.nav.hours },
+  { to: '/profile', label: uk.nav.profile },
   { to: '/admin/schedule-builder', label: uk.nav.scheduleBuilder },
   { to: '/admin/semesters', label: uk.nav.semesters },
   { to: '/admin/groups', label: uk.nav.groups },
