@@ -506,7 +506,7 @@ export const uk = {
     hoursUnit: 'год',
     placeholder: 'Тут з’явиться ваш розклад на сьогодні.',
   },
-  theme: { label: 'Тема', light: 'Світла', dark: 'Темна', system: 'Як у системі' },
+  theme: { label: 'Тема', light: 'Світла', dark: 'Темна', system: 'Авто' },
   designSystem: {
     title: 'Дизайн-система',
     intro:
