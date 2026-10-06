@@ -19,6 +19,17 @@ describe('loadEnv', () => {
     ).toThrow();
   });
 
+  it('FAKE_TODAY дозволений поза production і заборонений у production', () => {
+    const base = {
+      DATABASE_URL: 'postgresql://x',
+      BETTER_AUTH_SECRET: 'x'.repeat(32),
+      FAKE_TODAY: '2026-10-12',
+    };
+    expect(loadEnv({ ...base, NODE_ENV: 'development' }).FAKE_TODAY).toBe('2026-10-12');
+    expect(() => loadEnv({ ...base, NODE_ENV: 'production' })).toThrow();
+    expect(() => loadEnv({ ...base, FAKE_TODAY: 'вчора' })).toThrow();
+  });
+
   it('Google необов’язковий', () => {
     const env = loadEnv({ DATABASE_URL: 'postgresql://x', BETTER_AUTH_SECRET: 'x'.repeat(32) });
     expect(env.GOOGLE_CLIENT_ID).toBeUndefined();

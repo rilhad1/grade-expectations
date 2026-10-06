@@ -1,6 +1,6 @@
 import { expect, type Page } from '@playwright/test';
 
-import { DEMO_PASSWORD } from '../env.js';
+import { BROWSER_NOW, DEMO_PASSWORD } from '../env.js';
 
 export const users = {
   teacher: 'teacher@demo.local',
@@ -9,6 +9,8 @@ export const users = {
 } as const;
 
 export async function login(page: Page, email: string): Promise<void> {
+  // Годинник браузера збігається з FAKE_TODAY сервера: 12 жовтня 2026, 10:30 за Києвом
+  await page.clock.setFixedTime(new Date(BROWSER_NOW));
   await page.goto('/login');
   await page.getByLabel('Електронна пошта').fill(email);
   await page.getByLabel('Пароль').fill(DEMO_PASSWORD);

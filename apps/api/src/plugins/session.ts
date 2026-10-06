@@ -52,7 +52,9 @@ export const sessionPlugin = fp((app: FastifyInstance, opts: { env: Env }) => {
   const auth = createAuth(app.prisma, opts.env);
   app.decorate('auth', auth);
   app.decorate('clock', {
-    today: () => new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Kyiv' }).format(new Date()),
+    today: () =>
+      opts.env.FAKE_TODAY ??
+      new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Kyiv' }).format(new Date()),
   });
 
   app.decorate('requireAuth', async (request: FastifyRequest): Promise<AuthContext> => {
