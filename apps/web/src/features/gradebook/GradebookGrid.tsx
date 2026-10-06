@@ -17,6 +17,7 @@ const INDEX_W = 36;
 const CELL_W = 46;
 const SUMMARY_W = 64;
 const ROW_H = 30;
+const BAND_H = 18;
 const HEAD_H = 44;
 
 export interface GridSelection {
@@ -83,6 +84,18 @@ export function GradebookGrid({
   const periodOf = (date: string) =>
     data.periods.find((p) => date >= p.startDate && date <= p.endDate);
 
+  // Смуги періодів над датами: підряд ідучі заняття одного періоду
+  const bands: { key: string; label: string; start: number; span: number }[] = [];
+  data.lessons.forEach((l, i) => {
+    const p = periodOf(l.date);
+    if (!p) return;
+    const last = bands[bands.length - 1];
+    const key = `${p.kind}-${p.startDate}`;
+    if (last?.key === key && last.start + last.span === i) last.span += 1;
+    else bands.push({ key, label: uk.semesters.periodKinds[p.kind], start: i, span: 1 });
+  });
+  const hasBands = bands.length > 0;
+
   const sticky = (left: number, bg = 'background.paper') => ({
     position: 'sticky' as const,
     left,
@@ -113,59 +126,93 @@ export function GradebookGrid({
         {/* Шапка */}
         <Box
           sx={{
-            display: 'grid',
-            gridTemplateColumns: template,
-            height: HEAD_H,
             position: 'sticky',
             top: 0,
             zIndex: 4,
             bgcolor: 'background.paper',
             borderBottom: 1,
             borderColor: 'ge.line2',
-            fontSize: 11,
-            color: 'ge.text3',
           }}
         >
-          {table.getHeaderGroups()[0]?.headers.map((header, i) => {
-            const lesson = data.lessons.find((l) => l.id === header.column.id);
-            const period = lesson ? periodOf(lesson.date) : undefined;
-            const left = i === 0 ? 0 : i === 1 ? INDEX_W : undefined;
-            const content = (
-              <Box
-                role="columnheader"
-                sx={{
-                  px: 0.5,
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  alignItems: i < 2 ? 'flex-start' : 'center',
-                  borderLeft: 1,
-                  borderColor: 'divider',
-                  bgcolor: period
-                    ? 'ge.accentSoft'
-                    : i > 1 + lessonCount
-                      ? 'ge.surface2'
-                      : 'background.paper',
-                  color: period ? 'primary.main' : undefined,
-                  fontVariantNumeric: 'tabular-nums',
-                  opacity: lesson?.status === 'PLANNED' ? 0.7 : 1,
-                  ...(left !== undefined ? sticky(left) : {}),
-                }}
-              >
-                <strong>{String(header.column.columnDef.header)}</strong>
-                {lesson && <span>{uk.loads.kindsShort[lesson.kind]}</span>}
-              </Box>
-            );
-            return lesson?.topic ? (
-              <Tooltip key={header.id} title={lesson.topic} placement="top">
-                {content}
-              </Tooltip>
-            ) : (
-              <Box key={header.id} sx={{ display: 'contents' }}>
-                {content}
-              </Box>
-            );
-          })}
+          {hasBands && (
+            <Box
+              aria-hidden
+              sx={{ display: 'grid', gridTemplateColumns: template, height: BAND_H }}
+            >
+              {bands.map((b) => (
+                <Box
+                  key={`${b.key}-${String(b.start)}`}
+                  sx={{
+                    gridColumn: `${b.start + 3} / span ${b.span}`,
+                    bgcolor: 'ge.accentSoft',
+                    color: 'primary.main',
+                    fontSize: 10,
+                    fontWeight: 600,
+                    px: 0.75,
+                    display: 'flex',
+                    alignItems: 'center',
+                    borderLeft: 1,
+                    borderColor: 'ge.accentLine',
+                    overflow: 'hidden',
+                    whiteSpace: 'nowrap',
+                    textOverflow: 'ellipsis',
+                  }}
+                >
+                  {b.label}
+                </Box>
+              ))}
+            </Box>
+          )}
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: template,
+              height: HEAD_H,
+              fontSize: 11,
+              color: 'ge.text3',
+            }}
+          >
+            {table.getHeaderGroups()[0]?.headers.map((header, i) => {
+              const lesson = data.lessons.find((l) => l.id === header.column.id);
+              const period = lesson ? periodOf(lesson.date) : undefined;
+              const left = i === 0 ? 0 : i === 1 ? INDEX_W : undefined;
+              const content = (
+                <Box
+                  role="columnheader"
+                  sx={{
+                    px: 0.5,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignItems: i < 2 ? 'flex-start' : 'center',
+                    borderLeft: 1,
+                    borderColor: 'divider',
+                    bgcolor: period
+                      ? 'ge.accentSoft'
+                      : i > 1 + lessonCount
+                        ? 'ge.surface2'
+                        : 'background.paper',
+                    color: period ? 'primary.main' : undefined,
+                    fontVariantNumeric: 'tabular-nums',
+                    opacity: lesson?.status === 'PLANNED' ? 0.7 : 1,
+                    ...(left !== undefined ? sticky(left) : {}),
+                  }}
+                >
+                  <strong>{String(header.column.columnDef.header)}</strong>
+                  {lesson && <span>{uk.loads.kindsShort[lesson.kind]}</span>}
+                </Box>
+              );
+              return lesson?.topic ? (
+                <Tooltip key={header.id} title={lesson.topic} placement="top">
+                  {content}
+                </Tooltip>
+              ) : (
+                <Box key={header.id} sx={{ display: 'contents' }}>
+                  {content}
+                </Box>
+              );
+            })}
+          </Box>
         </Box>
 
         {/* Рядки (віртуалізовані) */}
