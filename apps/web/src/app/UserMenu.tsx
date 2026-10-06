@@ -14,7 +14,7 @@ import {
 import { useState } from 'react';
 
 import { uk } from '../shared/i18n/uk';
-import { RoleBadge } from '../shared/ui/RoleBadge';
+import { RoleBadge } from '../shared/ui/Badges';
 
 import { resolveActiveRole, useRoleStore } from './roleStore';
 

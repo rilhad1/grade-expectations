@@ -12,6 +12,7 @@
   "dependencies": {
     "@emotion/react": "11.14.0",
     "@emotion/styled": "11.14.1",
+    "@fontsource/golos-text": "5.3.0",
     "@ge/domain": "workspace:*",
     "@ge/shared": "workspace:*",
     "@hookform/resolvers": "5.9.1",
