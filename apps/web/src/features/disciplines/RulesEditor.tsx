@@ -1,5 +1,17 @@
 import type { GradingRules, LoadDto } from '@ge/shared';
-import { Alert, Button, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import AddIcon from '@mui/icons-material/Add';
+import RemoveIcon from '@mui/icons-material/Remove';
+import {
+  Alert,
+  Box,
+  Button,
+  IconButton,
+  InputAdornment,
+  MenuItem,
+  Stack,
+  TextField,
+  Typography,
+} from '@mui/material';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
@@ -11,6 +23,81 @@ import { WEIGHT_KINDS, weightsFromForm } from './rulesModel';
 
 const d = uk.disciplines;
 const SCALES = ['TWELVE', 'FIVE', 'HUNDRED', 'PASS_FAIL'] as const;
+
+/** Числове поле з кнопками «−» і «+» (межі та крок задає викликач). */
+function NumberStepper({
+  label,
+  value,
+  onChange,
+  min,
+  max,
+  step = 1,
+  suffix,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  min: number;
+  max: number;
+  step?: number;
+  suffix?: string;
+}) {
+  const n = Number(value);
+  const bump = (delta: number) => {
+    const base = Number.isFinite(n) ? n : 0;
+    onChange(String(Math.min(max, Math.max(min, base + delta))));
+  };
+  return (
+    <TextField
+      label={label}
+      type="number"
+      value={value}
+      onChange={(e) => {
+        onChange(e.target.value);
+      }}
+      slotProps={{
+        htmlInput: { min, max, step, style: { textAlign: 'center' } },
+        input: {
+          startAdornment: (
+            <InputAdornment position="start">
+              <IconButton
+                size="small"
+                edge="start"
+                aria-label={`${label}: −`}
+                disabled={n <= min}
+                onClick={() => {
+                  bump(-step);
+                }}
+              >
+                <RemoveIcon fontSize="small" />
+              </IconButton>
+            </InputAdornment>
+          ),
+          endAdornment: (
+            <InputAdornment position="end">
+              {suffix && (
+                <Typography variant="body2" color="text.secondary" sx={{ mr: 0.5 }}>
+                  {suffix}
+                </Typography>
+              )}
+              <IconButton
+                size="small"
+                edge="end"
+                aria-label={`${label}: +`}
+                disabled={n >= max}
+                onClick={() => {
+                  bump(step);
+                }}
+              >
+                <AddIcon fontSize="small" />
+              </IconButton>
+            </InputAdornment>
+          ),
+        },
+      }}
+    />
+  );
+}
 
 /** Правила оцінювання навантаження: шкала, ваги типів оцінок, пороги «н/а». */
 export function RulesEditor({ load }: { load: LoadDto }) {
@@ -50,7 +137,7 @@ export function RulesEditor({ load }: { load: LoadDto }) {
   });
 
   return (
-    <Stack spacing={2} sx={{ maxWidth: 560 }}>
+    <Stack spacing={2}>
       <TextField
         select
         label={d.scale}
@@ -70,7 +157,7 @@ export function RulesEditor({ load }: { load: LoadDto }) {
         <Typography variant="subtitle2" gutterBottom>
           {d.weights}
         </Typography>
-        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 1.5 }}>
           {WEIGHT_KINDS.map((k) => (
             <TextField
               key={k}
@@ -81,29 +168,26 @@ export function RulesEditor({ load }: { load: LoadDto }) {
                 save.reset();
                 setWeights({ ...weights, [k]: e.target.value });
               }}
-              sx={{ width: 130 }}
             />
           ))}
-        </Stack>
+        </Box>
       </div>
-      <Stack direction="row" spacing={2}>
-        <TextField
+      <Stack spacing={1.5}>
+        <NumberStepper
           label={d.minGrades}
-          type="number"
           value={minGrades}
-          onChange={(e) => {
-            setMinGrades(e.target.value);
-          }}
-          sx={{ flex: 1 }}
+          onChange={setMinGrades}
+          min={0}
+          max={50}
         />
-        <TextField
+        <NumberStepper
           label={d.maxAbsence}
-          type="number"
           value={maxAbsence}
-          onChange={(e) => {
-            setMaxAbsence(e.target.value);
-          }}
-          sx={{ flex: 1 }}
+          onChange={setMaxAbsence}
+          min={0}
+          max={100}
+          step={5}
+          suffix="%"
         />
       </Stack>
       <TextField
