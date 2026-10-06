@@ -109,7 +109,7 @@ test.describe('сценарії викладача (сьогодні — 12 жо
     await login(page, users.teacher);
     await page.getByRole('link', { name: 'Мої дисципліни' }).click();
     await page.getByRole('main').getByRole('link').first().click();
-    await page.getByLabel('Поріг неповажних пропусків, %').fill('40');
+    await page.getByLabel('Поріг неповажних пропусків, %', { exact: true }).fill('40');
     await expect(page.getByText(/понад 40%/)).toBeVisible();
     await page.getByRole('button', { name: 'Зберегти правила' }).click();
     await expect(page.getByText('Правила збережено')).toBeVisible();

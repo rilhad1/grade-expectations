@@ -9,10 +9,10 @@ import {
   Box,
   Button,
   ButtonBase,
-  Chip,
   IconButton,
   Menu,
   MenuItem,
+  Paper,
   Stack,
   Typography,
   useMediaQuery,
@@ -40,6 +40,7 @@ import {
 import { formatShortDate } from '../../shared/format';
 import { uk } from '../../shared/i18n/uk';
 import { DisciplineDot } from '../../shared/ui/DisciplineDot';
+import { EmptyState } from '../../shared/ui/EmptyState';
 import { ErrorAlert } from '../../shared/ui/ErrorAlert';
 import { LessonCard } from '../../shared/ui/LessonCard';
 import { PageHeader } from '../../shared/ui/PageHeader';
@@ -431,20 +432,66 @@ function SchedulePage() {
         />
       )}
 
-      <Typography variant="h6" component="h2" sx={{ mt: 4, mb: 1 }}>
+      <Typography variant="h6" component="h2" sx={{ mt: 4, mb: 1.5, fontSize: 16 }}>
         {t.myRequests}
       </Typography>
       {(myRequests.data ?? []).length === 0 && (
-        <Typography color="text.secondary">{t.noRequests}</Typography>
+        <EmptyState
+          icon={<EventAvailableOutlined />}
+          title={t.noRequests}
+          description={t.noRequestsHint}
+        />
       )}
-      {(myRequests.data ?? []).slice(0, 10).map((r) => (
-        <Typography key={r.id} variant="body2" sx={{ mb: 0.5 }}>
-          {r.lesson.discipline.shortTitle} · {r.lesson.group.name}: {formatShortDate(r.lesson.date)}{' '}
-          → {formatShortDate(r.proposedDate)}, {r.proposedPair} {uk.today.pair} —{' '}
-          <Chip size="small" variant="outlined" label={uk.requests.statuses[r.status]} />
-          {r.resolverComment ? ` ${r.resolverComment}` : ''}
-        </Typography>
-      ))}
+      <Box
+        sx={{
+          display: 'grid',
+          gap: 1.5,
+          gridTemplateColumns: { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' },
+        }}
+      >
+        {(myRequests.data ?? []).slice(0, 10).map((r) => {
+          const tone = r.status === 'APPROVED' ? 'ok' : r.status === 'REJECTED' ? 'err' : 'warn';
+          return (
+            <Paper key={r.id} variant="outlined" sx={{ p: 2 }}>
+              <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: 1 }}>
+                <DisciplineDot color={r.lesson.discipline.color} size={10} gap={0} />
+                <Typography sx={{ fontWeight: 600, flexGrow: 1, minWidth: 0 }} noWrap>
+                  {r.lesson.discipline.shortTitle} · {r.lesson.group.name}
+                </Typography>
+                <Box
+                  component="span"
+                  sx={{
+                    px: 1,
+                    py: '2px',
+                    borderRadius: '4px',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    bgcolor: `ge.${tone}Bg`,
+                    color: `ge.${tone}`,
+                  }}
+                >
+                  {uk.requests.statuses[r.status]}
+                </Box>
+              </Stack>
+              <Typography className="tnum" variant="body2">
+                {formatShortDate(r.lesson.date)}, {r.lesson.pairNumber} {uk.today.pair} →{' '}
+                <strong>
+                  {formatShortDate(r.proposedDate)}, {r.proposedPair} {uk.today.pair}
+                </strong>
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                {r.reason}
+              </Typography>
+              {r.resolverComment && (
+                <Typography variant="body2" sx={{ mt: 1, color: 'ge.text2' }}>
+                  {r.resolvedBy?.fullName ? `${r.resolvedBy.fullName}: ` : ''}
+                  {r.resolverComment}
+                </Typography>
+              )}
+            </Paper>
+          );
+        })}
+      </Box>
     </>
   );
 }
