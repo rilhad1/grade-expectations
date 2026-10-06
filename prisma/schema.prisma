@@ -635,6 +635,8 @@ model Attendance {
   lessonId     String           @db.Uuid
   enrollmentId String           @db.Uuid
   status       AttendanceStatus @default(PRESENT)
+  /// Момент редагування на пристрої (LWW по клітинці, ADR-019)
+  editedAt     DateTime?
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
   version      Int              @default(0)
@@ -678,6 +680,8 @@ model Grade {
   value        Int // у шкалі дисципліни; для PASS_FAIL: 1 — зараховано, 0 — ні (OQ-9)
   weight       Decimal   @default(1)
   comment      String?
+  /// Момент редагування на пристрої (LWW по клітинці, ADR-019)
+  editedAt     DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   version      Int       @default(0)
@@ -760,6 +764,18 @@ model CalendarFeed {
   rotatedAt DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id])
+}
+
+// Результати застосованих операцій sync/push: повторна відправка не застосовується двічі.
+model SyncOp {
+  id        String   @id @db.Uuid
+  userId    String   @db.Uuid
+  status    String
+  code      String?
+  message   String?
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }
 
 // Аудит і основа синхронізації.

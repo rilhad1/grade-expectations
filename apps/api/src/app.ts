@@ -24,6 +24,7 @@ import { programRoutes } from './modules/programs/routes.js';
 import { requestRoutes } from './modules/requests/routes.js';
 import { scheduleRoutes } from './modules/schedules/routes.js';
 import { semesterRoutes } from './modules/semesters/routes.js';
+import { syncRoutes } from './modules/sync/routes.js';
 import { userRoutes } from './modules/users/routes.js';
 import { errorsPlugin } from './plugins/errors.js';
 import { jobsPlugin } from './plugins/jobs.js';
@@ -65,6 +66,7 @@ export async function buildApp(env: Env): Promise<FastifyInstance> {
   await app.register(programRoutes, { prefix: '/api/v1' });
   await app.register(attestationRoutes, { prefix: '/api/v1' });
   await app.register(calendarRoutes, { prefix: '/api/v1' });
+  await app.register(syncRoutes, { prefix: '/api/v1' });
   await app.register(documentRoutes, { prefix: '/api/v1', gotenbergUrl: env.GOTENBERG_URL });
   await app.register(meRoutes, {
     prefix: '/api/v1',

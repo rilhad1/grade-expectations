@@ -26,7 +26,7 @@ const lessonInclude = {
   topic: true,
 } satisfies Prisma.LessonInclude;
 
-type LessonRow = Prisma.LessonGetPayload<{ include: typeof lessonInclude }>;
+export type LessonRow = Prisma.LessonGetPayload<{ include: typeof lessonInclude }>;
 
 const isModerator = (ctx: AuthContext) => ctx.roles.includes('MODERATOR');
 
@@ -67,7 +67,7 @@ export async function gradeOwner(ctx: AuthContext, gradeId: string): Promise<str
 }
 
 /** Склад заняття: активні студенти групи (або підгрупи) на дату заняття. */
-async function rosterEnrollments(ctx: AuthContext, lesson: LessonRow) {
+export async function rosterEnrollments(ctx: AuthContext, lesson: LessonRow) {
   const date = lesson.date;
   return ctx.db.enrollment.findMany({
     where: {
@@ -155,13 +155,13 @@ export async function getLessonDetail(ctx: AuthContext, id: string): Promise<Les
 }
 
 /** Відмітки й оцінки приймаються лише до заняття, що відбувається (не скасоване й не перенесене). */
-function assertWritable(lesson: LessonRow): void {
+export function assertWritable(lesson: LessonRow): void {
   if (lesson.status === 'CANCELLED' || lesson.status === 'MOVED') {
     throw conflict('LESSON_NOT_ACTIVE', 'Заняття скасовано або перенесено');
   }
 }
 
-async function assertSemesterOpen(ctx: AuthContext, lesson: LessonRow) {
+export async function assertSemesterOpen(ctx: AuthContext, lesson: LessonRow) {
   const semester = await ctx.db.semester.findFirst({ where: { id: lesson.load.semesterId } });
   if (semester?.status === 'CLOSED')
     throw conflict('SEMESTER_CLOSED', 'Закритий семестр доступний лише для читання');
@@ -207,7 +207,12 @@ export async function finishLesson(ctx: AuthContext, id: string): Promise<Lesson
     await tx.attendance.createMany({
       data: roster
         .filter((e) => !have.has(e.id))
-        .map((e) => ({ lessonId: id, enrollmentId: e.id, status: 'PRESENT' as const })),
+        .map((e) => ({
+          lessonId: id,
+          enrollmentId: e.id,
+          status: 'PRESENT' as const,
+          editedAt: new Date(),
+        })),
     });
     await tx.lesson.update({ where: { id }, data: { status: 'HELD', version: { increment: 1 } } });
     await audit(tx, ctx, {
@@ -268,8 +273,18 @@ export async function markAttendance(
       if (before?.status === mark.status && before.deletedAt === null) continue;
       await tx.attendance.upsert({
         where: { lessonId_enrollmentId: { lessonId: id, enrollmentId: mark.enrollmentId } },
-        create: { lessonId: id, enrollmentId: mark.enrollmentId, status: mark.status },
-        update: { status: mark.status, deletedAt: null, version: { increment: 1 } },
+        create: {
+          lessonId: id,
+          enrollmentId: mark.enrollmentId,
+          status: mark.status,
+          editedAt: new Date(),
+        },
+        update: {
+          status: mark.status,
+          editedAt: new Date(),
+          deletedAt: null,
+          version: { increment: 1 },
+        },
       });
       await audit(tx, ctx, {
         entity: 'Attendance',
@@ -284,7 +299,7 @@ export async function markAttendance(
 }
 
 // ── Оцінки ───────────────────────────────────────────
-function assertValueInScale(lesson: LessonRow, value: number): void {
+export function assertValueInScale(lesson: LessonRow, value: number): void {
   const scale =
     gradingRulesSchema.safeParse(lesson.load.gradingRules).data?.scale ?? defaultGradingRules.scale;
   const { min, max } = SCALE_RANGE[scale];
@@ -318,6 +333,7 @@ export async function createGrade(
         kind: input.kind,
         value: input.value,
         comment: input.comment,
+        editedAt: new Date(),
       },
     });
     await audit(tx, ctx, {
@@ -358,7 +374,7 @@ export async function updateGrade(
   await ctx.db.$transaction(async (tx) => {
     const { count } = await tx.grade.updateMany({
       where: { id, version, deletedAt: null },
-      data: { ...definedOnly(data), version: { increment: 1 } },
+      data: { ...definedOnly(data), editedAt: new Date(), version: { increment: 1 } },
     });
     if (count === 0)
       throw conflict('VERSION_CONFLICT', 'Оцінку змінено на іншому пристрої; оновіть дані');
@@ -385,7 +401,7 @@ export async function deleteGrade(ctx: AuthContext, id: string): Promise<LessonD
   await ctx.db.$transaction(async (tx) => {
     await tx.grade.update({
       where: { id },
-      data: { deletedAt: new Date(), version: { increment: 1 } },
+      data: { deletedAt: new Date(), editedAt: new Date(), version: { increment: 1 } },
     });
     await audit(tx, ctx, {
       entity: 'Grade',

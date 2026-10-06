@@ -7,6 +7,7 @@ export * from './freeSlots.js';
 export * from './generateLessons.js';
 export * from './hoursProgress.js';
 export * from './icsCalendar.js';
+export * from './lww.js';
 export * from './moduleProposal.js';
 export * from './permissions.js';
 export * from './promoteGroup.js';

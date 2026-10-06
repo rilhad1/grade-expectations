@@ -13,4 +13,5 @@ export * from './dto/directory.js';
 export * from './dto/loads.js';
 export * from './dto/schedules.js';
 export * from './dto/requests.js';
+export * from './dto/sync.js';
 export * from './dto/teaching.js';

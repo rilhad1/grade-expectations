@@ -85,6 +85,7 @@ export async function deleteOrganization(
   const lesson = { lesson: load };
   const enr = { enrollment: { student: { organizationId } } };
 
+  await prisma.syncOp.deleteMany({ where: { userId: { in: userIds } } });
   await prisma.attendance.deleteMany({ where: lesson });
   await prisma.grade.deleteMany({ where: enr });
   await prisma.attestationResult.deleteMany({ where: load });
