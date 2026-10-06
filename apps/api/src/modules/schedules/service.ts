@@ -530,7 +530,7 @@ export async function publishSchedule(
 }
 
 /** Теми з тематичного плану розкладаються по заняттях навантаження по черзі (лише ті, що не правилися вручну). */
-async function assignTopicsForLoads(ctx: AuthContext, loadIds: string[]): Promise<void> {
+export async function assignTopicsForLoads(ctx: AuthContext, loadIds: string[]): Promise<void> {
   for (const loadId of loadIds) {
     const load = await ctx.db.teachingLoad.findFirst({ where: { id: loadId } });
     if (!load) continue;
@@ -555,8 +555,11 @@ async function assignTopicsForLoads(ctx: AuthContext, loadIds: string[]): Promis
     );
     for (const lesson of lessons) {
       const topicId = assigned.get(lesson.id) ?? null;
+      // Заплановані заняття переприсвоюються; проведені без теми лише доповнюються (історію не перезаписуємо)
+      const assignable =
+        lesson.status === 'PLANNED' || (lesson.status === 'HELD' && lesson.topicId === null);
       if (
-        lesson.status === 'PLANNED' &&
+        assignable &&
         !lesson.manuallyEdited &&
         lesson.topicText === null &&
         lesson.topicId !== topicId

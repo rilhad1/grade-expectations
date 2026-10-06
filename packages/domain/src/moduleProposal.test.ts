@@ -1,7 +1,11 @@
 import type { GradingRules } from '@ge/shared';
 import { describe, expect, it } from 'vitest';
 
-import { computeModuleProposal, computeSemesterAverage } from './moduleProposal.js';
+import {
+  computeModuleProposal,
+  computeSemesterAverage,
+  weightedAverage,
+} from './moduleProposal.js';
 import type { AttendanceInput, GradeInput } from './types.js';
 
 const rules: GradingRules = {
@@ -137,5 +141,23 @@ describe('computeSemesterAverage', () => {
     ];
     const r = computeSemesterAverage(grades, [], rules, { from: '2026-09-01', to: '2026-12-28' });
     expect(r.value).toBe(9);
+  });
+});
+
+describe('weightedAverage', () => {
+  it('рахує зважене середнє й кількість оцінок', () => {
+    // (8*1 + 10*2) / 3
+    expect(weightedAverage([g(8), g(10, 'TEST')], rules)).toEqual({ average: 28 / 3, count: 2 });
+  });
+  it('порожній набір → null', () => {
+    expect(weightedAverage([], rules)).toEqual({ average: null, count: 0 });
+  });
+  it('пропущена контрольна: ігнорується або нуль', () => {
+    const grades = [g(10), g(10, 'TEST', { missed: true })];
+    expect(weightedAverage(grades, rules)).toEqual({ average: 10, count: 1 });
+    expect(weightedAverage(grades, { ...rules, missedTest: 'ZERO' })).toEqual({
+      average: 10 / 3,
+      count: 2,
+    });
   });
 });

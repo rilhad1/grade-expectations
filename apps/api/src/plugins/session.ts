@@ -16,6 +16,8 @@ export interface AuthContext {
   db: TenantClient;
   /** Сьогодні (YYYY-MM-DD, Europe/Kyiv). Джерело часу в сервісах; у тестах підміняється. */
   today: () => string;
+  /** Пристрій, з якого прийшла зміна (для аудиту й синхронізації). */
+  deviceId: string;
 }
 
 declare module 'fastify' {
@@ -72,6 +74,7 @@ export const sessionPlugin = fp((app: FastifyInstance, opts: { env: Env }) => {
       roles: membership.roles,
       db: forOrganization(app.prisma, membership.organizationId),
       today: () => app.clock.today(),
+      deviceId: String(request.headers['x-device-id'] ?? 'web').slice(0, 64),
     };
     request.authContext = context;
     return context;

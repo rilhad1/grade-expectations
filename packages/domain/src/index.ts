@@ -9,6 +9,7 @@ export * from './moduleProposal.js';
 export * from './permissions.js';
 export * from './promoteGroup.js';
 export * from './requiredModules.js';
+export * from './risk.js';
 export * from './scheduleConflicts.js';
 export * from './studentList.js';
 export * from './teachingDays.js';

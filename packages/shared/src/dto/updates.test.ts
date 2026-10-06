@@ -12,6 +12,7 @@ import {
 } from './directory.js';
 import { updateLoadSchema } from './loads.js';
 import { updateSlotSchema } from './schedules.js';
+import { updateGradeSchema, updateLessonSchema } from './teaching.js';
 
 /**
  * Регресія: у Zod 4 `.partial()` не прибирає `.default()`, тому PATCH без поля
@@ -31,6 +32,8 @@ describe('схеми оновлення не підставляють значе
     enrollment: updateEnrollmentSchema,
     load: updateLoadSchema,
     slot: updateSlotSchema,
+    grade: updateGradeSchema,
+    lesson: updateLessonSchema,
   };
 
   it.each(Object.entries(schemas))('%s', (_name, schema) => {
