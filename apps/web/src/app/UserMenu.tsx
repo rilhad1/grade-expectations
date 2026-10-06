@@ -26,7 +26,16 @@ const initials = (fullName: string): string =>
     .slice(0, 2)
     .toUpperCase();
 
-export function UserMenu({ me, onLogout }: { me: MeResponse; onLogout: () => void }) {
+export function UserMenu({
+  me,
+  onLogout,
+  compact = false,
+}: {
+  me: MeResponse;
+  onLogout: () => void;
+  /** На вузьких екранах показується лише аватар. */
+  compact?: boolean;
+}) {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
   const preferred = useRoleStore((s) => s.preferredRole);
   const setPreferred = useRoleStore((s) => s.setPreferredRole);
@@ -44,7 +53,7 @@ export function UserMenu({ me, onLogout }: { me: MeResponse; onLogout: () => voi
           <Avatar sx={{ width: 28, height: 28, fontSize: 13 }}>{initials(me.user.fullName)}</Avatar>
         }
       >
-        {me.user.fullName}
+        {compact ? null : me.user.fullName}
       </Button>
       <Menu
         anchorEl={anchor}

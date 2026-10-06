@@ -19,9 +19,11 @@ export const toSemesterInput = (s: SemesterFullDto): SemesterInput => ({
 export function WeekBadge({
   semester,
   today = todayKyiv(),
+  onDark = true,
 }: {
   semester: SemesterFullDto | null;
   today?: string;
+  onDark?: boolean;
 }) {
   if (!semester || today < semester.startDate || today > semester.endDate) return null;
   const parity = weekParity(today, toSemesterInput(semester));
@@ -30,7 +32,7 @@ export function WeekBadge({
       size="small"
       variant="outlined"
       label={parity === 'TOP' ? uk.header.topWeek : uk.header.bottomWeek}
-      sx={{ color: 'inherit', borderColor: 'currentColor' }}
+      {...(onDark && { sx: { color: 'inherit', borderColor: 'currentColor' } })}
     />
   );
 }

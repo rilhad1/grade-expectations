@@ -5,6 +5,9 @@ import { uk } from '../shared/i18n/uk';
 export interface NavItem {
   to:
     | '/'
+    | '/gradebook'
+    | '/schedule'
+    | '/my-disciplines'
     | '/admin/schedule-builder'
     | '/admin/semesters'
     | '/admin/groups'
@@ -17,10 +20,18 @@ export interface NavItem {
   badge?: 'requests';
 }
 
-const teacher: NavItem[] = [{ to: '/', label: uk.nav.today }];
+const teacher: NavItem[] = [
+  { to: '/', label: uk.nav.today },
+  { to: '/schedule', label: uk.nav.schedule },
+  { to: '/gradebook', label: uk.nav.gradebook },
+  { to: '/my-disciplines', label: uk.nav.myDisciplines },
+];
 
 const moderator: NavItem[] = [
   { to: '/', label: uk.nav.today },
+  { to: '/schedule', label: uk.nav.schedule },
+  { to: '/gradebook', label: uk.nav.gradebook },
+  { to: '/my-disciplines', label: uk.nav.myDisciplines },
   { to: '/admin/schedule-builder', label: uk.nav.scheduleBuilder },
   { to: '/admin/semesters', label: uk.nav.semesters },
   { to: '/admin/groups', label: uk.nav.groups },

@@ -7,6 +7,7 @@ import {
   Box,
   Drawer,
   IconButton,
+  Stack,
   List,
   ListItemButton,
   ListItemText,
@@ -105,9 +106,10 @@ export function AppShell({
           <Typography variant="h6" component="div" sx={{ flexGrow: 1, whiteSpace: 'nowrap' }}>
             {uk.app.name}
           </Typography>
-          <WeekBadge semester={semester} />
-          <SemesterSwitcher />
-          <UserMenu me={me} onLogout={onLogout} />
+          {/* На телефоні перемикач семестру й бейдж тижня — у шторці, щоб у шапці лишилось меню користувача */}
+          {desktop && <WeekBadge semester={semester} />}
+          {desktop && <SemesterSwitcher />}
+          <UserMenu me={me} onLogout={onLogout} compact={!desktop} />
         </Toolbar>
       </AppBar>
 
@@ -123,6 +125,14 @@ export function AppShell({
         }}
       >
         <Toolbar />
+        {!desktop && (
+          <Stack spacing={1.5} sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
+            <SemesterSwitcher onDark={false} />
+            <Box>
+              <WeekBadge semester={semester} onDark={false} />
+            </Box>
+          </Stack>
+        )}
         {nav}
       </Drawer>
 

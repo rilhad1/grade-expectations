@@ -22,7 +22,8 @@ export function useCurrentSemester() {
   };
 }
 
-export function SemesterSwitcher() {
+/** У шапці (на темному тлі) або в шторці навігації (на світлому). */
+export function SemesterSwitcher({ onDark = true }: { onDark?: boolean }) {
   const { semester, semesters, years } = useCurrentSemester();
   const setSemesterId = useSemesterStore((s) => s.setSemesterId);
 
@@ -40,12 +41,16 @@ export function SemesterSwitcher() {
         setSemesterId(e.target.value);
       }}
       inputProps={{ 'aria-label': uk.header.semester }}
-      sx={{
-        color: 'inherit',
-        minWidth: 200,
-        '.MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,.4)' },
-        '.MuiSvgIcon-root': { color: 'inherit' },
-      }}
+      sx={
+        onDark
+          ? {
+              color: 'inherit',
+              minWidth: 200,
+              '.MuiOutlinedInput-notchedOutline': { borderColor: 'rgba(255,255,255,.4)' },
+              '.MuiSvgIcon-root': { color: 'inherit' },
+            }
+          : { minWidth: 200 }
+      }
     >
       {semesters.map((s) => (
         <MenuItem key={s.id} value={s.id}>
