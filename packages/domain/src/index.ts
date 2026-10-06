@@ -1,10 +1,12 @@
 // Чисті доменні функції (без I/O): тижні, генерація занять, конфлікти, атестації, шкали, права.
 export * from './assignTopics.js';
+export * from './attestationFinal.js';
 export * from './convertScale.js';
 export * from './dates.js';
 export * from './freeSlots.js';
 export * from './generateLessons.js';
 export * from './hoursProgress.js';
+export * from './icsCalendar.js';
 export * from './moduleProposal.js';
 export * from './permissions.js';
 export * from './promoteGroup.js';

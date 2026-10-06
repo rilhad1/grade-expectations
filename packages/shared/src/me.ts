@@ -6,6 +6,8 @@ export const meResponseSchema = z.object({
   user: z.object({ id: z.uuid(), email: z.string(), fullName: z.string() }),
   organization: z.object({ id: z.uuid(), title: z.string() }),
   roles: z.array(Role.schema),
+  /** Можливості сервера, що залежать від конфігурації. */
+  features: z.object({ pdf: z.boolean() }),
 });
 export type MeResponse = z.infer<typeof meResponseSchema>;
 

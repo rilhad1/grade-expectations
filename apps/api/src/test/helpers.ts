@@ -9,12 +9,23 @@ import type { Env } from '../env.js';
 export const TEST_PASSWORD = 'test-password-123';
 export const WEB_ORIGIN = 'http://localhost:5173';
 
+/** Малий пул на кожен клієнт: тестові файли йдуть паралельно, а max_connections у Postgres обмежений. */
+const testDatabaseUrl = (): string => {
+  const url = new URL(
+    process.env['TEST_DATABASE_URL'] ?? 'postgresql://ge:ge@localhost:5432/ge_test',
+  );
+  url.searchParams.set('connection_limit', '4');
+  return url.toString();
+};
+
 export const testEnv = (): Env => ({
   NODE_ENV: 'test',
   API_PORT: 0,
-  DATABASE_URL: process.env['TEST_DATABASE_URL'] ?? 'postgresql://ge:ge@localhost:5432/ge_test',
+  DATABASE_URL: testDatabaseUrl(),
   BETTER_AUTH_SECRET: 'test-only-secret-0123456789abcdef0123',
   WEB_ORIGIN,
+  JOBS_DRIVER: 'inline',
+  PGBOSS_SCHEMA: 'pgboss_test',
 });
 
 export const buildTestApp = (): Promise<FastifyInstance> => buildApp(testEnv());
@@ -97,6 +108,8 @@ export async function deleteOrganization(
   await prisma.discipline.deleteMany({ where: { organizationId } });
   await prisma.room.deleteMany({ where: { organizationId } });
   await prisma.bellTime.deleteMany({ where: { organizationId } });
+  await prisma.generatedDocument.deleteMany({ where: { organizationId } });
+  await prisma.calendarFeed.deleteMany({ where: { userId: { in: userIds } } });
   await prisma.membership.deleteMany({ where: { organizationId } });
   await prisma.session.deleteMany({ where: { userId: { in: userIds } } });
   await prisma.account.deleteMany({ where: { userId: { in: userIds } } });

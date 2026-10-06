@@ -25,6 +25,8 @@ declare module 'fastify' {
     auth: Auth;
     clock: { today: () => string };
     requireAuth: (request: FastifyRequest) => Promise<AuthContext>;
+    /** Контекст користувача поза HTTP-запитом (фонові задачі). */
+    contextFor: (userId: string) => Promise<AuthContext>;
   }
   interface FastifyRequest {
     authContext?: AuthContext;
@@ -57,27 +59,44 @@ export const sessionPlugin = fp((app: FastifyInstance, opts: { env: Env }) => {
       new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Kyiv' }).format(new Date()),
   });
 
+  async function buildContext(
+    userId: string,
+    user: { email: string; fullName: string },
+    deviceId: string,
+  ): Promise<AuthContext> {
+    const membership = await app.prisma.membership.findFirst({
+      where: { userId, deletedAt: null },
+      include: { organization: { select: { id: true, title: true } } },
+      orderBy: { createdAt: 'asc' },
+    });
+    if (!membership) throw unauthenticated();
+    return {
+      user: { id: userId, ...user },
+      organization: membership.organization,
+      roles: membership.roles,
+      db: forOrganization(app.prisma, membership.organizationId),
+      today: () => app.clock.today(),
+      deviceId,
+    };
+  }
+
+  app.decorate('contextFor', async (userId: string): Promise<AuthContext> => {
+    const user = await app.prisma.user.findFirst({ where: { id: userId, deletedAt: null } });
+    if (!user) throw unauthenticated();
+    return buildContext(userId, { email: user.email, fullName: user.fullName }, 'job');
+  });
+
   app.decorate('requireAuth', async (request: FastifyRequest): Promise<AuthContext> => {
     if (request.authContext) return request.authContext;
 
     const session = await auth.api.getSession({ headers: toHeaders(request) });
     if (!session) throw unauthenticated();
 
-    const membership = await app.prisma.membership.findFirst({
-      where: { userId: session.user.id, deletedAt: null },
-      include: { organization: { select: { id: true, title: true } } },
-      orderBy: { createdAt: 'asc' },
-    });
-    if (!membership) throw unauthenticated();
-
-    const context: AuthContext = {
-      user: { id: session.user.id, email: session.user.email, fullName: session.user.name },
-      organization: membership.organization,
-      roles: membership.roles,
-      db: forOrganization(app.prisma, membership.organizationId),
-      today: () => app.clock.today(),
-      deviceId: String(request.headers['x-device-id'] ?? 'web').slice(0, 64),
-    };
+    const context = await buildContext(
+      session.user.id,
+      { email: session.user.email, fullName: session.user.name },
+      String(request.headers['x-device-id'] ?? 'web').slice(0, 64),
+    );
     request.authContext = context;
     return context;
   });

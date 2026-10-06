@@ -62,3 +62,12 @@ export type GradeKind = z.infer<typeof GradeKind.schema>;
 
 export const AttestationKind = defineEnum(['INTERIM', 'DIRECTOR_TEST', 'AVERAGE', 'EXAM']);
 export type AttestationKind = z.infer<typeof AttestationKind.schema>;
+
+export const DocumentKind = defineEnum(['STATEMENT', 'DATA_EXPORT']);
+export type DocumentKind = z.infer<typeof DocumentKind.schema>;
+
+export const DocumentFormat = defineEnum(['DOCX', 'PDF', 'ZIP']);
+export type DocumentFormat = z.infer<typeof DocumentFormat.schema>;
+
+export const DocumentStatus = defineEnum(['PENDING', 'READY', 'FAILED']);
+export type DocumentStatus = z.infer<typeof DocumentStatus.schema>;

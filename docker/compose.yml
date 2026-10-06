@@ -13,5 +13,9 @@ services:
       test: ['CMD-SHELL', 'pg_isready -U ge']
       interval: 5s
       retries: 10
+  # DOCX → PDF для відомостей (необов'язково): GOTENBERG_URL=http://localhost:3200
+  gotenberg:
+    image: gotenberg/gotenberg:8
+    ports: ['3200:3000']
 volumes:
   pgdata:

@@ -116,6 +116,23 @@ enum GradeKind {
   RETAKE
 }
 
+enum DocumentKind {
+  STATEMENT
+  DATA_EXPORT
+}
+
+enum DocumentFormat {
+  DOCX
+  PDF
+  ZIP
+}
+
+enum DocumentStatus {
+  PENDING
+  READY
+  FAILED
+}
+
 enum AttestationKind {
   INTERIM
   DIRECTOR_TEST
@@ -140,6 +157,7 @@ model Organization {
   disciplines Discipline[]
   cohorts     Cohort[]
   students    Student[]
+  documents   GeneratedDocument[]
 }
 
 model User {
@@ -158,6 +176,8 @@ model User {
   lessons     Lesson[]
   sessions    Session[]
   accounts    Account[]
+  documents   GeneratedDocument[]
+  calendar    CalendarFeed?
 }
 
 // ── Better Auth (серверні таблиці; не синхронізуються на пристрої) ──
@@ -685,7 +705,7 @@ model Attestation {
   semester Semester            @relation(fields: [semesterId], references: [id])
   results  AttestationResult[]
 
-  @@index([semesterId])
+  @@unique([semesterId, kind])
 }
 
 model AttestationResult {
@@ -707,6 +727,39 @@ model AttestationResult {
   enrollment  Enrollment   @relation(fields: [enrollmentId], references: [id])
 
   @@unique([attestationId, loadId, enrollmentId])
+}
+
+// Згенеровані файли (відомості, експорт даних): створюються фоновими задачами pg-boss.
+model GeneratedDocument {
+  id             String         @id @db.Uuid
+  organizationId String         @db.Uuid
+  userId         String         @db.Uuid
+  kind           DocumentKind
+  format         DocumentFormat
+  status         DocumentStatus @default(PENDING)
+  params         Json
+  fileName       String?
+  mimeType       String?
+  content        Bytes?
+  error          String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+
+  @@index([organizationId, userId, createdAt])
+}
+
+// Секретне посилання на ICS-підписку розкладу викладача (без сесії: токен у URL).
+model CalendarFeed {
+  id        String   @id @db.Uuid
+  userId    String   @unique @db.Uuid
+  token     String   @unique
+  createdAt DateTime @default(now())
+  rotatedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
 }
 
 // Аудит і основа синхронізації.

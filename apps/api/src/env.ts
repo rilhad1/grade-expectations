@@ -14,6 +14,15 @@ const envSchema = z
       .string()
       .regex(/^\d{4}-\d{2}-\d{2}$/)
       .optional(),
+    /** Фонові задачі: pg-boss у production, inline (одразу в процесі) у тестах. */
+    JOBS_DRIVER: z.enum(['pgboss', 'inline']).default('pgboss'),
+    /** Схема Postgres для таблиць pg-boss. */
+    PGBOSS_SCHEMA: z
+      .string()
+      .regex(/^[a-z_][a-z0-9_]*$/)
+      .default('pgboss'),
+    /** Gotenberg (DOCX → PDF). Без нього PDF-відомості недоступні, лишається DOCX. */
+    GOTENBERG_URL: z.url().optional(),
     GOOGLE_CLIENT_ID: z.string().min(1).optional(),
     GOOGLE_CLIENT_SECRET: z.string().min(1).optional(),
   })
