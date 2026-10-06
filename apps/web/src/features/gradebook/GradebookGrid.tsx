@@ -302,7 +302,16 @@ export function GradebookGrid({
                       : planned
                         ? 'ge.surface2'
                         : 'transparent';
-                  return (
+                  const tipLines = cell
+                    ? [
+                        ...(att ? [uk.lesson.attendance[cell.attendance ?? 'PRESENT']] : []),
+                        ...cell.grades.map(
+                          (g) =>
+                            `${uk.lesson.gradeKinds[g.kind]}: ${String(g.value)}${g.comment ? ` — ${g.comment}` : ''}`,
+                        ),
+                      ]
+                    : [];
+                  const cellBox = (
                     <Box
                       key={lesson.id}
                       role="gridcell"
@@ -336,6 +345,25 @@ export function GradebookGrid({
                     >
                       {cellText(cell, uk.lesson.attendanceShort)}
                     </Box>
+                  );
+                  if (tipLines.length === 0) return cellBox;
+                  return (
+                    <Tooltip
+                      key={lesson.id}
+                      placement="top"
+                      title={
+                        <>
+                          <strong>
+                            {formatShortDate(lesson.date)} · {uk.loads.kinds[lesson.kind]}
+                          </strong>
+                          {tipLines.map((l) => (
+                            <div key={l}>{l}</div>
+                          ))}
+                        </>
+                      }
+                    >
+                      {cellBox}
+                    </Tooltip>
                   );
                 })}
                 <Box
