@@ -2,17 +2,29 @@ import type { TopicPlanDto } from '@ge/shared';
 import ArrowDownward from '@mui/icons-material/ArrowDownward';
 import ArrowUpward from '@mui/icons-material/ArrowUpward';
 import DeleteIcon from '@mui/icons-material/DeleteOutline';
-import { Alert, Button, IconButton, Stack, TextField, Typography } from '@mui/material';
+import { Alert, Box, Button, IconButton, Stack, TextField, Typography } from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 
 import { fetchTopics, saveTopics } from '../../api/teaching';
 import { uk } from '../../shared/i18n/uk';
 import { ErrorAlert } from '../../shared/ui/ErrorAlert';
+import { ProgressBar } from '../../shared/ui/Stat';
 
 import { moveItem, planBalance } from './rulesModel';
 
 const d = uk.disciplines;
+const ROW = {
+  display: 'grid',
+  gridTemplateColumns: {
+    xs: '28px minmax(0,1fr) 72px 104px',
+    sm: '32px minmax(0,1fr) 56px 88px 112px',
+  },
+  gap: 1,
+  alignItems: 'center',
+  px: 1.5,
+  py: 0.75,
+} as const;
 type Row = { key: string; id?: string; title: string; hours: string };
 
 function Editor({
@@ -66,11 +78,37 @@ function Editor({
           {d.noTopics}
         </Alert>
       )}
-      <Stack spacing={1} sx={{ mb: 2 }}>
+      <Box
+        sx={{
+          border: 1,
+          borderColor: 'divider',
+          borderRadius: '8px',
+          overflow: 'hidden',
+          mb: 2,
+        }}
+      >
+        <Box
+          sx={{
+            ...ROW,
+            bgcolor: 'ge.surface2',
+            minHeight: 36,
+            color: 'ge.text3',
+            fontSize: 12,
+            fontWeight: 600,
+          }}
+        >
+          <span>№</span>
+          <span>{d.topicTitle}</span>
+          <Box component="span" sx={{ display: { xs: 'none', sm: 'block' } }}>
+            {d.topicKind}
+          </Box>
+          <span>{d.topicHours}</span>
+          <span />
+        </Box>
         {rows.map((r, i) => (
-          <Stack key={r.key} direction="row" spacing={1} alignItems="center">
+          <Box key={r.key} sx={{ ...ROW, borderTop: 1, borderColor: 'divider' }}>
             <Typography
-              sx={{ width: 28, fontVariantNumeric: 'tabular-nums' }}
+              sx={{ fontVariantNumeric: 'tabular-nums', fontSize: 13 }}
               color="text.secondary"
             >
               {i + 1}
@@ -78,55 +116,77 @@ function Editor({
             <TextField
               size="small"
               fullWidth
-              label={d.topicTitle}
+              hiddenLabel
+              placeholder={d.topicTitle}
               value={r.title}
               onChange={(e) => {
                 update(r.key, { title: e.target.value });
               }}
+              slotProps={{ htmlInput: { 'aria-label': d.topicTitle } }}
             />
+            <Typography
+              variant="body2"
+              color="text.secondary"
+              sx={{ display: { xs: 'none', sm: 'block' } }}
+            >
+              {uk.loads.kindsShort[plan.loadKind]}
+            </Typography>
             <TextField
               size="small"
               type="number"
-              label={d.topicHours}
+              hiddenLabel
               value={r.hours}
               onChange={(e) => {
                 update(r.key, { hours: e.target.value });
               }}
-              sx={{ width: 100 }}
-              slotProps={{ htmlInput: { min: 1 } }}
+              slotProps={{ htmlInput: { min: 1, 'aria-label': d.topicHours } }}
             />
-            <IconButton
-              aria-label={d.moveUp}
-              disabled={i === 0}
-              onClick={() => {
-                setSaved(false);
-                setRows(moveItem(rows, i, -1));
-              }}
-            >
-              <ArrowUpward fontSize="small" />
-            </IconButton>
-            <IconButton
-              aria-label={d.moveDown}
-              disabled={i === rows.length - 1}
-              onClick={() => {
-                setSaved(false);
-                setRows(moveItem(rows, i, 1));
-              }}
-            >
-              <ArrowDownward fontSize="small" />
-            </IconButton>
-            <IconButton
-              aria-label={d.removeTopic}
-              onClick={() => {
-                setSaved(false);
-                setRows(rows.filter((x) => x.key !== r.key));
-              }}
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          </Stack>
+            <Stack direction="row">
+              <IconButton
+                size="small"
+                aria-label={d.moveUp}
+                disabled={i === 0}
+                onClick={() => {
+                  setSaved(false);
+                  setRows(moveItem(rows, i, -1));
+                }}
+              >
+                <ArrowUpward fontSize="small" />
+              </IconButton>
+              <IconButton
+                size="small"
+                aria-label={d.moveDown}
+                disabled={i === rows.length - 1}
+                onClick={() => {
+                  setSaved(false);
+                  setRows(moveItem(rows, i, 1));
+                }}
+              >
+                <ArrowDownward fontSize="small" />
+              </IconButton>
+              <IconButton
+                size="small"
+                aria-label={d.removeTopic}
+                onClick={() => {
+                  setSaved(false);
+                  setRows(rows.filter((x) => x.key !== r.key));
+                }}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Stack>
+          </Box>
         ))}
-      </Stack>
+      </Box>
+      {plannedHours > 0 && (
+        <Box sx={{ mb: 2 }}>
+          <ProgressBar
+            value={balance.total / plannedHours}
+            color={balance.diff === 0 ? undefined : 'var(--mui-palette-ge-warnDot)'}
+            label={d.totalHours}
+          />
+        </Box>
+      )}
       <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap">
         <Button
           onClick={() => {

@@ -710,6 +710,7 @@ export const uk = {
     back: 'До списку',
     topicTitle: 'Тема',
     topicHours: 'Годин',
+    topicKind: 'Вид',
     addTopic: 'Додати тему',
     moveUp: 'Вище',
     moveDown: 'Нижче',
