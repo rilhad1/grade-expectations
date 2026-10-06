@@ -2,7 +2,7 @@ import type { GradeEntry, RosterEntry } from '@ge/shared';
 import ArrowBack from '@mui/icons-material/ArrowBack';
 import CloudOffOutlined from '@mui/icons-material/CloudOffOutlined';
 import EditOutlined from '@mui/icons-material/EditOutlined';
-import { Alert, Box, Button, ButtonBase, CircularProgress, Paper, Typography } from '@mui/material';
+import { Alert, Box, Button, ButtonBase, Paper, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
@@ -13,6 +13,7 @@ import { useSyncStore } from '../../offline/syncStore';
 import { formatShortDate, formatWeekdayDate } from '../../shared/format';
 import { uk } from '../../shared/i18n/uk';
 import { ErrorAlert } from '../../shared/ui/ErrorAlert';
+import { ListSkeleton } from '../../shared/ui/Skeletons';
 import { LinkBase, LinkButton } from '../../shared/ui/links';
 
 import { GradeSheet } from './GradeSheet';
@@ -47,8 +48,7 @@ export function LessonScreen({ lessonId }: { lessonId: string }) {
     };
   }, []);
 
-  if (lesson.query.isPending)
-    return <CircularProgress sx={{ m: 4 }} aria-label={uk.common.loading} />;
+  if (lesson.query.isPending) return <ListSkeleton rows={8} label={uk.common.loading} />;
   if (!detail) return <ErrorAlert error={lesson.query.error} />;
 
   const total = detail.roster.length;

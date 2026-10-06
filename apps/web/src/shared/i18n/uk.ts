@@ -547,6 +547,10 @@ export const uk = {
       pending > 0 ? `Синхронізація · ${String(pending)}` : 'Синхронізація…',
     synced: (time: string | null) => (time ? `Синхронізовано · ${time}` : 'Синхронізовано'),
     error: 'Помилка синхронізації · Повторити',
+    toastRestored: (n: number) =>
+      `Зв’язок відновлено. Надсилаємо ${String(n)} змін з цього пристрою…`,
+    toastSaved: 'Усі зміни збережено',
+    toastRejected: (n: number) => `${String(n)} змін не прийнято сервером`,
     authProblem: 'Увійдіть знову, щоб зберегти зміни',
     serverProblem: 'Сервер недоступний, зміни збережено на пристрої',
     notices: (n: number) => `Потребує уваги: ${String(n)}`,

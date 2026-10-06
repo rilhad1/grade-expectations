@@ -4,7 +4,6 @@ import {
   Box,
   Button,
   Checkbox,
-  CircularProgress,
   Paper,
   Stack,
   Tab,
@@ -35,6 +34,7 @@ import { ControlFormBadge } from '../../shared/ui/Badges';
 import { DisciplineDot } from '../../shared/ui/DisciplineDot';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { ErrorAlert } from '../../shared/ui/ErrorAlert';
+import { ListSkeleton, TableSkeleton } from '../../shared/ui/Skeletons';
 import { ProgressBar } from '../../shared/ui/Stat';
 import { LinkBase } from '../../shared/ui/links';
 import { DocumentJobStatus } from '../documents/DocumentJobStatus';
@@ -59,7 +59,7 @@ export function AttestationScreen({ loadId }: { loadId: string }) {
     queryFn: () => fetchLoadAttestations(loadId),
   });
   const [picked, setPicked] = useState<AttestationKind | null>(null);
-  if (modules.isPending) return <CircularProgress sx={{ m: 4 }} aria-label={uk.common.loading} />;
+  if (modules.isPending) return <ListSkeleton rows={3} label={uk.common.loading} />;
   if (!modules.data) return <ErrorAlert error={modules.error} />;
 
   const { load, modules: list } = modules.data;
@@ -149,7 +149,7 @@ function ModuleSheet({
     },
   });
 
-  if (sheet.isPending) return <CircularProgress sx={{ m: 4 }} aria-label={uk.common.loading} />;
+  if (sheet.isPending) return <TableSkeleton rows={8} cols={6} label={uk.common.loading} />;
   if (!sheet.data) return <ErrorAlert error={sheet.error} />;
 
   const data = sheet.data;

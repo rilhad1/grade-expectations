@@ -1,4 +1,4 @@
-import { Alert, CircularProgress } from '@mui/material';
+import { Alert } from '@mui/material';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Outlet, createFileRoute, redirect, useNavigate } from '@tanstack/react-router';
 import { useEffect } from 'react';
@@ -10,6 +10,7 @@ import { useLogout } from '../app/useLogout';
 import { getMeta } from '../offline/db';
 import { bindUser, setOnSynced, startSync } from '../offline/sync';
 import { uk } from '../shared/i18n/uk';
+import { CardSkeleton } from '../shared/ui/Skeletons';
 
 /** Усі захищені сторінки живуть під цим layout: без сесії — перенаправлення на вхід. */
 export const Route = createFileRoute('/_app')({
@@ -57,7 +58,7 @@ function AppLayout() {
     if (unauthenticated) void navigate({ to: '/login' });
   }, [unauthenticated, navigate]);
 
-  if (isPending) return <CircularProgress sx={{ m: 4 }} aria-label={uk.common.loading} />;
+  if (isPending) return <CardSkeleton label={uk.common.loading} />;
   if (me === undefined) return <Alert severity="error">{uk.common.loadError}</Alert>;
 
   return (

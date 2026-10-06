@@ -12,6 +12,7 @@ import { ArchivePill, AppTopbar } from './AppTopbar';
 import { MobileNav } from './MobileNav';
 import { useCurrentSemester } from './SemesterSwitcher';
 import { SyncIndicator } from './SyncIndicator';
+import { SyncToasts } from './SyncToasts';
 import { WeekBadge } from './WeekBadge';
 import { navFor } from './nav';
 import { resolveActiveRole, useRoleStore } from './roleStore';
@@ -52,6 +53,7 @@ export function AppShell({
   if (desktop) {
     return (
       <Box sx={{ minHeight: '100vh', display: 'flex', bgcolor: 'background.default' }}>
+        <SyncToasts />
         <AppSidebar
           me={me}
           items={items}
@@ -72,6 +74,7 @@ export function AppShell({
   const bare = path.startsWith('/lessons/');
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+      <SyncToasts />
       {!bare && (
         <Box
           sx={{

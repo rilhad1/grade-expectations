@@ -2,7 +2,6 @@ import type { GradebookDto } from '@ge/shared';
 import {
   Alert,
   Box,
-  CircularProgress,
   List,
   ListItemButton,
   MenuItem,
@@ -18,6 +17,7 @@ import { useEffect, useRef, useState } from 'react';
 import { uk } from '../../shared/i18n/uk';
 import { DisciplineDot } from '../../shared/ui/DisciplineDot';
 import { ErrorAlert } from '../../shared/ui/ErrorAlert';
+import { TableSkeleton } from '../../shared/ui/Skeletons';
 import { GradeSheet } from '../lesson/GradeSheet';
 import { defaultGradeKind, gradeTone, isValidGrade, scaleRange } from '../lesson/model';
 
@@ -71,8 +71,7 @@ export function GradebookScreen({ loadId }: { loadId: string }) {
     setSelection({ row: 0, col: Math.max(0, Math.min(held, data.lessons.length - 1)) });
   }, [data]);
 
-  if (book.query.isPending)
-    return <CircularProgress sx={{ m: 4 }} aria-label={uk.common.loading} />;
+  if (book.query.isPending) return <TableSkeleton rows={8} cols={7} label={uk.common.loading} />;
   if (!data) return <ErrorAlert error={book.query.error} />;
 
   const scale = data.load.gradingRules.scale;
