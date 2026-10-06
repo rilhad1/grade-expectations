@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router';
+import { createFileRoute, useNavigate } from '@tanstack/react-router';
 
 import { GradebookScreen } from '../../../features/gradebook/GradebookScreen';
 
@@ -6,5 +6,12 @@ export const Route = createFileRoute('/_app/gradebook/$loadId')({ component: Gra
 
 function GradebookPage() {
   const { loadId } = Route.useParams();
-  return <GradebookScreen key={loadId} loadId={loadId} />;
+  const navigate = useNavigate();
+  return (
+    <GradebookScreen
+      key={loadId}
+      loadId={loadId}
+      onPickLoad={(id) => void navigate({ to: '/gradebook/$loadId', params: { loadId: id } })}
+    />
+  );
 }

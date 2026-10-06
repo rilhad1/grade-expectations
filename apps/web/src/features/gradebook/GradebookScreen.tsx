@@ -6,14 +6,16 @@ import {
   ListItemButton,
   MenuItem,
   Paper,
-  Stack,
   TextField,
   Typography,
   useMediaQuery,
   useTheme,
 } from '@mui/material';
+import { useQuery } from '@tanstack/react-query';
 import { useEffect, useRef, useState } from 'react';
 
+import { q } from '../../api/queries';
+import { useCurrentSemester } from '../../app/SemesterSwitcher';
 import { uk } from '../../shared/i18n/uk';
 import { DisciplineDot } from '../../shared/ui/DisciplineDot';
 import { ErrorAlert } from '../../shared/ui/ErrorAlert';
@@ -22,6 +24,7 @@ import { GradeSheet } from '../lesson/GradeSheet';
 import { defaultGradeKind, gradeTone, isValidGrade, scaleRange } from '../lesson/model';
 
 import { GradebookGrid, type GridSelection } from './GradebookGrid';
+import { GradebookToolbar } from './GradebookToolbar';
 import { StudentPanel } from './StudentPanel';
 import { bufferIsFinal, interpretKey, moveSelection } from './model';
 import { useGradebook, type Range } from './useGradebook';
@@ -44,7 +47,19 @@ function periodOptions(data: GradebookDto | undefined) {
   return options;
 }
 
-export function GradebookScreen({ loadId }: { loadId: string }) {
+export function GradebookScreen({
+  loadId,
+  onPickLoad,
+}: {
+  loadId: string;
+  /** Перехід до журналу іншого навантаження (вибір дисципліни, групи, виду). */
+  onPickLoad?: (loadId: string) => void;
+}) {
+  const { semester } = useCurrentSemester();
+  const myLoads = useQuery({
+    ...q.loads(semester?.id ?? ''),
+    enabled: semester !== null && onPickLoad !== undefined,
+  });
   const theme = useTheme();
   const desktop = useMediaQuery(theme.breakpoints.up('md'));
   // Вибраний фільтр зберігає й власний діапазон: перелік періодів приходить разом із даними журналу
@@ -152,39 +167,52 @@ export function GradebookScreen({ loadId }: { loadId: string }) {
     }
   };
 
+  const periodSelect =
+    options.length > 1 ? (
+      <TextField
+        select
+        size="small"
+        label={uk.gradebook.period}
+        value={period.value}
+        onChange={(e) => {
+          const picked = options.find((o) => o.value === e.target.value);
+          if (picked) setPeriod({ value: picked.value, range: picked.range });
+        }}
+        sx={{ minWidth: 260, mb: onPickLoad ? 0 : 2 }}
+      >
+        {options.map((o) => (
+          <MenuItem key={o.value} value={o.value}>
+            {o.label}
+          </MenuItem>
+        ))}
+      </TextField>
+    ) : null;
+
   const mutationError = book.attendance.error ?? book.upsertGrade.error ?? book.clearGrade.error;
   const sheetCell = sheet ? sheet.student.cells[sheet.lessonId] : undefined;
   const sheetGrade = sheetCell?.grades.at(-1);
 
   return (
     <>
-      <Stack direction="row" spacing={2} alignItems="center" flexWrap="wrap" sx={{ mb: 2 }}>
-        <Typography variant="h5" component="h1" sx={{ flexGrow: 1 }}>
-          <DisciplineDot color={data.load.discipline.color} size={12} />
-          {uk.gradebook.title}: {data.load.discipline.shortTitle} · {data.load.group.name}
-          {data.load.subgroup ? ` · ${data.load.subgroup.name}` : ''} ·{' '}
-          {uk.loads.kindsShort[data.load.kind]}
-        </Typography>
-        {options.length > 1 && (
-          <TextField
-            select
-            size="small"
-            label={uk.gradebook.period}
-            value={period.value}
-            onChange={(e) => {
-              const picked = options.find((o) => o.value === e.target.value);
-              if (picked) setPeriod({ value: picked.value, range: picked.range });
-            }}
-            sx={{ minWidth: 260 }}
-          >
-            {options.map((o) => (
-              <MenuItem key={o.value} value={o.value}>
-                {o.label}
-              </MenuItem>
-            ))}
-          </TextField>
-        )}
-      </Stack>
+      <Typography
+        variant="h5"
+        component="h1"
+        sx={{ mb: 1.5, display: 'flex', alignItems: 'center' }}
+      >
+        <DisciplineDot color={data.load.discipline.color} size={12} gap={1.25} />
+        {uk.gradebook.title}: {data.load.discipline.shortTitle} · {data.load.group.name}
+        {data.load.subgroup ? ` · ${data.load.subgroup.name}` : ''} ·{' '}
+        {uk.loads.kindsShort[data.load.kind]}
+      </Typography>
+      {onPickLoad && (
+        <GradebookToolbar
+          loads={myLoads.data ?? []}
+          currentId={loadId}
+          onPick={onPickLoad}
+          period={periodSelect}
+        />
+      )}
+      {!onPickLoad && periodSelect}
 
       <ErrorAlert error={mutationError} />
       {data.students.length === 0 && <Alert severity="info">{uk.gradebook.emptyStudents}</Alert>}
