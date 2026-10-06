@@ -1,26 +1,22 @@
 import type { GradeEntry, RosterEntry } from '@ge/shared';
-import {
-  Alert,
-  Box,
-  Button,
-  Chip,
-  CircularProgress,
-  Paper,
-  Stack,
-  Typography,
-} from '@mui/material';
+import ArrowBack from '@mui/icons-material/ArrowBack';
+import CloudOffOutlined from '@mui/icons-material/CloudOffOutlined';
+import EditOutlined from '@mui/icons-material/EditOutlined';
+import { Alert, Box, Button, ButtonBase, CircularProgress, Paper, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 
 import { q } from '../../api/queries';
 import { todayKyiv } from '../../app/today';
-import { formatWeekdayDate } from '../../shared/format';
+import { loadToday } from '../../offline/lessonSource';
+import { useSyncStore } from '../../offline/syncStore';
+import { formatShortDate, formatWeekdayDate } from '../../shared/format';
 import { uk } from '../../shared/i18n/uk';
-import { DisciplineDot } from '../../shared/ui/DisciplineDot';
 import { ErrorAlert } from '../../shared/ui/ErrorAlert';
-import { LinkButton } from '../../shared/ui/links';
+import { LinkBase, LinkButton } from '../../shared/ui/links';
 
 import { GradeSheet } from './GradeSheet';
+import { LessonSummary } from './LessonSummary';
 import { RosterRow } from './RosterRow';
 import { TopicDialog } from './TopicDialog';
 import { defaultGradeKind, minutesLeft, presentCount } from './model';
@@ -34,6 +30,12 @@ export function LessonScreen({ lessonId }: { lessonId: string }) {
   const [sheet, setSheet] = useState<{ student: RosterEntry; grade?: GradeEntry } | null>(null);
   const [topicOpen, setTopicOpen] = useState(false);
   const [now, setNow] = useState(() => new Date());
+  const sync = useSyncStore();
+  const todayQuery = useQuery({
+    queryKey: ['today'],
+    queryFn: loadToday,
+    enabled: detail?.status === 'HELD',
+  });
 
   // Таймер до кінця пари оновлюється щохвилини
   useEffect(() => {
@@ -66,56 +68,151 @@ export function LessonScreen({ lessonId }: { lessonId: string }) {
     lesson.reopen.error ??
     lesson.saveInfo.error;
 
+  const bell = bells.data?.find((b) => b.pairNumber === detail.pairNumber);
+  const offline = !sync.online;
+  const absent = detail.roster.filter((r) => r.attendance === 'ABSENT').length;
+  const excused = detail.roster.filter((r) => r.attendance === 'EXCUSED').length;
+  const late = detail.roster.filter((r) => r.attendance === 'LATE').length;
+
+  if (held)
+    return (
+      <>
+        <ErrorAlert error={mutationError} />
+        <LessonSummary
+          detail={detail}
+          present={present}
+          gradesCount={gradesCount}
+          offline={offline || sync.pending > 0}
+          today={todayQuery.data}
+          onUndo={() => {
+            lesson.reopen.mutate();
+          }}
+          undoDisabled={lesson.reopen.isPending}
+        />
+      </>
+    );
+
   return (
-    <Box sx={{ maxWidth: 720, mx: 'auto', pb: 12 }}>
-      <Paper variant="outlined" sx={{ p: 2, mb: 2 }}>
-        <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
-          <Typography variant="h6" component="h1" sx={{ flexGrow: 1 }}>
-            <DisciplineDot color={detail.discipline.color} />
-            {detail.group.name}
-            {detail.subgroup ? ` · ${detail.subgroup.name}` : ''} · {detail.discipline.shortTitle}
-          </Typography>
+    <Box sx={{ maxWidth: 720, mx: 'auto', pb: 14 }}>
+      <Paper
+        variant="outlined"
+        sx={{ mb: 2, p: 1.5, pt: 1, display: 'flex', flexDirection: 'column', gap: 1.25 }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+          <LinkBase
+            to="/"
+            aria-label={uk.lesson.back}
+            sx={{
+              width: 44,
+              height: 44,
+              borderRadius: '8px',
+              color: 'text.primary',
+              flexShrink: 0,
+            }}
+          >
+            <ArrowBack />
+          </LinkBase>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography
+              variant="h6"
+              component="h1"
+              noWrap
+              sx={{ fontSize: 17, lineHeight: '22px' }}
+            >
+              {detail.group.name}
+              {detail.subgroup ? ` · ${detail.subgroup.name}` : ''} · {detail.discipline.shortTitle}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" className="tnum" noWrap>
+              {formatWeekdayDate(detail.date)} · {detail.pairNumber} {uk.today.pair}
+              {bell ? ` · ${bell.startsAt}–${bell.endsAt}` : ''}
+              {detail.room ? ` · ${uk.today.room} ${detail.room.name}` : ''}
+            </Typography>
+          </Box>
           {left !== null && (
-            <Chip
-              size="small"
-              color="primary"
-              variant="outlined"
-              label={uk.lesson.minutesLeft(left)}
-            />
+            <Box
+              role="timer"
+              aria-label={uk.lesson.minutesLeft(left)}
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-end',
+                px: 1.25,
+                py: 0.5,
+                borderRadius: '8px',
+                bgcolor: 'ge.sunken',
+                flexShrink: 0,
+              }}
+            >
+              <Typography
+                className="tnum"
+                sx={{ fontSize: 18, fontWeight: 600, lineHeight: '22px' }}
+              >
+                {left}
+              </Typography>
+              <Typography
+                variant="caption"
+                color="ge.text3"
+                sx={{ fontSize: 11, lineHeight: '14px' }}
+              >
+                {uk.lesson.untilBell}
+              </Typography>
+            </Box>
           )}
-        </Stack>
-        <Typography
-          variant="body2"
-          color="text.secondary"
-          sx={{ fontVariantNumeric: 'tabular-nums' }}
-        >
-          {formatWeekdayDate(detail.date)} · {detail.pairNumber} {uk.today.pair}
-          {detail.room ? ` · ${uk.today.room} ${detail.room.name}` : ''}
-        </Typography>
-        <Button
-          size="small"
+        </Box>
+        <ButtonBase
           onClick={() => {
             setTopicOpen(true);
           }}
           disabled={inactive}
           aria-label={uk.lesson.editTopic}
           sx={{
-            mt: 1,
-            px: 0,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1.25,
+            minHeight: 44,
+            px: 1.5,
+            py: 0.75,
             textAlign: 'left',
-            justifyContent: 'flex-start',
-            textTransform: 'none',
-            fontSize: 15,
+            border: 1,
+            borderColor: 'divider',
+            borderRadius: '6px',
+            bgcolor: 'ge.surface2',
           }}
         >
-          {uk.lesson.topic}: {detail.topic ?? uk.lesson.noTopic}
-        </Button>
+          <Typography noWrap sx={{ flex: 1, fontSize: 15 }}>
+            {uk.lesson.topic}: {detail.topic ?? uk.lesson.noTopic}
+          </Typography>
+          <EditOutlined sx={{ fontSize: 18, color: 'ge.text3' }} />
+        </ButtonBase>
         {detail.homework && (
           <Typography variant="body2" color="text.secondary">
             {uk.lesson.homework}: {detail.homework}
           </Typography>
         )}
       </Paper>
+
+      {(offline || sync.pending > 0) && (
+        <Box
+          role="status"
+          className="tnum"
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            minHeight: 32,
+            px: 2,
+            mb: 2,
+            borderRadius: '6px',
+            bgcolor: 'ge.warnBg',
+            color: 'ge.warn',
+            fontSize: 13,
+            fontWeight: 500,
+          }}
+        >
+          <CloudOffOutlined sx={{ fontSize: 16 }} />
+          {uk.lesson.offlineStrip(sync.pending)}
+        </Box>
+      )}
 
       <ErrorAlert error={mutationError} />
       {inactive && (
@@ -153,79 +250,60 @@ export function LessonScreen({ lessonId }: { lessonId: string }) {
         {uk.lesson.rowHint}
       </Typography>
 
-      {held && (
-        <Alert
-          severity="success"
-          sx={{ mt: 2 }}
-          action={
-            detail.undoUntil ? (
-              <Button
-                color="inherit"
-                size="small"
-                onClick={() => {
-                  lesson.reopen.mutate();
-                }}
-              >
-                {uk.lesson.undo}
-              </Button>
-            ) : undefined
-          }
-        >
-          <strong>{uk.lesson.finishedTitle}.</strong>{' '}
-          {uk.lesson.finishedSummary(present, total, gradesCount)}
-          {detail.undoUntil && (
-            <Typography variant="caption" component="div">
-              {uk.lesson.undoHint}
-            </Typography>
-          )}
-        </Alert>
-      )}
-
       {/* Закріплений підсумок і кнопка завершення — у нижній третині екрана */}
-      <Paper
-        elevation={3}
+      <Box
         sx={{
           position: 'fixed',
           left: 0,
           right: 0,
           bottom: 0,
           zIndex: 5,
-          p: 1.5,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 2,
-          justifyContent: 'center',
+          bgcolor: 'background.paper',
+          borderTop: 1,
+          borderColor: 'divider',
+          px: 2,
+          pt: 1.5,
+          pb: 'max(24px, env(safe-area-inset-bottom))',
         }}
       >
-        <Typography sx={{ fontVariantNumeric: 'tabular-nums', fontWeight: 600 }} aria-live="polite">
-          {uk.lesson.present} {present} {uk.lesson.of} {total}
-        </Typography>
-        {!held && !inactive && (
-          <Button
-            variant="contained"
-            size="large"
-            disabled={isFuture || lesson.finish.isPending}
-            onClick={() => {
-              lesson.finish.mutate();
-            }}
-            sx={{ minHeight: 52, minWidth: 200 }}
+        <Box sx={{ maxWidth: 688, mx: 'auto', display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <Typography className="tnum" sx={{ fontSize: 17, fontWeight: 600 }} aria-live="polite">
+              {uk.lesson.present} {present} {uk.lesson.of} {total}
+            </Typography>
+            <Typography className="tnum" variant="body2" color="text.secondary">
+              н {absent} · нп {excused} · з {late}
+            </Typography>
+          </Box>
+          <LinkButton
+            to="/gradebook/$loadId"
+            params={{ loadId: detail.loadId }}
+            color="inherit"
+            sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
           >
-            {uk.lesson.finish}
-          </Button>
-        )}
-        <LinkButton
-          to="/gradebook/$loadId"
-          params={{ loadId: detail.loadId }}
-          sx={{ minHeight: 52 }}
-        >
-          {uk.lesson.openJournal}
-        </LinkButton>
-      </Paper>
+            {uk.lesson.openJournal}
+          </LinkButton>
+          {!inactive && (
+            <Button
+              variant="contained"
+              size="large"
+              disabled={isFuture || lesson.finish.isPending}
+              onClick={() => {
+                lesson.finish.mutate();
+              }}
+              sx={{ minHeight: 52, px: 2.5, whiteSpace: 'nowrap' }}
+            >
+              {uk.lesson.finish}
+            </Button>
+          )}
+        </Box>
+      </Box>
 
       {sheet && (
         <GradeSheet
           student={sheet.student}
           scale={detail.scale}
+          dateLabel={formatShortDate(detail.date)}
           defaultKind={defaultGradeKind(detail.kind)}
           {...(sheet.grade && { grade: sheet.grade })}
           onClose={() => {

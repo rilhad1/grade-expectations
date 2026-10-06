@@ -1,6 +1,7 @@
 import DownloadIcon from '@mui/icons-material/Download';
 import {
   Alert,
+  Box,
   Button,
   Paper,
   Table,
@@ -17,8 +18,10 @@ import { q } from '../../api/queries';
 import { useCurrentSemester } from '../../app/SemesterSwitcher';
 import { useMe } from '../../app/useMe';
 import { uk } from '../../shared/i18n/uk';
+import { EmptyState } from '../../shared/ui/EmptyState';
 import { ErrorAlert } from '../../shared/ui/ErrorAlert';
 import { PageHeader } from '../../shared/ui/PageHeader';
+import { ProgressBar, StatCard } from '../../shared/ui/Stat';
 
 import { hoursCsv, hoursRows, hoursTotals } from './model';
 
@@ -53,6 +56,8 @@ export function HoursScreen() {
     t.columns.deficit,
     t.columns.extraPairs,
   ];
+  const worst = [...rows].sort((a, b) => b.deficit - a.deficit)[0];
+  const colorOf = new Map((loads.data ?? []).map((l) => [l.id, l.discipline.color]));
 
   return (
     <>
@@ -74,13 +79,44 @@ export function HoursScreen() {
         }
       />
       <ErrorAlert error={loads.error} />
-      {loads.isSuccess && rows.length === 0 && <Alert severity="info">{t.empty}</Alert>}
+      {loads.isSuccess && rows.length === 0 && <EmptyState title={t.empty} />}
+      {rows.length > 0 && (
+        <Box
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: 'repeat(2, minmax(0, 1fr))',
+              md: 'repeat(4, minmax(0, 1fr))',
+            },
+            gap: 1.5,
+            mb: 2,
+          }}
+        >
+          <StatCard label={t.stats.planned} value={totals.planned} suffix={uk.today.hoursUnit} />
+          <StatCard
+            label={t.stats.held}
+            value={totals.held}
+            suffix={`${uk.today.hoursUnit} · ${String(totals.planned === 0 ? 0 : Math.round((totals.held / totals.planned) * 100))}%`}
+          />
+          <StatCard label={t.stats.forecast} value={totals.forecast} suffix={uk.today.hoursUnit} />
+          <StatCard
+            label={t.stats.deficit}
+            value={totals.deficit > 0 ? `−${String(totals.deficit)}` : '0'}
+            suffix={
+              totals.deficit > 0 && worst
+                ? `${uk.today.hoursUnit} · ${worst.discipline}`
+                : uk.today.hoursUnit
+            }
+            tone={totals.deficit > 0 ? 'warn' : 'default'}
+          />
+        </Box>
+      )}
       {rows.length > 0 && (
         <TableContainer component={Paper} variant="outlined">
           <Table size="small" aria-label={t.title}>
             <TableHead>
               <TableRow>
-                {columns.map((c, i) =>
+                {[...columns, t.columns.progress].map((c, i) =>
                   i === 0 && !isModerator ? null : (
                     <TableCell key={c} align={i >= 4 ? 'right' : 'left'}>
                       {c}
@@ -109,17 +145,27 @@ export function HoursScreen() {
                     {r.deficit}
                   </TableCell>
                   <TableCell align="right">{r.extraPairs}</TableCell>
+                  <TableCell sx={{ width: 120 }}>
+                    <ProgressBar
+                      value={r.planned === 0 ? 0 : r.held / r.planned}
+                      color={colorOf.get(r.loadId)}
+                      label={`${r.discipline} · ${r.group}`}
+                    />
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
             <TableFooter>
               <TableRow>
-                <TableCell colSpan={isModerator ? 4 : 3}>{t.total}</TableCell>
+                <TableCell colSpan={isModerator ? 4 : 3} sx={{ fontWeight: 600 }}>
+                  {t.total}
+                </TableCell>
                 <TableCell align="right">{totals.planned}</TableCell>
                 <TableCell align="right">{totals.held}</TableCell>
                 <TableCell align="right">{totals.forecast}</TableCell>
                 <TableCell align="right">{totals.deficit}</TableCell>
                 <TableCell align="right">{totals.extraPairs}</TableCell>
+                <TableCell />
               </TableRow>
             </TableFooter>
           </Table>

@@ -42,13 +42,28 @@ export function LoginForm({
   });
 
   return (
-    <Stack component="form" spacing={2} onSubmit={(e) => void submit(e)} noValidate>
-      <Typography variant="h5" component="h1">
+    <Stack component="form" spacing={2.5} onSubmit={(e) => void submit(e)} noValidate>
+      <Typography variant="h5" component="h1" sx={{ fontSize: 26, lineHeight: '34px' }}>
         {uk.login.title}
       </Typography>
       <Typography variant="body2" color="text.secondary">
         {uk.login.subtitle}
       </Typography>
+
+      {googleEnabled && (
+        <>
+          <Button
+            variant="outlined"
+            size="large"
+            onClick={() => {
+              void authClient.signIn.social({ provider: 'google', callbackURL: '/' });
+            }}
+          >
+            {uk.login.google}
+          </Button>
+          <Divider>{uk.login.or}</Divider>
+        </>
+      )}
 
       {error !== null && <Alert severity="error">{error}</Alert>}
 
@@ -72,20 +87,6 @@ export function LoginForm({
         {isSubmitting ? uk.login.submitting : uk.login.submit}
       </Button>
 
-      {googleEnabled && (
-        <>
-          <Divider>{uk.login.or}</Divider>
-          <Button
-            variant="outlined"
-            size="large"
-            onClick={() => {
-              void authClient.signIn.social({ provider: 'google', callbackURL: '/' });
-            }}
-          >
-            {uk.login.google}
-          </Button>
-        </>
-      )}
       <Typography variant="caption" color="text.secondary">
         {uk.login.noSignUp}
       </Typography>

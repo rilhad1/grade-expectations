@@ -6,6 +6,9 @@ const root = new URL('..', import.meta.url).pathname;
 
 export default defineConfig({
   testDir: './specs',
+  // Запас для навантаженої машини: dev-сервер Vite компілює сторінки при першому зверненні
+  timeout: 60_000,
+  expect: { timeout: 15_000 },
   globalSetup: './global-setup.ts',
   fullyParallel: false,
   workers: 1,

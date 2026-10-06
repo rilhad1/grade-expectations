@@ -3,6 +3,7 @@ import { Box, ButtonBase, Typography } from '@mui/material';
 import { useState, type DragEvent } from 'react';
 
 import { uk } from '../../shared/i18n/uk';
+import { disciplineTone } from '../../shared/ui/discipline';
 
 import { loadCaption, slotsInCell, type SlotParityValue } from './model';
 
@@ -61,7 +62,7 @@ function SlotCard({
   readOnly: boolean;
   onSelect: () => void;
 }) {
-  const color = load?.discipline.color ?? '#888888';
+  const tone = disciplineTone(load?.discipline.color ?? '#5D6B78');
   return (
     <ButtonBase
       draggable={!readOnly}
@@ -79,10 +80,12 @@ function SlotCard({
         px: 0.75,
         py: 0.5,
         borderRadius: '6px',
-        borderLeft: `4px solid ${color}`,
-        bgcolor: `${color}1f`,
-        outline: conflict ? '2px solid' : 'none',
-        outlineColor: 'error.main',
+        border: conflict ? '2px solid' : '1px solid',
+        borderColor: conflict ? 'ge.err' : tone.border,
+        bgcolor: tone.tint,
+        boxShadow: conflict
+          ? '0 0 0 3px color-mix(in srgb, var(--mui-palette-ge-err) 14%, transparent)'
+          : 'none',
         fontSize: 12,
         lineHeight: 1.25,
         cursor: readOnly ? 'pointer' : 'grab',

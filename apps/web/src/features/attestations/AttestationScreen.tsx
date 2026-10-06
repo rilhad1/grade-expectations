@@ -1,12 +1,10 @@
 import type { AttestationKind, AttestationStudent, LoadAttestationsDto } from '@ge/shared';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import InfoOutlined from '@mui/icons-material/InfoOutlined';
 import {
-  Alert,
   Box,
   Button,
-  Chip,
+  Checkbox,
   CircularProgress,
-  LinearProgress,
   Paper,
   Stack,
   Tab,
@@ -31,10 +29,14 @@ import {
   type ResultInput,
 } from '../../api/attestations';
 import { useMe } from '../../app/useMe';
-import { formatDate } from '../../shared/format';
+import { formatShortDate } from '../../shared/format';
 import { uk } from '../../shared/i18n/uk';
+import { ControlFormBadge } from '../../shared/ui/Badges';
 import { DisciplineDot } from '../../shared/ui/DisciplineDot';
+import { EmptyState } from '../../shared/ui/EmptyState';
 import { ErrorAlert } from '../../shared/ui/ErrorAlert';
+import { ProgressBar } from '../../shared/ui/Stat';
+import { LinkBase } from '../../shared/ui/links';
 import { DocumentJobStatus } from '../documents/DocumentJobStatus';
 import { useDocumentJob } from '../documents/useDocumentJob';
 
@@ -46,6 +48,7 @@ import {
   fieldValue,
   reopenInput,
   rowState,
+  rulesSummary,
 } from './model';
 
 const t = uk.attestations;
@@ -63,11 +66,21 @@ export function AttestationScreen({ loadId }: { loadId: string }) {
   const kind = picked ?? list[0]?.kind ?? 'INTERIM';
   return (
     <>
-      <Typography variant="h5" component="h1" sx={{ mb: 1 }}>
-        <DisciplineDot color={load.discipline.color} size={12} />
-        {t.title}: {load.discipline.shortTitle} · {load.group.name}
-        {load.subgroup ? ` · ${load.subgroup.name}` : ''} · {uk.loads.kindsShort[load.kind]}
-      </Typography>
+      <Stack
+        direction="row"
+        spacing={1.5}
+        alignItems="center"
+        flexWrap="wrap"
+        useFlexGap
+        sx={{ mb: 2 }}
+      >
+        <Typography variant="h5" component="h1" sx={{ display: 'flex', alignItems: 'center' }}>
+          <DisciplineDot color={load.discipline.color} size={12} gap={1.25} />
+          {t.title}: {load.discipline.shortTitle} · {load.group.name}
+          {load.subgroup ? ` · ${load.subgroup.name}` : ''} · {uk.loads.kindsShort[load.kind]}
+        </Typography>
+        <ControlFormBadge form={load.controlForm} />
+      </Stack>
       <Tabs
         value={kind}
         onChange={(_, value: AttestationKind) => {
@@ -75,13 +88,27 @@ export function AttestationScreen({ loadId }: { loadId: string }) {
         }}
         variant="scrollable"
         allowScrollButtonsMobile
+        aria-label={t.modulesLabel}
         sx={{ mb: 2 }}
       >
         {list.map((m) => (
           <Tab
             key={m.kind}
             value={m.kind}
-            label={`${t.modules[m.kind]} · ${String(m.confirmed)}/${String(m.total)}`}
+            label={
+              <Box component="span" sx={{ display: 'inline-flex', alignItems: 'baseline', gap: 1 }}>
+                {t.modules[m.kind]}
+                <Box
+                  component="small"
+                  className="tnum"
+                  sx={{ fontSize: 12, color: 'ge.text3', fontWeight: 500 }}
+                >
+                  {m.kind === 'AVERAGE'
+                    ? t.wholeSemester
+                    : `${formatShortDate(m.dateFrom)} – ${formatShortDate(m.dateTo)}`}
+                </Box>
+              </Box>
+            }
           />
         ))}
       </Tabs>
@@ -106,16 +133,18 @@ function ModuleSheet({
     queryFn: () => fetchSheet(loadId, kind),
   });
   const [drafts, setDrafts] = useState<Record<string, string>>({});
+  const [comments, setComments] = useState<Record<string, string>>({});
   const statement = useDocumentJob();
 
   const save = useMutation({
     mutationFn: (results: ResultInput[]) => saveResults(loadId, kind, results),
     onSuccess: async (data, results) => {
       queryClient.setQueryData(['attestation-sheet', loadId, kind], data);
-      setDrafts((current) => {
-        const saved = new Set(results.map((r) => r.enrollmentId));
-        return Object.fromEntries(Object.entries(current).filter(([id]) => !saved.has(id)));
-      });
+      const saved = new Set(results.map((r) => r.enrollmentId));
+      const without = (current: Record<string, string>) =>
+        Object.fromEntries(Object.entries(current).filter(([id]) => !saved.has(id)));
+      setDrafts(without);
+      setComments(without);
       await queryClient.invalidateQueries({ queryKey: ['attestations', loadId] });
     },
   });
@@ -127,88 +156,107 @@ function ModuleSheet({
   const { students } = data;
   const done = confirmedCount(students);
   const allConfirmed = done === students.length && students.length > 0;
-  const period = modules.modules.find((m) => m.kind === kind);
+  const naCount = students.filter((s) => s.proposal.isNa).length;
 
   const draftOf = (s: AttestationStudent) => drafts[s.enrollmentId];
+  const commentOf = (s: AttestationStudent) => comments[s.enrollmentId] ?? s.result?.comment ?? '';
   const requestStatement = (format: 'DOCX' | 'PDF') => {
     statement.start({ kind: 'STATEMENT', format, loadId, attestationKind: kind });
   };
 
   return (
-    <>
-      <Stack
-        direction="row"
-        spacing={2}
-        alignItems="center"
-        flexWrap="wrap"
-        sx={{ mb: 1 }}
-        useFlexGap
+    <Box sx={{ pb: 12 }}>
+      <Paper
+        variant="outlined"
+        sx={{ p: 2, mb: 2, display: 'flex', gap: 2, alignItems: 'flex-start' }}
       >
-        <Box sx={{ minWidth: 220, flexGrow: 1 }}>
-          <Typography variant="body2" color="text.secondary">
-            {t.range}: {formatDate(data.range.from)} — {formatDate(data.range.to)}
-            {period
-              ? ` · ${t.periodHint} ${formatDate(period.dateFrom)} — ${formatDate(period.dateTo)}`
-              : ''}
-          </Typography>
-          <Typography variant="body2" sx={{ mb: 0.5 }}>
-            {t.confirmed}: {done} {uk.loads.hoursOf} {students.length}
-          </Typography>
-          <LinearProgress
-            variant="determinate"
-            value={students.length === 0 ? 0 : (done / students.length) * 100}
-            aria-label={`${t.confirmed}: ${String(done)}`}
-          />
-        </Box>
-        <Button
-          variant="contained"
-          disabled={save.isPending || done === students.length}
-          onClick={() => {
-            save.mutate(acceptAllInputs(students, drafts));
-          }}
+        <InfoOutlined sx={{ fontSize: 20, color: 'primary.main', mt: '1px' }} />
+        <Typography color="text.secondary" sx={{ flex: 1, lineHeight: '21px' }}>
+          <Box component="b" sx={{ color: 'text.primary', fontWeight: 600 }}>
+            {t.howProposal}
+          </Box>{' '}
+          {t.range} {formatShortDate(data.range.from)} – {formatShortDate(data.range.to)}.{' '}
+          {rulesSummary(modules.load.gradingRules)}
+        </Typography>
+        <LinkBase
+          to="/my-disciplines/$loadId"
+          params={{ loadId }}
+          sx={{ fontSize: 13, color: 'primary.main', fontWeight: 500, whiteSpace: 'nowrap' }}
         >
-          {t.acceptAll}
-        </Button>
-      </Stack>
+          {t.rulesLink}
+        </LinkBase>
+      </Paper>
 
       <ErrorAlert error={save.error} />
-      {students.length === 0 && <Alert severity="info">{uk.gradebook.emptyStudents}</Alert>}
+      {students.length === 0 && <EmptyState title={uk.gradebook.emptyStudents} />}
 
       {students.length > 0 && (
         <TableContainer component={Paper} variant="outlined">
           <Table size="small" aria-label={t.title}>
             <TableHead>
               <TableRow>
+                <TableCell sx={{ width: 40 }}>№</TableCell>
                 <TableCell>{t.student}</TableCell>
-                <TableCell>{t.proposal}</TableCell>
-                <TableCell sx={{ width: 140 }}>{t.grade}</TableCell>
-                <TableCell align="right" sx={{ width: 180 }} />
+                <TableCell align="right" sx={{ width: 96 }}>
+                  {t.average}
+                </TableCell>
+                <TableCell align="right" sx={{ width: 104 }}>
+                  {t.absences}
+                </TableCell>
+                <TableCell sx={{ width: 150 }}>{t.proposal}</TableCell>
+                <TableCell sx={{ width: 120 }}>{t.grade}</TableCell>
+                <TableCell>{t.comment}</TableCell>
+                <TableCell align="center" sx={{ width: 104 }}>
+                  {t.checked}
+                </TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
-              {students.map((s) => {
+              {students.map((s, i) => {
                 const state = rowState(s, draftOf(s));
                 const value = fieldValue(s, draftOf(s));
                 const error = fieldError(data.load.scale, value);
+                const confirmed = state === 'confirmed';
                 return (
-                  <TableRow key={s.enrollmentId} hover>
+                  <TableRow
+                    key={s.enrollmentId}
+                    hover
+                    sx={s.proposal.isNa ? { bgcolor: 'ge.warnBg' } : undefined}
+                  >
+                    <TableCell className="tnum" sx={{ color: 'ge.text3', fontSize: 12 }}>
+                      {i + 1}
+                    </TableCell>
                     <TableCell>
                       {s.lastName} {s.firstName}
-                      {s.average !== null && (
-                        <Typography variant="caption" color="text.secondary" component="div">
-                          {uk.gradebook.average} {s.average.toFixed(1).replace('.', ',')} ·{' '}
-                          {uk.gradebook.absences} {Math.round(s.absencePercent)}%
-                        </Typography>
-                      )}
+                    </TableCell>
+                    <TableCell align="right" className="tnum">
+                      {s.average === null ? uk.common.none : s.average.toFixed(1).replace('.', ',')}
+                    </TableCell>
+                    <TableCell
+                      align="right"
+                      className="tnum"
+                      sx={
+                        s.absencePercent > 30 ? { color: 'ge.errFg', fontWeight: 600 } : undefined
+                      }
+                    >
+                      {Math.round(s.absencePercent)}%
                     </TableCell>
                     <TableCell>
                       <Tooltip title={s.proposal.explanation}>
-                        <Chip
-                          size="small"
-                          label={s.proposal.text}
-                          color={s.proposal.isNa ? 'warning' : 'default'}
-                          variant="outlined"
-                        />
+                        <Box
+                          component="span"
+                          className="tnum"
+                          sx={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: 0.75,
+                            fontWeight: 600,
+                            color: s.proposal.isNa ? 'ge.warn' : 'text.primary',
+                          }}
+                        >
+                          {s.proposal.text}
+                          <InfoOutlined sx={{ fontSize: 14, color: 'ge.text3' }} />
+                        </Box>
                       </Tooltip>
                       <Typography variant="caption" color="text.secondary" component="div">
                         {s.proposal.explanation}
@@ -218,7 +266,7 @@ function ModuleSheet({
                       <TextField
                         size="small"
                         value={value}
-                        disabled={state === 'confirmed'}
+                        disabled={confirmed}
                         error={error !== null}
                         helperText={error ?? undefined}
                         onChange={(e) => {
@@ -227,44 +275,44 @@ function ModuleSheet({
                             [s.enrollmentId]: e.target.value,
                           }));
                         }}
-                        slotProps={{ htmlInput: { 'aria-label': `${t.grade}: ${s.lastName}` } }}
+                        slotProps={{
+                          htmlInput: {
+                            'aria-label': `${t.grade}: ${s.lastName}`,
+                            className: 'tnum',
+                            style: { textAlign: 'center', fontWeight: 600, width: 56 },
+                          },
+                        }}
                       />
                     </TableCell>
-                    <TableCell align="right">
-                      {state === 'confirmed' ? (
-                        <Stack
-                          direction="row"
-                          spacing={1}
-                          justifyContent="flex-end"
-                          alignItems="center"
-                        >
-                          <CheckCircleIcon
-                            color="success"
-                            fontSize="small"
-                            aria-label={t.states.confirmed}
-                          />
-                          <Button
-                            size="small"
-                            disabled={save.isPending}
-                            onClick={() => {
-                              save.mutate([reopenInput(s)]);
-                            }}
-                          >
-                            {t.change}
-                          </Button>
-                        </Stack>
-                      ) : (
-                        <Button
-                          size="small"
-                          variant="outlined"
-                          disabled={save.isPending || error !== null}
-                          onClick={() => {
-                            save.mutate([confirmInput(s, draftOf(s))]);
-                          }}
-                        >
-                          {t.confirm}
-                        </Button>
-                      )}
+                    <TableCell>
+                      <TextField
+                        size="small"
+                        fullWidth
+                        placeholder={t.addComment}
+                        value={commentOf(s)}
+                        disabled={confirmed}
+                        onChange={(e) => {
+                          setComments((current) => ({
+                            ...current,
+                            [s.enrollmentId]: e.target.value,
+                          }));
+                        }}
+                        slotProps={{ htmlInput: { 'aria-label': `${t.comment}: ${s.lastName}` } }}
+                      />
+                    </TableCell>
+                    <TableCell align="center">
+                      <Checkbox
+                        checked={confirmed}
+                        disabled={save.isPending || (!confirmed && error !== null)}
+                        slotProps={{ input: { 'aria-label': `${t.checked}: ${s.lastName}` } }}
+                        onChange={() => {
+                          save.mutate([
+                            confirmed
+                              ? reopenInput(s)
+                              : confirmInput(s, draftOf(s), comments[s.enrollmentId]),
+                          ]);
+                        }}
+                      />
                     </TableCell>
                   </TableRow>
                 );
@@ -274,14 +322,47 @@ function ModuleSheet({
         </TableContainer>
       )}
 
-      <Stack
-        direction="row"
-        spacing={1}
-        alignItems="center"
-        flexWrap="wrap"
-        sx={{ mt: 2 }}
-        useFlexGap
+      <Box
+        sx={{
+          position: 'sticky',
+          bottom: 0,
+          mt: 2,
+          mx: { xs: -2, md: -3, lg: -4 },
+          px: { xs: 2, md: 3, lg: 4 },
+          py: 1.5,
+          bgcolor: 'background.paper',
+          borderTop: 1,
+          borderColor: 'ge.line2',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 2,
+          flexWrap: 'wrap',
+        }}
       >
+        <Box sx={{ width: 280, maxWidth: '100%' }}>
+          <Typography className="tnum" sx={{ fontWeight: 600, mb: 0.5 }}>
+            {t.confirmed}: {done} {uk.loads.hoursOf} {students.length}
+          </Typography>
+          <ProgressBar
+            value={students.length === 0 ? 0 : done / students.length}
+            label={`${t.confirmed}: ${String(done)}`}
+          />
+        </Box>
+        {naCount > 0 && (
+          <Typography variant="body2" color="text.secondary">
+            {t.naCount(naCount)}
+          </Typography>
+        )}
+        <Box sx={{ flex: 1 }} />
+        <Button
+          variant="outlined"
+          disabled={save.isPending || done === students.length}
+          onClick={() => {
+            save.mutate(acceptAllInputs(students, drafts, comments));
+          }}
+        >
+          {t.acceptAll}
+        </Button>
         <Button
           variant="outlined"
           disabled={!allConfirmed || statement.busy}
@@ -293,7 +374,7 @@ function ModuleSheet({
         </Button>
         {me.data?.features.pdf && (
           <Button
-            variant="outlined"
+            variant="contained"
             disabled={!allConfirmed || statement.busy}
             onClick={() => {
               requestStatement('PDF');
@@ -303,13 +384,13 @@ function ModuleSheet({
           </Button>
         )}
         {!allConfirmed && (
-          <Typography variant="body2" color="text.secondary">
+          <Typography variant="caption" color="text.secondary" sx={{ width: '100%' }}>
             {t.needAll}
           </Typography>
         )}
         <DocumentJobStatus document={statement.document} />
-      </Stack>
-      <ErrorAlert error={statement.error} />
-    </>
+        <ErrorAlert error={statement.error} />
+      </Box>
+    </Box>
   );
 }

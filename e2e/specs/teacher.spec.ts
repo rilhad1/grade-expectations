@@ -8,9 +8,10 @@ test.describe('сценарії викладача (сьогодні — 12 жо
   test('«Сьогодні»: поточна пара, події, вичитка', async ({ page }) => {
     await login(page, users.teacher);
     await expect(page.getByRole('heading', { name: 'Сьогодні' })).toBeVisible();
-    await expect(page.getByText('Зараз')).toBeVisible();
+    await expect(page.getByText('Пара триває')).toBeVisible();
     await expect(page.getByText(/2 пара · 10:00–11:20/)).toBeVisible();
-    await expect(page.getByText(/Інформатика · ПДт-12/)).toBeVisible();
+    await expect(page.getByRole('main').getByText('Інформатика', { exact: true })).toBeVisible();
+    await expect(page.getByRole('main').getByText('ПДт-12', { exact: true }).first()).toBeVisible();
     await expect(page.getByRole('link', { name: 'Почати пару' })).toBeVisible();
     await expect(page.getByText('1-ша рубіжна атестація')).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Вичитка годин' })).toBeVisible();
@@ -94,11 +95,8 @@ test.describe('сценарії викладача (сьогодні — 12 жо
   test('тематичний план: додати тему і зберегти', async ({ page }) => {
     await login(page, users.teacher);
     await page.getByRole('link', { name: 'Мої дисципліни' }).click();
-    await page
-      .getByText(/Інформатика/)
-      .first()
-      .click();
-    await expect(page.getByRole('tab', { name: 'Тематичний план' })).toBeVisible();
+    await page.getByRole('main').getByRole('link').first().click();
+    await expect(page.getByRole('region', { name: 'Тематичний план' })).toBeVisible();
 
     await page.getByRole('button', { name: 'Додати тему' }).click();
     await page.getByLabel('Тема').last().fill('Нова тема з e2e');
@@ -110,11 +108,7 @@ test.describe('сценарії викладача (сьогодні — 12 жо
   test('правила оцінювання: ваги й поріг пропусків', async ({ page }) => {
     await login(page, users.teacher);
     await page.getByRole('link', { name: 'Мої дисципліни' }).click();
-    await page
-      .getByText(/Інформатика/)
-      .first()
-      .click();
-    await page.getByRole('tab', { name: 'Правила оцінювання' }).click();
+    await page.getByRole('main').getByRole('link').first().click();
     await page.getByLabel('Поріг неповажних пропусків, %').fill('40');
     await expect(page.getByText(/понад 40%/)).toBeVisible();
     await page.getByRole('button', { name: 'Зберегти правила' }).click();
@@ -134,7 +128,7 @@ test.describe('запит на перенесення: викладач → де
     const teacherCtx = await browser.newContext(opts);
     const teacher = await teacherCtx.newPage();
     await login(teacher, users.teacher);
-    await teacher.getByRole('link', { name: 'Розклад' }).click();
+    await teacher.getByRole('link', { name: 'Розклад', exact: true }).click();
     await teacher.getByRole('button', { name: 'Наступний тиждень' }).click();
     await teacher.getByRole('button', { name: 'Інформ. ПДт-12' }).first().click(); // понеділкова лекція
     await teacher.getByRole('menuitem', { name: 'Запит на перенесення' }).click();

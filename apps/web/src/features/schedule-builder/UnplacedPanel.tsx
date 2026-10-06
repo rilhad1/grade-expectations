@@ -2,6 +2,7 @@ import { Box, Paper, Stack, Typography } from '@mui/material';
 
 import { uk } from '../../shared/i18n/uk';
 import { DisciplineDot } from '../../shared/ui/DisciplineDot';
+import { disciplineTone } from '../../shared/ui/discipline';
 
 import { startDrag } from './ScheduleGrid';
 import { loadCaption, type UnplacedLoad } from './model';
@@ -51,10 +52,9 @@ export function UnplacedPanel({
               p: 1,
               borderRadius: '6px',
               border: 1,
-              borderColor: 'divider',
-              borderLeft: `4px solid ${load.discipline.color}`,
+              borderColor: disciplineTone(load.discipline.color).border,
               cursor: disabled ? 'default' : 'grab',
-              bgcolor: 'background.paper',
+              bgcolor: disciplineTone(load.discipline.color).tint,
             }}
           >
             <Typography variant="body2" sx={{ fontWeight: 600 }}>

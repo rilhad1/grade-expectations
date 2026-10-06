@@ -56,7 +56,7 @@ export function ProgressBar({
 }: {
   /** Від 0 до 1. */
   value: number;
-  color?: string;
+  color?: string | undefined;
   height?: number;
   label: string;
 }) {

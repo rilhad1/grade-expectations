@@ -2,7 +2,7 @@ import CalendarMonthOutlined from '@mui/icons-material/CalendarMonthOutlined';
 import LockOutlined from '@mui/icons-material/LockOutlined';
 import { Box, InputAdornment, ListSubheader, MenuItem, Select } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import { Fragment, useEffect } from 'react';
+import { useEffect } from 'react';
 
 import { q } from '../api/queries';
 import { uk } from '../shared/i18n/uk';
@@ -65,45 +65,44 @@ export function SemesterSwitcher({ fullWidth = false }: { fullWidth?: boolean })
         '& .MuiSelect-select': { display: 'flex', alignItems: 'center' },
       }}
     >
-      {groups.map((g) => (
-        <Fragment key={g.yearId}>
-          <ListSubheader
-            sx={{
-              lineHeight: '32px',
-              fontSize: 12,
-              fontWeight: 600,
-              color: 'ge.text3',
-              bgcolor: 'background.paper',
-            }}
-          >
-            {g.title}
-          </ListSubheader>
-          {g.items.map((s) => (
-            <MenuItem key={s.id} value={s.id} sx={{ justifyContent: 'space-between', gap: 2 }}>
-              <span className="tnum">
-                {s.number === 1 ? 'I' : 'II'} {uk.semesterWord}
-              </span>
-              <Box
-                component="span"
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 0.5,
-                  fontSize: 12,
-                  color: 'ge.text3',
-                }}
-              >
-                {s.status === 'CLOSED' && <LockOutlined sx={{ fontSize: 12 }} />}
-                {s.status === 'CLOSED'
-                  ? uk.header.archived
-                  : s.status === 'ACTIVE'
-                    ? uk.header.current
-                    : uk.semesterStatus[s.status]}
-              </Box>
-            </MenuItem>
-          ))}
-        </Fragment>
-      ))}
+      {groups.flatMap((g) => [
+        <ListSubheader
+          key={`year-${g.yearId}`}
+          sx={{
+            lineHeight: '32px',
+            fontSize: 12,
+            fontWeight: 600,
+            color: 'ge.text3',
+            bgcolor: 'background.paper',
+          }}
+        >
+          {g.title}
+        </ListSubheader>,
+        ...g.items.map((s) => (
+          <MenuItem key={s.id} value={s.id} sx={{ justifyContent: 'space-between', gap: 2 }}>
+            <span className="tnum">
+              {s.number === 1 ? 'I' : 'II'} {uk.semesterWord}
+            </span>
+            <Box
+              component="span"
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 0.5,
+                fontSize: 12,
+                color: 'ge.text3',
+              }}
+            >
+              {s.status === 'CLOSED' && <LockOutlined sx={{ fontSize: 12 }} />}
+              {s.status === 'CLOSED'
+                ? uk.header.archived
+                : s.status === 'ACTIVE'
+                  ? uk.header.current
+                  : uk.semesterStatus[s.status]}
+            </Box>
+          </MenuItem>
+        )),
+      ])}
     </Select>
   );
 }

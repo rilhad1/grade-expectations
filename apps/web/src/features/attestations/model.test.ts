@@ -9,6 +9,7 @@ import {
   fieldValue,
   reopenInput,
   rowState,
+  rulesSummary,
 } from './model';
 
 const student = (
@@ -91,5 +92,36 @@ describe('вхідні дані збереження', () => {
 
   it('confirmedCount рахує підтверджені', () => {
     expect(confirmedCount([student('a', '9'), student('b', '9', saved('9', true))])).toBe(1);
+  });
+});
+
+describe('коментар і правила', () => {
+  it('confirmInput бере чернетку коментаря; порожній коментар стає null', () => {
+    expect(confirmInput(student('a', '9'), undefined, 'Відмінна КР')).toMatchObject({
+      comment: 'Відмінна КР',
+    });
+    expect(confirmInput(student('a', '9', saved('7', false)), undefined, '')).toMatchObject({
+      comment: null,
+    });
+  });
+
+  it('acceptAllInputs враховує чернетки коментарів', () => {
+    const [first] = acceptAllInputs([student('a', '9')], {}, { a: 'ок' });
+    expect(first?.comment).toBe('ок');
+  });
+
+  it('rulesSummary описує ваги, поріг оцінок і пропусків', () => {
+    const text = rulesSummary({
+      weights: { TEST: 2, PRACTICE: 1, LAB: 1, ORAL: 0.5 },
+      minGrades: 3,
+      maxUnexcusedAbsencePercent: 30,
+    });
+    expect(text).toContain('контрольні ×2');
+    expect(text).toContain('усні ×0,5');
+    expect(text).toContain('менше 3');
+    expect(text).toContain('понад 30%');
+    expect(rulesSummary({ weights: {}, minGrades: 1, maxUnexcusedAbsencePercent: 10 })).toContain(
+      'практичні ×1',
+    );
   });
 });

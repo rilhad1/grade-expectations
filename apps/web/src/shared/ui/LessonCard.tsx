@@ -73,7 +73,7 @@ export function LessonCard({
   meta?: readonly string[];
   state?: LessonCardState;
   tag?: LessonCardTag;
-  onClick?: () => void;
+  onClick?: (event: React.MouseEvent<HTMLElement>) => void;
   ariaLabel?: string;
   minHeight?: number;
 }) {

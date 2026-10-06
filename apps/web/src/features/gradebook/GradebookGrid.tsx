@@ -12,12 +12,12 @@ import { cellText } from './model';
 
 type Student = GradebookDto['students'][number];
 
-const NAME_W = 220;
-const INDEX_W = 40;
-const CELL_W = 72;
-const SUMMARY_W = 88;
-const ROW_H = 40;
-const HEAD_H = 56;
+const NAME_W = 196;
+const INDEX_W = 36;
+const CELL_W = 46;
+const SUMMARY_W = 64;
+const ROW_H = 30;
+const HEAD_H = 44;
 
 export interface GridSelection {
   row: number;
@@ -26,7 +26,8 @@ export interface GridSelection {
 
 const helper = createColumnHelper<Student>();
 
-const TONE = { low: '#f3d9d6', high: '#d9ecd9', none: 'transparent' } as const;
+const TONE = { low: 'ge.grade.low', high: 'ge.grade.high', none: 'transparent' } as const;
+const ATT = { ABSENT: 'absent', EXCUSED: 'excused', LATE: 'late' } as const;
 
 /**
  * Журнал «студенти × заняття», як паперовий: закріплені № і ПІБ ліворуч, підсумки праворуч,
@@ -77,8 +78,8 @@ export function GradebookGrid({
   });
 
   const lessonCount = data.lessons.length;
-  const template = `${INDEX_W}px ${NAME_W}px repeat(${lessonCount}, ${CELL_W}px) ${SUMMARY_W}px ${SUMMARY_W + 16}px ${SUMMARY_W}px`;
-  const totalWidth = INDEX_W + NAME_W + lessonCount * CELL_W + SUMMARY_W * 3 + 16;
+  const template = `${INDEX_W}px ${NAME_W}px repeat(${lessonCount}, ${CELL_W}px) ${SUMMARY_W}px ${SUMMARY_W + 28}px ${SUMMARY_W + 28}px`;
+  const totalWidth = INDEX_W + NAME_W + lessonCount * CELL_W + SUMMARY_W * 3 + 56;
   const periodOf = (date: string) =>
     data.periods.find((p) => date >= p.startDate && date <= p.endDate);
 
@@ -120,8 +121,9 @@ export function GradebookGrid({
             zIndex: 4,
             bgcolor: 'background.paper',
             borderBottom: 1,
-            borderColor: 'divider',
-            fontSize: 12,
+            borderColor: 'ge.line2',
+            fontSize: 11,
+            color: 'ge.text3',
           }}
         >
           {table.getHeaderGroups()[0]?.headers.map((header, i) => {
@@ -139,18 +141,19 @@ export function GradebookGrid({
                   alignItems: i < 2 ? 'flex-start' : 'center',
                   borderLeft: 1,
                   borderColor: 'divider',
-                  bgcolor: period ? '#e9eef6' : 'background.paper',
+                  bgcolor: period
+                    ? 'ge.accentSoft'
+                    : i > 1 + lessonCount
+                      ? 'ge.surface2'
+                      : 'background.paper',
+                  color: period ? 'primary.main' : undefined,
                   fontVariantNumeric: 'tabular-nums',
                   opacity: lesson?.status === 'PLANNED' ? 0.7 : 1,
                   ...(left !== undefined ? sticky(left) : {}),
                 }}
               >
                 <strong>{String(header.column.columnDef.header)}</strong>
-                {lesson && (
-                  <span>
-                    {uk.loads.kindsShort[lesson.kind]} · {lesson.pairNumber}
-                  </span>
-                )}
+                {lesson && <span>{uk.loads.kindsShort[lesson.kind]}</span>}
               </Box>
             );
             return lesson?.topic ? (
@@ -172,6 +175,12 @@ export function GradebookGrid({
             if (!student) return null;
             const inactive = student.enrollmentStatus !== 'ACTIVE';
             const s = student.summary;
+            const rowSelected = selection.row === item.index;
+            const rowBg = rowSelected
+              ? 'ge.sunken'
+              : item.index % 2 === 1
+                ? 'ge.surface2'
+                : 'background.paper';
             return (
               <Box
                 key={student.enrollmentId}
@@ -190,15 +199,17 @@ export function GradebookGrid({
                   borderColor: 'divider',
                   alignItems: 'stretch',
                   opacity: inactive ? 0.55 : 1,
+                  bgcolor: rowBg,
                 }}
               >
                 <Box
                   sx={{
-                    ...sticky(0),
+                    ...sticky(0, rowBg),
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: 'text.secondary',
+                    color: 'ge.text3',
+                    fontSize: 12,
                     fontVariantNumeric: 'tabular-nums',
                   }}
                 >
@@ -211,15 +222,16 @@ export function GradebookGrid({
                     onOpenStudent(student);
                   }}
                   sx={{
-                    ...sticky(INDEX_W),
+                    ...sticky(INDEX_W, rowBg),
                     border: 0,
                     borderRight: 1,
                     borderColor: 'divider',
                     textAlign: 'left',
                     px: 1,
                     font: 'inherit',
+                    fontSize: 13,
                     cursor: 'pointer',
-                    color: s.risk.length > 0 ? 'error.main' : 'text.primary',
+                    color: s.risk.length > 0 ? 'ge.errFg' : 'text.primary',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
                     whiteSpace: 'nowrap',
@@ -231,7 +243,18 @@ export function GradebookGrid({
                   const cell = student.cells[lesson.id];
                   const selected = selection.row === item.index && selection.col === col;
                   const first = cell?.grades[0];
-                  const bg = first ? TONE[gradeTone(scale, first.value)] : 'transparent';
+                  const att =
+                    cell && cell.attendance && cell.attendance !== 'PRESENT'
+                      ? ATT[cell.attendance]
+                      : null;
+                  const planned = lesson.status === 'PLANNED';
+                  const bg = att
+                    ? `ge.att.${att}.bg`
+                    : first
+                      ? TONE[gradeTone(scale, first.value)]
+                      : planned
+                        ? 'ge.surface2'
+                        : 'transparent';
                   return (
                     <Box
                       key={lesson.id}
@@ -246,6 +269,7 @@ export function GradebookGrid({
                         onSelect({ row: item.index, col });
                       }}
                       sx={{
+                        position: 'relative',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
@@ -254,19 +278,13 @@ export function GradebookGrid({
                         cursor: 'cell',
                         bgcolor: bg,
                         fontVariantNumeric: 'tabular-nums',
-                        fontSize: 14,
-                        fontWeight: cell?.grades.length ? 600 : 400,
-                        color:
-                          cell?.attendance === 'ABSENT'
-                            ? '#8c2f27'
-                            : cell?.attendance === 'EXCUSED'
-                              ? '#7a5200'
-                              : cell?.attendance === 'LATE'
-                                ? '#1d4e89'
-                                : 'text.primary',
-                        outline: selected ? '2px solid' : 'none',
-                        outlineColor: 'primary.main',
-                        outlineOffset: -2,
+                        fontSize: att ? 12 : 13,
+                        fontWeight: att ? 700 : cell?.grades.length ? 500 : 400,
+                        color: att ? `ge.att.${att}.fg` : 'text.primary',
+                        boxShadow: selected
+                          ? 'inset 0 0 0 2px var(--mui-palette-primary-main)'
+                          : 'none',
+                        zIndex: selected ? 1 : 0,
                       }}
                     >
                       {cellText(cell, uk.lesson.attendanceShort)}
@@ -282,6 +300,8 @@ export function GradebookGrid({
                     borderColor: 'divider',
                     fontVariantNumeric: 'tabular-nums',
                     fontWeight: 600,
+                    fontSize: 13,
+                    color: s.average !== null && s.average < 4 ? 'ge.errFg' : 'text.primary',
                   }}
                 >
                   {s.average === null ? uk.common.none : s.average.toFixed(1).replace('.', ',')}
@@ -294,9 +314,15 @@ export function GradebookGrid({
                     borderLeft: 1,
                     borderColor: 'divider',
                     fontVariantNumeric: 'tabular-nums',
+                    fontSize: 13,
                   }}
                 >
-                  {s.absences.unexcused} ({s.absences.excused})
+                  {s.absences.unexcused}
+                  {s.absences.excused > 0 && (
+                    <Box component="span" sx={{ ml: 0.5, fontSize: 12, color: 'ge.text3' }}>
+                      ({s.absences.excused} {uk.gradebook.excusedShort})
+                    </Box>
+                  )}
                 </Box>
                 <Tooltip title={s.proposal.explanation} placement="left">
                   <Box
@@ -306,11 +332,30 @@ export function GradebookGrid({
                       justifyContent: 'center',
                       borderLeft: 1,
                       borderColor: 'divider',
-                      fontVariantNumeric: 'tabular-nums',
-                      color: s.proposal.value === 'NA' ? 'error.main' : 'text.primary',
                     }}
                   >
-                    {s.proposal.value === 'NA' ? 'н/а' : s.proposal.value}
+                    <Box
+                      component="span"
+                      className="tnum"
+                      sx={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        minWidth: 34,
+                        height: 22,
+                        px: 0.75,
+                        borderRadius: '4px',
+                        fontSize: 13,
+                        fontWeight: 600,
+                        ...(s.proposal.value === 'NA'
+                          ? { bgcolor: 'ge.grade.naBg', color: 'ge.grade.naFg' }
+                          : {
+                              bgcolor: TONE[gradeTone(scale, s.proposal.value)],
+                            }),
+                      }}
+                    >
+                      {s.proposal.value === 'NA' ? 'н/а' : s.proposal.value}
+                    </Box>
                   </Box>
                 </Tooltip>
               </Box>
