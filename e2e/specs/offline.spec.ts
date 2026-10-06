@@ -35,7 +35,7 @@ test.describe('офлайн «На парі»: зміни без мережі с
 
     // сервер змін ще не бачить
     await context.setOffline(false);
-    await expect(page.getByRole('status')).toHaveCount(0, { timeout: 30_000 });
+    await expect(page.getByRole('status')).toContainText('Синхронізовано', { timeout: 30_000 });
 
     const detail = await page.request.get(`/api/v1/lessons/${lessonId}`);
     const body = (await detail.json()) as {

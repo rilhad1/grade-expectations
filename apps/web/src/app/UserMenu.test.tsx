@@ -50,11 +50,13 @@ describe('UserMenu', () => {
     const user = userEvent.setup();
     render(<UserMenu me={me(['TEACHER', 'MODERATOR'])} onLogout={vi.fn()} />);
     await user.click(screen.getByRole('button', { name: uk.menu.account }));
-    await user.click(screen.getByRole('menuitem', { name: uk.roles.MODERATOR }));
+    await user.click(screen.getByRole('button', { name: uk.roles.MODERATOR }));
     expect(useRoleStore.getState().preferredRole).toBe('MODERATOR');
-
-    await user.click(screen.getByRole('button', { name: uk.menu.account }));
-    // бейдж поточної ролі й пункт у списку обох показують «Модератор»
+    expect(screen.getByRole('button', { name: uk.roles.MODERATOR })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    // бейдж поточної ролі на кнопці користувача теж оновився
     expect(screen.getAllByText(uk.roles.MODERATOR).length).toBeGreaterThanOrEqual(2);
   });
 });

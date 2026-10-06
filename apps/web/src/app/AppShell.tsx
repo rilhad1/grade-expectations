@@ -1,36 +1,20 @@
 import type { MeResponse } from '@ge/shared';
 import { pageOf, rescheduleRequestDtoSchema } from '@ge/shared';
-import MenuIcon from '@mui/icons-material/Menu';
-import {
-  AppBar,
-  Badge,
-  Box,
-  Drawer,
-  IconButton,
-  Stack,
-  List,
-  ListItemButton,
-  ListItemText,
-  Toolbar,
-  Typography,
-  useMediaQuery,
-  useTheme,
-} from '@mui/material';
+import { Box, useMediaQuery, useTheme } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import { Link, useRouterState } from '@tanstack/react-router';
-import { useState, type ReactNode } from 'react';
+import { useRouterState } from '@tanstack/react-router';
+import type { ReactNode } from 'react';
 
 import { get } from '../api/http';
-import { uk } from '../shared/i18n/uk';
 
-import { SemesterSwitcher, useCurrentSemester } from './SemesterSwitcher';
+import { AppSidebar } from './AppSidebar';
+import { ArchivePill, AppTopbar } from './AppTopbar';
+import { MobileNav } from './MobileNav';
+import { useCurrentSemester } from './SemesterSwitcher';
 import { SyncIndicator } from './SyncIndicator';
-import { UserMenu } from './UserMenu';
 import { WeekBadge } from './WeekBadge';
 import { navFor } from './nav';
 import { resolveActiveRole, useRoleStore } from './roleStore';
-
-const DRAWER_WIDTH = 248;
 
 function usePendingRequests(enabled: boolean): number {
   const { data } = useQuery({
@@ -43,6 +27,10 @@ function usePendingRequests(enabled: boolean): number {
   return data?.items.length ?? 0;
 }
 
+/**
+ * Оболонка: на десктопі — бічна панель + шапка, на телефоні — тонка смуга стану зверху й нижня
+ * панель (на «На парі» вони ховаються, там власна шапка й закріплена нижня панель дій).
+ */
 export function AppShell({
   me,
   onLogout,
@@ -54,94 +42,62 @@ export function AppShell({
 }) {
   const theme = useTheme();
   const desktop = useMediaQuery(theme.breakpoints.up('md'));
-  const [open, setOpen] = useState(false);
   const preferred = useRoleStore((s) => s.preferredRole);
   const role = resolveActiveRole(me.roles, preferred);
   const items = navFor(role);
-  const pending = usePendingRequests(role === 'MODERATOR');
+  const requestsCount = usePendingRequests(role === 'MODERATOR');
   const { semester } = useCurrentSemester();
   const path = useRouterState({ select: (s) => s.location.pathname });
 
-  const nav = (
-    <List component="nav" aria-label={uk.nav.menu} sx={{ pt: 1 }}>
-      {items.map((item) => (
-        <ListItemButton
-          key={item.to}
-          component={Link}
-          to={item.to}
-          selected={item.to === '/' ? path === '/' : path.startsWith(item.to)}
-          onClick={() => {
-            setOpen(false);
+  if (desktop) {
+    return (
+      <Box sx={{ minHeight: '100vh', display: 'flex', bgcolor: 'background.default' }}>
+        <AppSidebar
+          me={me}
+          items={items}
+          path={path}
+          requestsCount={requestsCount}
+          onLogout={onLogout}
+        />
+        <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
+          <AppTopbar />
+          <Box component="main" sx={{ flex: 1, minWidth: 0, p: { md: 3, lg: '28px 32px' } }}>
+            {children}
+          </Box>
+        </Box>
+      </Box>
+    );
+  }
+
+  const bare = path.startsWith('/lessons/');
+  return (
+    <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+      {!bare && (
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 1,
+            px: 2,
+            py: 1.25,
+            bgcolor: 'background.paper',
+            borderBottom: 1,
+            borderColor: 'divider',
           }}
         >
-          <ListItemText primary={item.label} />
-          {item.badge === 'requests' && pending > 0 && (
-            <Badge color="error" badgeContent={pending} sx={{ mr: 1 }} />
+          {semester?.status === 'CLOSED' ? (
+            <ArchivePill />
+          ) : (
+            <WeekBadge semester={semester} large />
           )}
-        </ListItemButton>
-      ))}
-    </List>
-  );
-
-  return (
-    <Box sx={{ minHeight: '100vh', display: 'flex' }}>
-      <AppBar
-        position="fixed"
-        color="primary"
-        elevation={0}
-        sx={{ zIndex: theme.zIndex.drawer + 1 }}
-      >
-        <Toolbar sx={{ gap: 2 }}>
-          {!desktop && (
-            <IconButton
-              color="inherit"
-              edge="start"
-              aria-label={uk.nav.menu}
-              onClick={() => {
-                setOpen(true);
-              }}
-            >
-              <MenuIcon />
-            </IconButton>
-          )}
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, whiteSpace: 'nowrap' }}>
-            {uk.app.name}
-          </Typography>
-          {/* На телефоні перемикач семестру й бейдж тижня — у шторці, щоб у шапці лишилось меню користувача */}
-          {desktop && <WeekBadge semester={semester} />}
-          {desktop && <SemesterSwitcher />}
           <SyncIndicator />
-          <UserMenu me={me} onLogout={onLogout} compact={!desktop} />
-        </Toolbar>
-      </AppBar>
-
-      <Drawer
-        variant={desktop ? 'permanent' : 'temporary'}
-        open={desktop || open}
-        onClose={() => {
-          setOpen(false);
-        }}
-        sx={{
-          width: desktop ? DRAWER_WIDTH : 0,
-          '& .MuiDrawer-paper': { width: DRAWER_WIDTH, boxSizing: 'border-box' },
-        }}
-      >
-        <Toolbar />
-        {!desktop && (
-          <Stack spacing={1.5} sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
-            <SemesterSwitcher onDark={false} />
-            <Box>
-              <WeekBadge semester={semester} onDark={false} />
-            </Box>
-          </Stack>
-        )}
-        {nav}
-      </Drawer>
-
-      <Box component="main" sx={{ flexGrow: 1, minWidth: 0, p: { xs: 2, md: 3 } }}>
-        <Toolbar />
+        </Box>
+      )}
+      <Box component="main" sx={{ p: 2, pb: bare ? 2 : 14 }}>
         {children}
       </Box>
+      {!bare && <MobileNav path={path} />}
     </Box>
   );
 }

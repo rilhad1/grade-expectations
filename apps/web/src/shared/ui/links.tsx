@@ -1,4 +1,11 @@
-import { Button, ListItemButton, type ButtonProps, type ListItemButtonProps } from '@mui/material';
+import {
+  Button,
+  ButtonBase,
+  ListItemButton,
+  type ButtonBaseProps,
+  type ButtonProps,
+  type ListItemButtonProps,
+} from '@mui/material';
 import { createLink } from '@tanstack/react-router';
 import { forwardRef } from 'react';
 
@@ -16,3 +23,10 @@ const MuiListItemAnchor = forwardRef<HTMLAnchorElement, ListItemButtonProps<'a'>
 );
 MuiListItemAnchor.displayName = 'MuiListItemAnchor';
 export const LinkListItem = createLink(MuiListItemAnchor);
+
+const MuiBaseAnchor = forwardRef<HTMLAnchorElement, ButtonBaseProps<'a'>>(
+  ({ href, ...rest }, ref) => <ButtonBase ref={ref} component="a" href={href ?? ''} {...rest} />,
+);
+MuiBaseAnchor.displayName = 'MuiBaseAnchor';
+/** Безстильова кнопка-посилання (пункти навігації, картки): ролі й фокус — як у `<a>`. */
+export const LinkBase = createLink(MuiBaseAnchor);

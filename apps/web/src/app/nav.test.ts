@@ -8,11 +8,17 @@ describe('navFor', () => {
       '/',
       '/schedule',
       '/gradebook',
-      '/my-disciplines',
       '/attestations',
+      '/my-disciplines',
       '/hours',
       '/profile',
     ]);
+  });
+  it('розділи розбито на загальні й «Деканат»; лічильник лише в запитів', () => {
+    const items = navFor('MODERATOR');
+    expect(items.filter((i) => i.section === 'dean').map((i) => i.to)).toContain('/admin/requests');
+    expect(items.filter((i) => i.badge).map((i) => i.to)).toEqual(['/admin/requests']);
+    expect(navFor('TEACHER').every((i) => i.section === 'main')).toBe(true);
   });
   it('модератор додатково бачить розділи деканату', () => {
     const to = navFor('MODERATOR').map((i) => i.to);
@@ -25,8 +31,8 @@ describe('navFor', () => {
       '/',
       '/schedule',
       '/gradebook',
-      '/my-disciplines',
       '/attestations',
+      '/my-disciplines',
       '/hours',
       '/profile',
     ]);

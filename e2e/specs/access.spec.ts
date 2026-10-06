@@ -47,7 +47,8 @@ test.describe('доступ за ролями', () => {
     const nav = page.getByRole('navigation', { name: 'Меню' });
     await expect(nav.getByText('Конструктор розкладу')).toHaveCount(0); // перша роль — викладач
     await page.getByRole('button', { name: 'Обліковий запис' }).click();
-    await page.getByRole('menuitem', { name: 'Модератор' }).click();
+    await page.getByRole('button', { name: 'Модератор', exact: true }).click();
+    await page.keyboard.press('Escape');
     await expect(nav.getByText('Конструктор розкладу')).toBeVisible();
   });
 });

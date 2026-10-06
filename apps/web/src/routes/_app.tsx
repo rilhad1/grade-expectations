@@ -6,9 +6,9 @@ import { useEffect } from 'react';
 import { authClient } from '../api/authClient';
 import { UnauthenticatedError, fetchMe } from '../api/me';
 import { AppShell } from '../app/AppShell';
-import { useRoleStore } from '../app/roleStore';
+import { useLogout } from '../app/useLogout';
 import { getMeta } from '../offline/db';
-import { bindUser, prepareLogout, setOnSynced, startSync } from '../offline/sync';
+import { bindUser, setOnSynced, startSync } from '../offline/sync';
 import { uk } from '../shared/i18n/uk';
 
 /** Усі захищені сторінки живуть під цим layout: без сесії — перенаправлення на вхід. */
@@ -27,7 +27,7 @@ export const Route = createFileRoute('/_app')({
 function AppLayout() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const resetRole = useRoleStore((s) => s.reset);
+  const logout = useLogout();
   const {
     data: me,
     error,
@@ -60,18 +60,8 @@ function AppLayout() {
   if (isPending) return <CircularProgress sx={{ m: 4 }} aria-label={uk.common.loading} />;
   if (me === undefined) return <Alert severity="error">{uk.common.loadError}</Alert>;
 
-  const logout = async () => {
-    // Незбережені на сервері зміни не губимо мовчки
-    const allowed = await prepareLogout((count) => window.confirm(uk.sync.logoutConfirm(count)));
-    if (!allowed) return;
-    await authClient.signOut();
-    queryClient.clear();
-    resetRole();
-    await navigate({ to: '/login' });
-  };
-
   return (
-    <AppShell me={me} onLogout={() => void logout()}>
+    <AppShell me={me} onLogout={logout}>
       <Outlet />
     </AppShell>
   );
