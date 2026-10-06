@@ -8,7 +8,11 @@ import { theme } from './app/theme';
 import { routeTree } from './routeTree.gen';
 
 const router = createRouter({ routeTree });
-const queryClient = new QueryClient();
+// Дані читаються з Dexie, а зміни пишуться локально, тож запити не мають зупинятися без мережі
+// (за замовчуванням TanStack Query ставить їх на паузу, поки браузер офлайн).
+const queryClient = new QueryClient({
+  defaultOptions: { queries: { networkMode: 'always' }, mutations: { networkMode: 'always' } },
+});
 
 declare module '@tanstack/react-router' {
   interface Register {

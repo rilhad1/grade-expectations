@@ -24,6 +24,7 @@ import { get } from '../api/http';
 import { uk } from '../shared/i18n/uk';
 
 import { SemesterSwitcher, useCurrentSemester } from './SemesterSwitcher';
+import { SyncIndicator } from './SyncIndicator';
 import { UserMenu } from './UserMenu';
 import { WeekBadge } from './WeekBadge';
 import { navFor } from './nav';
@@ -109,6 +110,7 @@ export function AppShell({
           {/* На телефоні перемикач семестру й бейдж тижня — у шторці, щоб у шапці лишилось меню користувача */}
           {desktop && <WeekBadge semester={semester} />}
           {desktop && <SemesterSwitcher />}
+          <SyncIndicator />
           <UserMenu me={me} onLogout={onLogout} compact={!desktop} />
         </Toolbar>
       </AppBar>

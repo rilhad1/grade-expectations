@@ -13,6 +13,8 @@ import {
 import { queryOptions } from '@tanstack/react-query';
 import { z } from 'zod';
 
+import { cachedFetch } from '../offline/cache';
+
 import { get, getAll } from './http';
 
 /** Ключі й запити, спільні для екранів деканату. */
@@ -25,7 +27,7 @@ export const q = {
   semesters: () =>
     queryOptions({
       queryKey: ['semesters'],
-      queryFn: () => get('/semesters', z.array(semesterDtoSchema)),
+      queryFn: () => cachedFetch('semesters', () => get('/semesters', z.array(semesterDtoSchema))),
     }),
   disciplines: () =>
     queryOptions({
@@ -35,7 +37,10 @@ export const q = {
   rooms: () =>
     queryOptions({ queryKey: ['rooms'], queryFn: () => getAll('/rooms', roomDtoSchema) }),
   bells: () =>
-    queryOptions({ queryKey: ['bells'], queryFn: () => get('/bells', z.array(bellDtoSchema)) }),
+    queryOptions({
+      queryKey: ['bells'],
+      queryFn: () => cachedFetch('bells', () => get('/bells', z.array(bellDtoSchema))),
+    }),
   cohorts: () =>
     queryOptions({ queryKey: ['cohorts'], queryFn: () => getAll('/cohorts', cohortDtoSchema) }),
   groups: (academicYearId?: string) =>

@@ -17,7 +17,7 @@ import { Link } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
 import { q } from '../../api/queries';
-import { fetchToday } from '../../api/teaching';
+import { loadToday } from '../../offline/lessonSource';
 import { formatWeekdayDate } from '../../shared/format';
 import { uk } from '../../shared/i18n/uk';
 import { DisciplineDot } from '../../shared/ui/DisciplineDot';
@@ -123,7 +123,7 @@ function CurrentCard({
 }
 
 export function TodayScreen({ fullName }: { fullName: string }) {
-  const today = useQuery({ queryKey: ['today'], queryFn: fetchToday, refetchInterval: 60_000 });
+  const today = useQuery({ queryKey: ['today'], queryFn: loadToday, refetchInterval: 60_000 });
   const bells = useQuery(q.bells());
   const [now, setNow] = useState(() => new Date());
   useEffect(() => {

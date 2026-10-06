@@ -7,13 +7,19 @@ import { authClient } from '../api/authClient';
 import { UnauthenticatedError, fetchMe } from '../api/me';
 import { AppShell } from '../app/AppShell';
 import { useRoleStore } from '../app/roleStore';
+import { getMeta } from '../offline/db';
+import { bindUser, prepareLogout, setOnSynced, startSync } from '../offline/sync';
 import { uk } from '../shared/i18n/uk';
 
 /** Усі захищені сторінки живуть під цим layout: без сесії — перенаправлення на вхід. */
 export const Route = createFileRoute('/_app')({
   beforeLoad: async () => {
-    const { data } = await authClient.getSession();
-    if (!data) throw redirect({ to: '/login' });
+    const { data, error } = await authClient.getSession();
+    if (data) return;
+    // Без зв'язку сесію не перевірити: пускаємо, якщо на пристрої є профіль останнього входу
+    const offline = !navigator.onLine || error === null || !error.status || error.status >= 502;
+    if (offline && (await getMeta('cache:me')) !== undefined) return;
+    throw redirect({ to: '/login' });
   },
   component: AppLayout,
 });
@@ -28,6 +34,24 @@ function AppLayout() {
     isPending,
   } = useQuery({ queryKey: ['me'], queryFn: fetchMe, retry: false });
 
+  const userId = me?.user.id;
+  useEffect(() => {
+    if (userId === undefined) return;
+    setOnSynced(() => {
+      void queryClient.invalidateQueries({ queryKey: ['lesson'] });
+      void queryClient.invalidateQueries({ queryKey: ['today'] });
+    });
+    let stop: (() => void) | undefined;
+    let cancelled = false;
+    void bindUser(userId).then(() => {
+      if (!cancelled) stop = startSync();
+    });
+    return () => {
+      cancelled = true;
+      stop?.();
+    };
+  }, [userId, queryClient]);
+
   const unauthenticated = error instanceof UnauthenticatedError;
   useEffect(() => {
     if (unauthenticated) void navigate({ to: '/login' });
@@ -37,6 +61,9 @@ function AppLayout() {
   if (me === undefined) return <Alert severity="error">{uk.common.loadError}</Alert>;
 
   const logout = async () => {
+    // Незбережені на сервері зміни не губимо мовчки
+    const allowed = await prepareLogout((count) => window.confirm(uk.sync.logoutConfirm(count)));
+    if (!allowed) return;
     await authClient.signOut();
     queryClient.clear();
     resetRole();

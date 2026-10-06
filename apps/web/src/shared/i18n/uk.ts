@@ -453,6 +453,19 @@ export const uk = {
     hoursUnit: 'год',
     placeholder: 'Тут з’явиться ваш розклад на сьогодні.',
   },
+  sync: {
+    offline: (pending: number) =>
+      pending > 0 ? `Офлайн · ${String(pending)} змін на пристрої` : 'Офлайн',
+    syncing: (pending: number) =>
+      pending > 0 ? `Синхронізація · ${String(pending)}` : 'Синхронізація…',
+    authProblem: 'Увійдіть знову, щоб зберегти зміни',
+    serverProblem: 'Сервер недоступний, зміни збережено на пристрої',
+    notices: (n: number) => `Потребує уваги: ${String(n)}`,
+    noticesTitle: 'Результати синхронізації',
+    dismiss: 'Зрозуміло',
+    logoutConfirm: (n: number) =>
+      `${String(n)} змін ще не збережено на сервері. Вийти й втратити їх?`,
+  },
   attestations: {
     title: 'Атестація',
     pick: 'Оберіть навантаження, щоб виставити результати модулів',

@@ -19,7 +19,25 @@ export default defineConfig(({ mode }) => {
           theme_color: '#1F3A5F',
           background_color: '#F7F5F0',
           display: 'standalone',
-          icons: [],
+          start_url: '/',
+          icons: [
+            { src: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+            { src: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+            {
+              src: '/icon-maskable-512.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'maskable',
+            },
+          ],
+        },
+        includeAssets: ['apple-touch-icon.png'],
+        workbox: {
+          // Оболонка застосунку працює без мережі; дані йдуть через Dexie, тож API не кешуємо
+          globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
+          navigateFallback: '/index.html',
+          navigateFallbackDenylist: [/^\/api\//],
+          cleanupOutdatedCaches: true,
         },
       }),
     ],
