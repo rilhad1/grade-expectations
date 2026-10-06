@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Розклад — день</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ge{--bg:#F7F5F0;--surface:#FFFFFF;--surface-2:#FBFAF7;--sunken:#F1EEE7;--line:#E4E0D6;--line-2:#D3CEC2;--text:#1F2328;--text-2:#4E545B;--text-3:#676C73;--accent:#1F3A5F;--accent-soft:#E7EDF4;--accent-line:#B9C8DA;--warn:#7A4A06;--warn-bg:#F9ECD4;font-family:'Golos Text',system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.4;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+.ge *{box-sizing:border-box}
+.ge h1,.ge p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+.day{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;height:56px;border:0;border-radius:8px;background:transparent;font:inherit;color:var(--text-2);cursor:pointer}
+.day small{font-size:12px;font-weight:600;color:var(--text-3)}
+.day b{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.slot{display:grid;grid-template-columns:56px minmax(0,1fr);gap:12px;align-items:stretch}
+.tm{display:flex;flex-direction:column;padding-top:12px;font-size:13px;color:var(--text-3);font-variant-numeric:tabular-nums}
+.tm b{font-size:17px;color:var(--text);font-weight:600}
+.lc{display:flex;flex-direction:column;gap:4px;padding:12px 14px;border-radius:10px;border:1px solid transparent;min-height:84px;text-align:left;font:inherit;color:var(--text);width:100%}
+.lc .t{display:flex;align-items:center;gap:8px;font-weight:600;font-size:16px}
+.lc .t i{width:10px;height:10px;border-radius:3px;flex:none}
+.lc .m{font-size:14px;color:var(--text-2)}
+.tag{display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:4px;font-size:13px;font-weight:600;align-self:flex-start;margin-top:4px}
+.d1{background:#EAF0F7;border-color:#D3DDEA}.d1 .t i{background:#4C6A92}
+.d2{background:#E5F1EF;border-color:#CBE2DE}.d2 .t i{background:#3D7A72}
+.d4{background:#F6EFDF;border-color:#E8DCC0}.d4 .t i{background:#94701F}
+</style>
+</helmet>
+<div class="ge" style="width: 390px; height: 1000px; position: relative; overflow: hidden">
+  <header style="background: var(--surface); border-bottom: 1px solid var(--line); padding: 16px 16px 8px; display: flex; flex-direction: column; gap: 10px">
+    <div style="display: flex; align-items: center; justify-content: space-between">
+      <h1 style="font-size: 26px; line-height: 32px; font-weight: 600">Розклад</h1>
+      <span style="display: inline-flex; align-items: center; gap: 8px; height: 26px; padding: 0 10px 0 8px; border-radius: 13px; background: var(--accent-soft); border: 1px solid var(--accent-line); color: var(--accent); font-size: 13px; font-weight: 600"><span aria-hidden="true" style="display: flex; flex-direction: column; gap: 2px; width: 12px"><i style="display: block; height: 4px; border: 1px solid var(--accent); border-radius: 1px"></i><i style="display: block; height: 4px; background: var(--accent); border-radius: 1px"></i></span>Нижній тиждень</span>
+    </div>
+    <div role="tablist" aria-label="Дні тижня" style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px">
+      <button type="button" role="tab" aria-selected="false" class="day"><small>Пн</small><b>5</b></button>
+      <button type="button" role="tab" aria-selected="false" class="day"><small>Вт</small><b>6</b></button>
+      <button type="button" role="tab" aria-selected="true" class="day" style="background: var(--accent); color: #FFFFFF"><small style="color: #C9D5E4">Ср</small><b>7</b></button>
+      <button type="button" role="tab" aria-selected="false" class="day"><small>Чт</small><b>8</b></button>
+      <button type="button" role="tab" aria-selected="false" class="day"><small>Пт</small><b>9</b></button>
+    </div>
+  </header>
+
+  <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px 6px">
+    <span style="font-size: 17px; font-weight: 600">Середа, 7 жовтня</span>
+    <span class="num" style="font-size: 14px; color: var(--text-3)">3 пари</span>
+  </div>
+
+  <div style="padding: 8px 16px 24px; display: flex; flex-direction: column; gap: 10px">
+    <div class="slot">
+      <div class="tm"><b>1</b>8:30</div>
+      <button type="button" class="lc d2"><span class="t"><i></i>Метрологія ІОС</span><span class="m">ПДт-13 · ауд. 305 · практична</span><span class="tag" style="background: var(--surface); color: var(--accent); border: 1px solid var(--accent-line)">Перенесено з пт, 9 жовт.</span></button>
+    </div>
+    <div class="slot">
+      <div class="tm"><b>2</b>10:00</div>
+      <button type="button" class="lc d1"><span class="t"><i></i>Інформатика</span><span class="m">ПДт-11 · ауд. 214 · практична</span></button>
+    </div>
+    <div class="slot">
+      <div class="tm"><b>3</b>11:40</div>
+      <div style="display: flex; align-items: center; min-height: 52px; padding: 0 14px; border: 1px dashed var(--line-2); border-radius: 10px; color: var(--text-3); font-size: 14px">Вікно</div>
+    </div>
+    <div class="slot">
+      <div class="tm"><b>4</b>13:10</div>
+      <div style="display: flex; align-items: center; min-height: 52px; padding: 0 14px; border: 1px dashed var(--line-2); border-radius: 10px; color: var(--text-3); font-size: 14px">Вікно</div>
+    </div>
+    <div class="slot">
+      <div class="tm"><b>5</b>14:40</div>
+      <button type="button" class="lc d4"><span class="t"><i></i>Вища математика</span><span class="m">ПДт-12 · ауд. 101 · лекція</span><span class="tag" style="background: var(--warn-bg); color: var(--warn)">Заміна · за Гуменюк О.П.</span></button>
+    </div>
+  </div>
+
+  <div aria-hidden="true" style="display: flex; justify-content: center; gap: 6px; padding-bottom: 8px">
+    <i style="width: 6px; height: 6px; border-radius: 3px; background: var(--line-2)"></i>
+    <i style="width: 6px; height: 6px; border-radius: 3px; background: var(--line-2)"></i>
+    <i style="width: 18px; height: 6px; border-radius: 3px; background: var(--accent)"></i>
+    <i style="width: 6px; height: 6px; border-radius: 3px; background: var(--line-2)"></i>
+    <i style="width: 6px; height: 6px; border-radius: 3px; background: var(--line-2)"></i>
+  </div>
+  <p style="text-align: center; font-size: 13px; color: var(--text-3)">Гортайте вліво або вправо, щоб змінити день</p>
+
+  <div style="position: absolute; left: 0; bottom: 0">
+    <dc-import name="MobileNav" active="schedule" hint-size="390px,80px"></dc-import>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

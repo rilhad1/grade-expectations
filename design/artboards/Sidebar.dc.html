@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Бічна панель</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<nav aria-label="Меню" style="{{rootStyle}}">
+  <div style="{{brandStyle}}">
+    <div aria-hidden="true" style="width: 32px; height: 32px; border-radius: 6px; background: var(--accent, #1F3A5F); display: flex; flex-direction: column; justify-content: center; gap: 4px; padding: 0 8px; flex: none">
+      <i style="display: block; height: 2px; background: #FFFFFF; border-radius: 1px"></i>
+      <i style="display: block; height: 2px; background: #FFFFFF; border-radius: 1px; width: 70%"></i>
+      <i style="display: block; height: 2px; background: #FFFFFF; border-radius: 1px; width: 45%"></i>
+    </div>
+    <div style="{{labelStyle}}">
+      <div style="font-size: 15px; font-weight: 600; line-height: 18px; letter-spacing: -0.01em">Grade Expectations</div>
+      <div style="font-size: 12px; color: var(--text-3, #676C73); line-height: 16px">Демо-коледж</div>
+    </div>
+  </div>
+
+  <div style="display: flex; flex-direction: column; gap: 2px; padding: 8px 12px">
+    <a href="Main.dc.html" style="{{s.today}}" aria-label="Сьогодні"><svg viewBox="0 0 24 24" style="{{icon}}"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path><rect x="7" y="13" width="4" height="4" rx="1"></rect></svg><span style="{{labelStyle}}">Сьогодні</span></a>
+    <a href="Schedule.dc.html" style="{{s.schedule}}" aria-label="Розклад"><svg viewBox="0 0 24 24" style="{{icon}}"><rect x="3" y="4" width="18" height="17" rx="2"></rect><path d="M3 9h18M9 9v12M15 9v12M3 15h18"></path></svg><span style="{{labelStyle}}">Розклад</span></a>
+    <a href="Gradebook.dc.html" style="{{s.journal}}" aria-label="Журнал"><svg viewBox="0 0 24 24" style="{{icon}}"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"></path><path d="M5 17a3 3 0 0 1 3-3h11"></path></svg><span style="{{labelStyle}}">Журнал</span></a>
+    <a href="Attestation.dc.html" style="{{s.attest}}" aria-label="Атестації"><svg viewBox="0 0 24 24" style="{{icon}}"><rect x="5" y="4" width="14" height="17" rx="2"></rect><path d="M9 4V3h6v1M9 13l2 2 4-4"></path></svg><span style="{{labelStyle}}">Атестації</span></a>
+    <a href="MyDisciplines.dc.html" style="{{s.disc}}" aria-label="Мої дисципліни"><svg viewBox="0 0 24 24" style="{{icon}}"><path d="M12 3 3 8l9 5 9-5z"></path><path d="m3 13 9 5 9-5"></path></svg><span style="{{labelStyle}}">Мої дисципліни</span></a>
+    <a href="HoursReport.dc.html" style="{{s.hours}}" aria-label="Вичитка годин"><svg viewBox="0 0 24 24" style="{{icon}}"><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg><span style="{{labelStyle}}">Вичитка годин</span></a>
+    <a href="DataCalendar.dc.html" style="{{s.data}}" aria-label="Дані й календар"><svg viewBox="0 0 24 24" style="{{icon}}"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"></path></svg><span style="{{labelStyle}}">Дані й календар</span></a>
+  </div>
+
+  <sc-if value="{{isMod}}" hint-placeholder-val="{{ false }}">
+    <div style="display: flex; flex-direction: column; gap: 2px; padding: 8px 12px; border-top: 1px solid var(--line, #E4E0D6); margin-top: 4px">
+      <div style="{{sectionStyle}}">Деканат</div>
+      <a href="ScheduleBuilder.dc.html" style="{{s.builder}}" aria-label="Конструктор розкладу"><svg viewBox="0 0 24 24" style="{{icon}}"><rect x="3" y="3" width="8" height="8" rx="1.5"></rect><rect x="13" y="3" width="8" height="8" rx="1.5"></rect><rect x="3" y="13" width="8" height="8" rx="1.5"></rect><path d="M17 14v6M14 17h6"></path></svg><span style="{{labelStyle}}">Конструктор розкладу</span></a>
+      <a href="WizardStep1.dc.html" style="{{s.semesters}}" aria-label="Семестри"><svg viewBox="0 0 24 24" style="{{icon}}"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4M7 15h10"></path></svg><span style="{{labelStyle}}">Семестри</span></a>
+      <a href="WizardStep2.dc.html" style="{{s.groups}}" aria-label="Групи і студенти"><svg viewBox="0 0 24 24" style="{{icon}}"><circle cx="9" cy="8" r="3.5"></circle><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14.5a6.5 6.5 0 0 1 3.5 5.5"></path></svg><span style="{{labelStyle}}">Групи і студенти</span></a>
+      <a href="WizardStep3.dc.html" style="{{s.load}}" aria-label="Навантаження"><svg viewBox="0 0 24 24" style="{{icon}}"><rect x="3" y="7" width="18" height="13" rx="2"></rect><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"></path></svg><span style="{{labelStyle}}">Навантаження</span></a>
+      <a href="Directories.dc.html" style="{{s.dirs}}" aria-label="Довідники"><svg viewBox="0 0 24 24" style="{{icon}}"><path d="M4 5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2z"></path><path d="M4 17a2 2 0 0 1 2-2h12M9 7h5"></path></svg><span style="{{labelStyle}}">Довідники</span></a>
+      <a href="Requests.dc.html" style="{{s.requests}}" aria-label="Запити, 5 нових"><svg viewBox="0 0 24 24" style="{{icon}}"><path d="M7 7h12l-3-3M17 17H5l3 3"></path></svg><span style="{{labelStyle}}">Запити</span><span style="{{countStyle}}">5</span></a>
+      <a href="States.dc.html" style="{{s.moderation}}" aria-label="Модерування"><svg viewBox="0 0 24 24" style="{{icon}}"><path d="M12 3 4 6v6c0 4.5 3.4 8.2 8 9 4.6-.8 8-4.5 8-9V6z"></path></svg><span style="{{labelStyle}}">Модерування</span></a>
+    </div>
+  </sc-if>
+
+  <div style="flex: 1"></div>
+
+  <div style="padding: 8px 12px">
+    <button type="button" aria-label="Згорнути панель" style="{{collapseStyle}}"><svg viewBox="0 0 24 24" style="{{icon}}"><path d="M11 6l-6 6 6 6M19 6l-6 6 6 6"></path></svg><span style="{{labelStyle}}">Згорнути</span></button>
+  </div>
+
+  <div style="position: relative; padding: 12px; border-top: 1px solid var(--line, #E4E0D6)">
+    <sc-if value="{{menuOpen}}" hint-placeholder-val="{{ false }}">
+      <div role="menu" style="position: absolute; left: 12px; bottom: 72px; width: 232px; background: var(--surface, #FFFFFF); border: 1px solid var(--line-2, #D3CEC2); border-radius: 10px; box-shadow: 0 8px 24px rgba(31,35,40,.10); padding: 8px; display: flex; flex-direction: column; gap: 4px; z-index: 5">
+        <div style="padding: 4px 8px 8px; font-size: 12px; color: var(--text-3, #676C73); font-weight: 500">Поточна роль</div>
+        <div style="display: flex; padding: 2px; gap: 2px; background: var(--sunken, #F1EEE7); border: 1px solid var(--line-2, #D3CEC2); border-radius: 8px; margin: 0 4px 6px">
+          <button type="button" aria-pressed="{{teacherPressed}}" style="{{roleBtnT}}">Викладач</button>
+          <button type="button" aria-pressed="{{modPressed}}" style="{{roleBtnM}}">Модератор</button>
+        </div>
+        <div style="padding: 4px 8px 8px; font-size: 12px; color: var(--text-3, #676C73); font-weight: 500">Тема</div>
+        <div role="radiogroup" aria-label="Тема" style="display: flex; padding: 2px; gap: 2px; background: var(--sunken, #F1EEE7); border: 1px solid var(--line-2, #D3CEC2); border-radius: 8px; margin: 0 4px 6px">
+          <button type="button" role="radio" aria-checked="true" style="{{themeOn}}">Світла</button>
+          <button type="button" role="radio" aria-checked="false" style="{{themeOff}}">Темна</button>
+          <button type="button" role="radio" aria-checked="false" style="{{themeOff}}">Як у системі</button>
+        </div>
+        <div style="height: 1px; background: var(--line, #E4E0D6); margin: 2px 0"></div>
+        <a href="Login.dc.html" role="menuitem" style="display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 8px; border-radius: 6px; color: var(--text, #1F2328); text-decoration: none; font-size: 14px"><svg viewBox="0 0 24 24" style="width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l-5-5 5-5M5 12h11"></path></svg>Вийти</a>
+      </div>
+    </sc-if>
+    <button type="button" aria-haspopup="menu" aria-expanded="{{menuExpanded}}" aria-label="Меню користувача" style="{{userBtnStyle}}">
+      <span aria-hidden="true" style="width: 32px; height: 32px; border-radius: 16px; background: var(--sunken, #F1EEE7); border: 1px solid var(--line-2, #D3CEC2); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--text-2, #4E545B); flex: none">{{initials}}</span>
+      <span style="{{userTextStyle}}">
+        <span style="font-size: 14px; font-weight: 500; color: var(--text, #1F2328); white-space: nowrap">{{user}}</span>
+        <span style="{{roleBadge}}">{{roleLabel}}</span>
+      </span>
+      <svg viewBox="0 0 24 24" style="{{chevStyle}}"><path d="m7 9 5-5 5 5M7 15l5 5 5-5"></path></svg>
+    </button>
+  </div>
+</nav>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"role":{"editor":"enum","options":["teacher","moderator"],"default":"teacher"},"active":{"editor":"enum","options":["today","schedule","journal","attest","disc","hours","data","builder","semesters","groups","load","dirs","requests","moderation"],"default":"today"},"collapsed":{"editor":"boolean","default":false},"menuOpen":{"editor":"boolean","default":false},"user":{"editor":"text","default":"Бойчук В.В."},"height":{"editor":"int","default":1000},"$preview":{"width":248,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const role = this.props.role ?? 'teacher';
+    const active = this.props.active ?? 'today';
+    const c = this.props.collapsed === true || this.props.collapsed === 'true';
+    const open = this.props.menuOpen === true || this.props.menuOpen === 'true';
+    const h = Number(this.props.height ?? 1000);
+    const user = this.props.user ?? 'Бойчук В.В.';
+    const w = c ? 72 : 248;
+    const base = 'display:flex;align-items:center;gap:12px;height:36px;border-radius:6px;text-decoration:none;font-size:14px;font-weight:500;white-space:nowrap;position:relative;' + (c ? 'justify-content:center;padding:0;' : 'padding:0 10px;');
+    const on = base + 'background:var(--accent-soft,#E7EDF4);color:var(--accent,#1F3A5F);';
+    const off = base + 'color:var(--text-2,#4E545B);';
+    const keys = ['today','schedule','journal','attest','disc','hours','data','builder','semesters','groups','load','dirs','requests','moderation'];
+    const s = {};
+    keys.forEach((k) => { s[k] = k === active ? on : off; });
+    const initials = user.split(' ')[0].slice(0,1) + (user.split(' ')[1] || '').slice(0,1);
+    const isMod = role === 'moderator';
+    const seg = 'flex:1;height:30px;border:0;border-radius:6px;font:inherit;font-size:13px;font-weight:500;cursor:pointer;';
+    const segOn = seg + 'background:var(--surface,#FFFFFF);color:var(--text,#1F2328);box-shadow:0 0 0 1px var(--line-2,#D3CEC2);';
+    const segOff = seg + 'background:transparent;color:var(--text-2,#4E545B);';
+    return {
+      s,
+      isMod,
+      menuOpen: open,
+      menuExpanded: open ? 'true' : 'false',
+      user,
+      initials,
+      roleLabel: isMod ? 'Модератор' : 'Викладач',
+      teacherPressed: isMod ? 'false' : 'true',
+      modPressed: isMod ? 'true' : 'false',
+      themeOn: segOn.replace('flex:1;', 'flex:1;font-size:12px;'),
+      themeOff: segOff.replace('flex:1;', 'flex:1;font-size:12px;'),
+      roleBtnT: isMod ? segOff : segOn,
+      roleBtnM: isMod ? segOn : segOff,
+      rootStyle: 'width:' + w + 'px;height:' + h + 'px;box-sizing:border-box;display:flex;flex-direction:column;background:var(--surface-2,#FBFAF7);border-right:1px solid var(--line,#E4E0D6);font-family:\'Golos Text\',system-ui,sans-serif;color:var(--text,#1F2328);',
+      brandStyle: 'display:flex;align-items:center;gap:10px;height:64px;border-bottom:1px solid var(--line,#E4E0D6);' + (c ? 'justify-content:center;padding:0;' : 'padding:0 20px;'),
+      labelStyle: c ? 'display:none' : 'display:block;flex:1;min-width:0',
+      sectionStyle: c ? 'display:none' : 'padding:8px 10px 4px;font-size:12px;font-weight:600;color:var(--text-3,#676C73);',
+      countStyle: c ? 'position:absolute;top:2px;right:8px;min-width:16px;height:16px;border-radius:8px;background:var(--accent,#1F3A5F);color:#FFFFFF;font-size:10px;font-weight:600;display:flex;align-items:center;justify-content:center;padding:0 4px;font-variant-numeric:tabular-nums' : 'min-width:22px;height:20px;border-radius:10px;background:var(--accent,#1F3A5F);color:#FFFFFF;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;padding:0 6px;font-variant-numeric:tabular-nums',
+      icon: 'width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round',
+      collapseStyle: 'display:flex;align-items:center;gap:12px;width:100%;height:36px;border:0;background:transparent;border-radius:6px;font:inherit;font-size:13px;color:var(--text-3,#676C73);cursor:pointer;' + (c ? 'justify-content:center;padding:0;transform:scaleX(-1);' : 'padding:0 10px;'),
+      userBtnStyle: 'display:flex;align-items:center;gap:10px;width:100%;min-height:48px;border:0;background:transparent;border-radius:8px;font:inherit;text-align:left;cursor:pointer;' + (c ? 'justify-content:center;padding:0;' : 'padding:6px 8px;') + (open ? 'background:var(--sunken,#F1EEE7);' : ''),
+      userTextStyle: c ? 'display:none' : 'display:flex;flex-direction:column;align-items:flex-start;gap:3px;flex:1;min-width:0',
+      roleBadge: 'display:inline-flex;align-items:center;height:18px;padding:0 6px;border-radius:9px;font-size:11px;font-weight:600;' + (isMod ? 'background:#EFE7D6;color:#6B4E12;' : 'background:var(--accent-soft,#E7EDF4);color:var(--accent,#1F3A5F);'),
+      chevStyle: c ? 'display:none' : 'width:16px;height:16px;flex:none;fill:none;stroke:var(--text-3,#676C73);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round'
+    };
+  }
+}
+</script>
+</body>
+</html>

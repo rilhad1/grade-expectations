@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Новий семестр — крок 2</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ge{--bg:#F7F5F0;--surface:#FFFFFF;--surface-2:#FBFAF7;--sunken:#F1EEE7;--line:#E4E0D6;--line-2:#D3CEC2;--text:#1F2328;--text-2:#4E545B;--text-3:#676C73;--accent:#1F3A5F;--accent-soft:#E7EDF4;--accent-line:#B9C8DA;--ok:#2E6A3E;--ok-bg:#E5F1E8;--warn:#7A4A06;--warn-bg:#FBF0DB;--err-fg:#8F2B22;--err-bg:#F7E4E1;font-family:'Golos Text',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.4;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+.ge *{box-sizing:border-box}
+.ge h1,.ge h2,.ge h3,.ge p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border-radius:6px;border:1px solid var(--line-2);background:var(--surface);color:var(--text);font:inherit;font-weight:500;cursor:pointer;white-space:nowrap;text-decoration:none}
+.btn-p{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
+.ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.stp{display:flex;align-items:center;gap:12px}
+.stp li{display:flex;align-items:center;gap:10px;list-style:none;font-size:14px;color:var(--text-3);font-weight:500}
+.stp li i{width:28px;height:28px;border-radius:14px;border:1.5px solid var(--line-2);display:flex;align-items:center;justify-content:center;font-style:normal;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;background:var(--surface)}
+.stp li[aria-current=step]{color:var(--text);font-weight:600}
+.stp li[aria-current=step] i{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
+.stp li.done{color:var(--text-2)}
+.stp li.done i{background:var(--ok-bg);border-color:var(--ok-bg);color:var(--ok)}
+.stp .ln{flex:1;height:1px;background:var(--line-2);min-width:24px}
+.tr{display:grid;grid-template-columns:28px 120px 32px 150px 90px 110px 110px 80px 90px minmax(0,1fr);gap:8px;align-items:center;min-height:52px;padding:0 16px;border-bottom:1px solid var(--line)}
+.th{min-height:40px;background:var(--surface-2);font-size:12px;font-weight:600;color:var(--text-3)}
+.pill{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:22px;padding:0 7px;border-radius:11px;font-size:12px;font-weight:600;font-variant-numeric:tabular-nums}
+.chg{display:grid;grid-template-columns:110px minmax(0,1fr) 220px 100px;gap:12px;align-items:center;min-height:40px;padding:0 16px 0 64px;border-bottom:1px solid var(--line);font-size:13px;background:var(--surface-2)}
+.lnk{font-size:13px;font-weight:500;color:var(--accent);background:none;border:0;padding:0;font-family:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.muted{color:var(--text-3)}.s2{color:var(--text-2)}
+</style>
+</helmet>
+<div class="ge" style="width: 1440px; height: 1000px; display: grid; grid-template-columns: 248px minmax(0, 1fr); overflow: hidden">
+  <dc-import name="Sidebar" role="moderator" active="semesters" height="1000" user="Левицька Г.М." hint-size="248px,1000px"></dc-import>
+  <div style="display: flex; flex-direction: column; min-width: 0; position: relative">
+    <dc-import name="Topbar" sync="ok" hint-size="1192px,64px"></dc-import>
+    <main style="padding: 20px 32px 100px; display: flex; flex-direction: column; gap: 20px; min-width: 0">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <span class="muted" style="font-size: 13px">Семестри · Новий семестр</span>
+        <h1 style="font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -0.01em">I семестр 2027/2028</h1>
+      </div>
+      <ol class="stp" aria-label="Кроки майстра" style="margin: 0; padding: 0">
+        <li class="done"><i>✓</i>Дати і періоди</li><span class="ln"></span>
+        <li aria-current="step"><i>2</i>Групи і контингент</li><span class="ln"></span>
+        <li><i>3</i>Навантаження</li><span class="ln"></span>
+        <li><i>4</i>Шаблон розкладу</li>
+      </ol>
+
+      <div style="display: flex; align-items: center; gap: 12px">
+        <p class="s2" style="flex: 1">Групи переходять на наступний курс разом із потоком. Перевірте зміни складу — їх можна скасувати до завершення майстра.</p>
+        <button type="button" class="btn" style="height: 36px">Імпорт змін з Excel</button>
+      </div>
+
+      <div class="card" role="table" aria-label="Переведення груп" style="overflow: hidden">
+        <div class="tr th" role="row"><span></span><span>2026/2027</span><span></span><span>2027/2028</span><span style="text-align: right">Було</span><span style="text-align: right">Відраховано</span><span style="text-align: right">Переведено</span><span style="text-align: right">Нові</span><span style="text-align: right">Буде</span><span>Стан</span></div>
+        <div class="tr" role="row"><span></span><b style="font-weight: 600">ПДт-11</b><span class="muted">→</span><b style="font-weight: 600">ПДт-21</b><span class="num" style="text-align: right">25</span><span style="text-align: right"><span class="pill" style="background: var(--err-bg); color: var(--err-fg)">−1</span></span><span style="text-align: right"><span class="pill" style="background: var(--accent-soft); color: var(--accent)">+1</span></span><span class="num muted" style="text-align: right">0</span><span class="num" style="text-align: right; font-weight: 600">25</span><span style="display: flex; align-items: center; gap: 6px; color: var(--ok); font-size: 13px; font-weight: 500"><svg class="ic" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"></path></svg>Перевірено</span></div>
+        <div class="tr" role="row"><span></span><b style="font-weight: 600">ПДт-12</b><span class="muted">→</span><b style="font-weight: 600">ПДт-22</b><span class="num" style="text-align: right">25</span><span class="num muted" style="text-align: right">0</span><span class="num muted" style="text-align: right">0</span><span style="text-align: right"><span class="pill" style="background: var(--ok-bg); color: var(--ok)">+1</span></span><span class="num" style="text-align: right; font-weight: 600">26</span><span style="display: flex; align-items: center; gap: 6px; color: var(--ok); font-size: 13px; font-weight: 500"><svg class="ic" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"></path></svg>Перевірено · 2 підгрупи</span></div>
+        <div class="tr" role="row" style="background: var(--accent-soft); border-bottom-color: var(--accent-line)"><button type="button" aria-expanded="true" aria-label="Згорнути зміни ПДт-13" style="width: 28px; height: 28px; border: 0; background: transparent; color: var(--text-2); border-radius: 6px; display: flex; align-items: center; justify-content: center"><svg class="ic" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"></path></svg></button><b style="font-weight: 600">ПДт-13</b><span class="muted">→</span><b style="font-weight: 600">ПДт-23</b><span class="num" style="text-align: right">25</span><span style="text-align: right"><span class="pill" style="background: var(--err-bg); color: var(--err-fg)">−2</span></span><span style="text-align: right"><span class="pill" style="background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent-line)">−1</span></span><span class="num muted" style="text-align: right">0</span><span class="num" style="text-align: right; font-weight: 600">22</span><span style="display: flex; align-items: center; gap: 6px; color: var(--warn); font-size: 13px; font-weight: 500"><span style="width: 6px; height: 6px; border-radius: 3px; background: #B57A12"></span>Потребує перевірки</span></div>
+        <div class="chg"><span class="pill" style="background: var(--err-bg); color: var(--err-fg); justify-self: start">Відраховано</span><span>Литвин Денис</span><span class="s2">за власним бажанням · з 30 черв.</span><button type="button" class="lnk">Скасувати</button></div>
+        <div class="chg"><span class="pill" style="background: var(--err-bg); color: var(--err-fg); justify-self: start">Відраховано</span><span>Кушнір Олег</span><span class="s2">академічна заборгованість</span><button type="button" class="lnk">Скасувати</button></div>
+        <div class="chg"><span class="pill" style="background: var(--accent-soft); color: var(--accent); justify-self: start">Переведено</span><span>Руденко Аліса</span><span class="s2">до ПДт-21</span><button type="button" class="lnk">Скасувати</button></div>
+        <div class="chg" style="border-bottom: 1px solid var(--line)"><span class="pill" style="background: var(--sunken); color: var(--text-2); justify-self: start">Академвідпустка</span><span>Мороз Ярослав</span><span class="s2">залишається в потоці, без групи</span><button type="button" class="lnk">Змінити</button></div>
+        <div class="tr" role="row"><span></span><b style="font-weight: 600">ПДт-41</b><span class="muted">→</span><span class="s2">випуск</span><span class="num" style="text-align: right">23</span><span class="num muted" style="text-align: right">—</span><span class="num muted" style="text-align: right">—</span><span class="num muted" style="text-align: right">—</span><span class="num muted" style="text-align: right">0</span><span class="s2" style="font-size: 13px">Група перейде в архів</span></div>
+        <div class="tr" role="row" style="border-bottom: 0"><span></span><b style="font-weight: 600; color: var(--text-3)">новий набір</b><span class="muted">→</span><b style="font-weight: 600">ПДт-11, 12, 13</b><span class="num muted" style="text-align: right">—</span><span class="num muted" style="text-align: right">—</span><span class="num muted" style="text-align: right">—</span><span class="num muted" style="text-align: right">—</span><span class="num muted" style="text-align: right">0</span><span style="display: flex; align-items: center; gap: 10px; font-size: 13px"><span class="s2">Списки ще не завантажено</span><button type="button" class="lnk">Імпорт з Excel</button></span></div>
+      </div>
+    </main>
+    <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 72px; background: var(--surface); border-top: 1px solid var(--line-2); display: flex; align-items: center; gap: 12px; padding: 0 32px">
+      <a href="WizardStep1.dc.html" class="btn">Назад</a>
+      <div style="flex: 1"></div>
+      <span class="muted num" style="font-size: 13px">73 студенти в 3 групах · 1 група потребує перевірки</span>
+      <a href="WizardStep3.dc.html" class="btn btn-p">Далі: навантаження</a>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

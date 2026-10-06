@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Діалог відомості</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 720px; height: 620px; box-sizing: border-box; background: #8C8A85; display: flex; align-items: center; justify-content: center; font-family: 'Golos Text', system-ui, sans-serif; font-size: 14px; line-height: 1.45; color: #1F2328">
+  <div role="dialog" aria-labelledby="st-t" style="width: 560px; box-sizing: border-box; background: #FFFFFF; border-radius: 10px; box-shadow: 0 20px 48px rgba(20,22,26,.28); display: flex; flex-direction: column">
+    <div style="padding: 24px 24px 0; display: flex; flex-direction: column; gap: 6px">
+      <h2 id="st-t" style="margin: 0; font-size: 20px; line-height: 28px; font-weight: 600">Відомість атестації</h2>
+      <p style="margin: 0; color: #4E545B">1-ша рубіжна · Інформатика · ПДт-12 · 25 студентів</p>
+    </div>
+    <div style="padding: 20px 24px 0; display: flex; flex-direction: column; gap: 16px">
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <span id="fmt" style="font-size: 13px; font-weight: 500; color: #4E545B">Формат</span>
+        <div role="radiogroup" aria-labelledby="fmt" style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); padding: 3px; gap: 3px; background: #F1EEE7; border: 1px solid #D3CEC2; border-radius: 8px">
+          <button type="button" role="radio" aria-checked="true" style="height: 36px; border: 0; border-radius: 6px; background: #FFFFFF; box-shadow: 0 0 0 1px #D3CEC2; font: inherit; font-weight: 600; color: #1F2328; cursor: pointer">PDF — для друку</button>
+          <button type="button" role="radio" aria-checked="false" style="height: 36px; border: 0; border-radius: 6px; background: transparent; font: inherit; font-weight: 500; color: #4E545B; cursor: pointer">DOCX — для редагування</button>
+        </div>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+        <label style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 13px; font-weight: 500; color: #4E545B">Дата відомості</span><input value="9 жовт. 2026" style="height: 36px; border: 1px solid #D3CEC2; border-radius: 6px; padding: 0 10px; font: inherit; font-variant-numeric: tabular-nums; color: #1F2328"></label>
+        <label style="display: flex; flex-direction: column; gap: 6px"><span style="font-size: 13px; font-weight: 500; color: #4E545B">Шаблон</span><select style="height: 36px; border: 1px solid #D3CEC2; border-radius: 6px; padding: 0 8px; font: inherit; color: #1F2328; background: #FFFFFF"><option>Стандартний шаблон коледжу</option></select></label>
+      </div>
+      <label style="display: flex; align-items: center; gap: 10px; color: #4E545B"><input type="checkbox" checked style="width: 18px; height: 18px; accent-color: #1F3A5F">Додати рядки для підписів викладача і завідувача відділення</label>
+      <div role="status" style="display: flex; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 6px; background: #FBF0DB; color: #7A4A06; font-size: 13px">
+        <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round"><path d="M12 3 2 20h20z"></path><path d="M12 10v4M12 17h.01"></path></svg>
+        <span>6 оцінок ще не перевірено. Відомість сформується з позначкою «Чернетка», доки атестацію не затверджено.</span>
+      </div>
+      <div style="display: flex; align-items: center; gap: 10px; padding: 10px 12px; border: 1px solid #E4E0D6; border-radius: 6px; font-size: 13px">
+        <span style="width: 16px; height: 16px; border-radius: 8px; border: 2px solid #B9C8DA; border-top-color: #1F3A5F; flex: none"></span>
+        <span style="flex: 1; color: #4E545B">Попередня відомість (DOCX) формується на сервері</span>
+        <span style="color: #676C73; font-variant-numeric: tabular-nums">~10 с</span>
+      </div>
+    </div>
+    <div style="margin-top: 24px; padding: 16px 24px; border-top: 1px solid #E4E0D6; display: flex; justify-content: flex-end; gap: 8px">
+      <a href="Attestation.dc.html" style="display: inline-flex; align-items: center; height: 40px; padding: 0 16px; border: 1px solid #D3CEC2; border-radius: 6px; background: #FFFFFF; color: #1F2328; font-weight: 500; text-decoration: none">Скасувати</a>
+      <button type="button" style="display: inline-flex; align-items: center; height: 40px; padding: 0 18px; border: 1px solid #1F3A5F; border-radius: 6px; background: #1F3A5F; color: #FFFFFF; font: inherit; font-weight: 600; cursor: pointer">Сформувати PDF</button>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":720,"height":620}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

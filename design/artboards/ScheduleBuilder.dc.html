@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Конструктор розкладу</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ge{--bg:#F7F5F0;--surface:#FFFFFF;--surface-2:#FBFAF7;--sunken:#F1EEE7;--line:#E4E0D6;--line-2:#D3CEC2;--text:#1F2328;--text-2:#4E545B;--text-3:#676C73;--accent:#1F3A5F;--accent-soft:#E7EDF4;--accent-line:#B9C8DA;--ok:#2E6A3E;--ok-bg:#E5F1E8;--warn:#7A4A06;--warn-bg:#FBF0DB;--err:#A3352B;--err-fg:#8F2B22;--err-bg:#FBE9E6;font-family:'Golos Text',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.4;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+.ge *{box-sizing:border-box}
+.ge h1,.ge h2,.ge h3,.ge p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 14px;border-radius:6px;border:1px solid var(--line-2);background:var(--surface);color:var(--text);font:inherit;font-weight:500;cursor:pointer;white-space:nowrap;text-decoration:none}
+.btn-p{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
+.ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.seg{display:inline-flex;padding:2px;gap:2px;background:var(--sunken);border:1px solid var(--line-2);border-radius:8px}
+.seg button{height:30px;padding:0 12px;border:0;border-radius:6px;background:transparent;font:inherit;font-size:13px;font-weight:500;color:var(--text-2);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--surface);color:var(--text);box-shadow:0 0 0 1px var(--line-2);font-weight:600}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;display:flex;flex-direction:column;min-height:0}
+.ph{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.chip{display:inline-flex;align-items:center;height:28px;padding:0 10px;border-radius:14px;border:1px solid var(--line-2);background:var(--surface);font:inherit;font-size:12px;font-weight:500;color:var(--text-2);cursor:pointer}
+.chip[aria-pressed=true]{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent);font-weight:600}
+.ld{position:relative;display:flex;flex-direction:column;gap:2px;padding:8px 10px 8px 26px;border-radius:6px;border:1px solid transparent;font-size:12px;color:var(--text-2);cursor:grab;text-align:left;width:100%;font-family:inherit}
+.ld .t{font-size:13px;font-weight:600;color:var(--text);display:flex;justify-content:space-between;gap:8px}
+.ld .h{font-size:11px;font-weight:600;color:var(--text-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.ld .g{position:absolute;left:8px;top:10px;color:var(--text-3);font-size:11px;letter-spacing:-2px;line-height:1}
+.d1{background:#EAF0F7;border-color:#D3DDEA}
+.d2{background:#E5F1EF;border-color:#CBE2DE}
+.d3{background:#F1EBF5;border-color:#E0D4E8}
+.d4{background:#F6EFDF;border-color:#E8DCC0}
+.sg{display:grid;grid-template-columns:64px repeat(5,minmax(0,1fr))}
+.hd{height:40px;display:flex;align-items:center;padding:0 10px;font-size:13px;font-weight:600;border-left:1px solid var(--line);border-bottom:1px solid var(--line-2)}
+.tm{display:flex;flex-direction:column;justify-content:center;padding:0 10px;border-bottom:1px solid var(--line);font-size:11px;color:var(--text-3);font-variant-numeric:tabular-nums}
+.tm b{font-size:15px;color:var(--text);font-weight:600}
+.cl{position:relative;height:124px;border-left:1px solid var(--line);border-bottom:1px solid var(--line);display:grid;grid-template-rows:1fr 1fr}
+.half{position:relative;padding:4px 4px 4px 18px}
+.half + .half{border-top:1px dashed var(--line-2)}
+.half > .pl{position:absolute;left:5px;top:6px;font-size:10px;font-weight:700;color:var(--text-3)}
+.pc{height:100%;border-radius:5px;border:1px solid transparent;padding:4px 8px;display:flex;flex-direction:column;justify-content:center;gap:1px;font-size:11px;color:var(--text-2);line-height:14px;overflow:hidden}
+.pc b{font-size:12px;color:var(--text);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.full{position:absolute;inset:4px;z-index:1;border-radius:6px;border:1px solid transparent;padding:6px 10px;display:flex;flex-direction:column;justify-content:center;gap:2px;font-size:12px;color:var(--text-2);line-height:16px}
+.full b{font-size:13px;color:var(--text);font-weight:600}
+.full .ev{position:absolute;top:6px;right:8px;font-size:10px;font-weight:700;color:var(--text-3)}
+.bad{border:2px solid var(--err) !important;box-shadow:0 0 0 3px rgba(163,53,43,.12)}
+.bad-ic{position:absolute;top:-7px;right:-7px;width:18px;height:18px;border-radius:9px;background:var(--err);color:#FFFFFF;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;z-index:3}
+.cf{display:flex;flex-direction:column;gap:6px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.cf .ty{display:flex;align-items:center;gap:8px;font-weight:600;color:var(--err-fg);font-size:13px}
+.lnk{font-size:12px;font-weight:600;color:var(--accent);background:none;border:0;padding:0;font-family:inherit;cursor:pointer;text-decoration:underline;text-underline-offset:2px}
+.muted{color:var(--text-3)}.s2{color:var(--text-2)}
+</style>
+</helmet>
+<div class="ge" style="width: 1440px; height: 1080px; display: grid; grid-template-columns: 72px minmax(0, 1fr); overflow: hidden">
+  <dc-import name="Sidebar" role="moderator" active="builder" collapsed="{{ true }}" height="1080" user="Левицька Г.М." hint-size="72px,1080px"></dc-import>
+  <div style="display: flex; flex-direction: column; min-width: 0">
+    <dc-import name="Topbar" sync="ok" hint-size="1368px,64px"></dc-import>
+    <main style="padding: 16px 24px 24px; display: flex; flex-direction: column; gap: 14px; min-width: 0; min-height: 0">
+      <div style="display: flex; align-items: center; gap: 12px">
+        <h1 style="font-size: 22px; line-height: 30px; font-weight: 600; letter-spacing: -0.01em">Конструктор розкладу</h1>
+        <span style="display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 12px; background: var(--warn-bg); color: var(--warn); font-size: 12px; font-weight: 600"><span style="width: 6px; height: 6px; border-radius: 3px; background: #B57A12"></span>Є неопубліковані зміни</span>
+        <span class="muted num" style="font-size: 13px">Опубліковано 1 вер. · версія 3 · чернетку збережено о 10:31</span>
+        <div style="flex: 1"></div>
+        <button type="button" class="btn" aria-label="Скасувати дію" style="width: 36px; padding: 0"><svg class="ic" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"></path><path d="M4 9h11a5 5 0 0 1 0 10h-3"></path></svg></button>
+        <button type="button" class="btn" aria-label="Повторити дію" style="width: 36px; padding: 0"><svg class="ic" viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"></path><path d="M20 9H9a5 5 0 0 0 0 10h3"></path></svg></button>
+        <button type="button" class="btn">Зберегти чернетку</button>
+        <a href="PublishDialog.dc.html" class="btn btn-p">Опублікувати</a>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 12px">
+        <div class="seg" role="group" aria-label="Перегляд"><button type="button" aria-pressed="true">За групою</button><button type="button" aria-pressed="false">За викладачем</button><button type="button" aria-pressed="false">За аудиторією</button></div>
+        <button type="button" class="btn" style="height: 34px">ПДт-12<svg class="ic" viewBox="0 0 24 24" style="color: var(--text-3)"><path d="m6 9 6 6 6-6"></path></svg></button>
+        <span class="s2 num" style="font-size: 13px">25 студентів · 2 підгрупи · розставлено 14 з 18 год/тиж</span>
+        <div style="flex: 1"></div>
+        <span style="display: flex; align-items: center; gap: 14px; font-size: 12px; color: var(--text-2)">
+          <span style="display: flex; align-items: center; gap: 6px"><span style="width: 18px; height: 14px; border: 1px solid var(--line-2); border-radius: 3px; display: grid; grid-template-rows: 1fr 1fr"><i style="border-bottom: 1px dashed var(--line-2)"></i><i></i></span>В — верхній, Н — нижній тиждень</span>
+          <span>Картка на всю клітинку — щотижня</span>
+        </span>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 288px minmax(0, 1fr) 300px; gap: 16px; align-items: start; min-height: 0">
+
+        <section class="panel" aria-labelledby="ul">
+          <div class="ph"><h2 id="ul" style="font-size: 14px; font-weight: 600">Навантаження</h2><span class="num" style="font-size: 12px; font-weight: 600; color: var(--warn); background: var(--warn-bg); border-radius: 10px; padding: 2px 8px">Не розставлено: 18</span></div>
+          <div style="padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid var(--line)">
+            <label style="position: relative; display: flex; align-items: center"><span style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Фільтр навантажень</span><svg class="ic" viewBox="0 0 24 24" style="position: absolute; left: 10px; color: var(--text-3)"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><input placeholder="Дисципліна або викладач" style="width: 100%; height: 34px; border: 1px solid var(--line-2); border-radius: 6px; padding: 0 10px 0 32px; font: inherit; font-size: 13px; background: var(--surface); color: var(--text)"></label>
+            <div style="display: flex; gap: 6px; flex-wrap: wrap"><button type="button" class="chip" aria-pressed="true">ПДт-12 · 4</button><button type="button" class="chip" aria-pressed="false">Усі групи</button><button type="button" class="chip" aria-pressed="false">Л</button><button type="button" class="chip" aria-pressed="false">ПР</button><button type="button" class="chip" aria-pressed="false">ЛР</button></div>
+          </div>
+          <div style="padding: 10px; display: flex; flex-direction: column; gap: 8px">
+            <div class="ld d1" style="opacity: .45; border-style: dashed"><span class="g" aria-hidden="true">⋮⋮</span><span class="t">Інформатика <span class="h">2 год/тиж</span></span><span>ПДт-12 · ЛР · 2 підгрупа</span><span>Бойчук В.В.</span></div>
+            <button type="button" class="ld d4"><span class="g" aria-hidden="true">⋮⋮</span><span class="t">Вища математика <span class="h">2 з 4 год</span></span><span>ПДт-12 · ПР · вся група</span><span>Гуменюк О.П.</span></button>
+            <button type="button" class="ld d3"><span class="g" aria-hidden="true">⋮⋮</span><span class="t">Основи програмування <span class="h">1 год/тиж</span></span><span>ПДт-12 · ЛР · 1 підгрупа · раз на 2 тижні</span><span>Бойчук В.В.</span></button>
+            <button type="button" class="ld d3"><span class="g" aria-hidden="true">⋮⋮</span><span class="t">Основи програмування <span class="h">1 год/тиж</span></span><span>ПДт-12 · ЛР · 2 підгрупа · раз на 2 тижні</span><span>Бойчук В.В.</span></button>
+            <div style="font-size: 12px; font-weight: 600; color: var(--text-3); padding: 8px 2px 0">Інші групи · 14</div>
+            <button type="button" class="ld d2"><span class="g" aria-hidden="true">⋮⋮</span><span class="t">Метрологія ІОС <span class="h">2 год/тиж</span></span><span>ПДт-13 · Л · вся група</span><span>Бойчук В.В.</span></button>
+            <button type="button" class="ld d3"><span class="g" aria-hidden="true">⋮⋮</span><span class="t">Основи програмування <span class="h">2 год/тиж</span></span><span>ПДт-11 · ПР · вся група</span><span>Ковальчук Н.І.</span></button>
+            <button type="button" class="ld d1"><span class="g" aria-hidden="true">⋮⋮</span><span class="t">Інформатика <span class="h">1 год/тиж</span></span><span>ПДт-13 · ПР · раз на 2 тижні</span><span>Дорош М.С.</span></button>
+            <button type="button" class="ld d4"><span class="g" aria-hidden="true">⋮⋮</span><span class="t">Вища математика <span class="h">4 год/тиж</span></span><span>ПДт-13 · Л · вся група</span><span>Гуменюк О.П.</span></button>
+            <button type="button" class="ld d4"><span class="g" aria-hidden="true">⋮⋮</span><span class="t">Вища математика <span class="h">2 год/тиж</span></span><span>ПДт-11 · ПР · вся група</span><span>Гуменюк О.П.</span></button>
+            <span class="muted" style="font-size: 12px; text-align: center; padding: 4px 0">ще 9 навантажень</span>
+          </div>
+        </section>
+
+        <section class="panel" aria-label="Сітка розкладу ПДт-12" style="overflow: visible">
+          <div class="sg">
+            <div style="border-bottom: 1px solid var(--line-2)"></div>
+            <div class="hd">Пн</div><div class="hd">Вт</div><div class="hd">Ср</div><div class="hd">Чт</div><div class="hd">Пт</div>
+
+            <div class="tm"><b>1</b>8:30–9:50</div>
+            <div class="cl"><div class="full d4"><span class="ev">щотижня</span><b>Вища математика</b><span>Л · Гуменюк О.П.</span><span>ауд. 101</span></div></div>
+            <div class="cl"><div class="half"><span class="pl">В</span><div class="pc d4"><b>Вища математика</b><span>ПР · ауд. 101</span></div></div><div class="half"><span class="pl">Н</span><div class="pc d1"><b>Інформатика</b><span>Л · ауд. 214</span></div></div></div>
+            <div class="cl"><div class="half"><span class="pl">В</span></div><div class="half"><span class="pl">Н</span></div></div>
+            <div class="cl"><div class="half"><span class="pl">В</span></div><div class="half"><span class="pl">Н</span></div></div>
+            <div class="cl"><div class="full d4"><span class="ev">щотижня</span><b>Вища математика</b><span>ПР · Гуменюк О.П.</span><span>ауд. 101</span></div></div>
+
+            <div class="tm"><b>2</b>10:00–11:20</div>
+            <div class="cl"><div class="full d1"><span class="ev">щотижня</span><b>Інформатика</b><span>ПР · Бойчук В.В.</span><span>ауд. 214</span></div></div>
+            <div class="cl"><div class="half"><span class="pl">В</span></div><div class="half"><span class="pl">Н</span></div></div>
+            <div class="cl"><div class="full d4"><span class="ev">щотижня</span><b>Вища математика</b><span>Л · Гуменюк О.П.</span><span>ауд. 101</span></div></div>
+            <div class="cl"><div class="full d1 bad"><span class="bad-ic" aria-hidden="true">2</span><span class="ev">щотижня</span><b>Інформатика</b><span>ПР · Бойчук В.В.</span><span style="color: var(--err-fg); font-weight: 600">ауд. 214 — зайнята</span></div></div>
+            <div class="cl"><div class="half"><span class="pl">В</span></div><div class="half"><span class="pl">Н</span></div></div>
+
+            <div class="tm"><b>3</b>11:40–13:00</div>
+            <div class="cl"><div class="half"><span class="pl">В</span></div><div class="half"><span class="pl">Н</span></div></div>
+            <div class="cl"><div class="full d1 bad"><span class="bad-ic" aria-hidden="true">1</span><span class="ev">щотижня</span><b>Інформатика</b><span style="color: var(--err-fg); font-weight: 600">Л · Бойчук В.В. — зайнятий</span><span>ауд. 214</span></div></div>
+            <div class="cl"><div class="half"><span class="pl">В</span></div><div class="half"><span class="pl">Н</span></div></div>
+            <div class="cl"><div class="half"><span class="pl">В</span></div><div class="half"><span class="pl">Н</span></div></div>
+            <div class="cl"><div class="half"><span class="pl">В</span><div class="pc d1"><b>Інформатика</b><span>Л · ауд. 214</span></div></div><div class="half"><span class="pl">Н</span></div></div>
+
+            <div class="tm"><b>4</b>13:10–14:30</div>
+            <div class="cl"><div class="full d3"><span class="ev">щотижня</span><b>Осн. програмування</b><span>ЛР · 1 підгрупа</span><span>комп. клас 2</span></div></div>
+            <div class="cl">
+              <div class="half" style="z-index: 4"><span class="pl" style="color: var(--accent)">В</span>
+                <div style="height: 100%; border-radius: 5px; border: 2px dashed var(--accent); background: var(--accent-soft); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; color: var(--accent)">Вільно · група, викладач, ауд.</div>
+                <div aria-hidden="true" class="ld d1" style="position: absolute; left: 34px; top: 22px; width: 200px; transform: rotate(-2deg); box-shadow: 0 12px 28px rgba(31,35,40,.22); background: #EAF0F7; z-index: 5; cursor: grabbing"><span class="g">⋮⋮</span><span class="t">Інформатика <span class="h">2 год/тиж</span></span><span>ПДт-12 · ЛР · 2 підгрупа</span><span>Бойчук В.В.</span></div>
+              </div>
+              <div class="half"><span class="pl">Н</span><div class="pc d3"><b>Осн. програмування</b><span>ЛР · 2 пгр · КК2</span></div></div>
+            </div>
+            <div class="cl"><div class="half"><span class="pl">В</span></div><div class="half"><span class="pl">Н</span></div></div>
+            <div class="cl"><div class="full d3"><span class="ev">щотижня</span><b>Осн. програмування</b><span>ПР · вся група</span><span>комп. клас 2</span></div></div>
+            <div class="cl"><div class="half"><span class="pl">В</span></div><div class="half"><span class="pl">Н</span></div></div>
+
+            <div class="tm" style="border-bottom: 0"><b>5</b>14:40–16:00</div>
+            <div class="cl" style="border-bottom: 0"><div class="half"><span class="pl">В</span></div><div class="half"><span class="pl">Н</span></div></div>
+            <div class="cl" style="border-bottom: 0"><div class="half"><span class="pl">В</span></div><div class="half"><span class="pl">Н</span></div></div>
+            <div class="cl" style="border-bottom: 0"><div class="full d4 bad"><span class="bad-ic" aria-hidden="true">3</span><span class="ev">щотижня</span><b>Вища математика</b><span>Л · Гуменюк О.П.</span><span style="color: var(--err-fg); font-weight: 600">понад 4 год/тиж</span></div></div>
+            <div class="cl" style="border-bottom: 0"><div class="half"><span class="pl">В</span></div><div class="half"><span class="pl">Н</span></div></div>
+            <div class="cl" style="border-bottom: 0"><div class="half"><span class="pl">В</span></div><div class="half"><span class="pl">Н</span></div></div>
+          </div>
+        </section>
+
+        <aside class="panel" aria-labelledby="cft">
+          <div class="ph"><h2 id="cft" style="font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px"><svg class="ic" viewBox="0 0 24 24" style="color: var(--err)"><path d="M12 3 2 20h20z"></path><path d="M12 10v4M12 17h.01"></path></svg>Конфлікти (3)</h2><span class="muted" style="font-size: 12px">перевірка наживо</span></div>
+          <div class="cf">
+            <span class="ty"><span class="num" style="width: 18px; height: 18px; border-radius: 9px; background: var(--err); color: #FFFFFF; font-size: 11px; display: flex; align-items: center; justify-content: center">1</span>Викладач уже зайнятий</span>
+            <p style="font-size: 13px; line-height: 19px; color: var(--text-2)"><b style="color: var(--text); font-weight: 600">Бойчук В.В.</b> у вт, 3 пара (щотижня) веде Інформатику в ПДт-13, ауд. 214.</p>
+            <div style="display: flex; gap: 12px"><button type="button" class="lnk">Показати</button><button type="button" class="lnk">Вільні слоти викладача</button></div>
+          </div>
+          <div class="cf">
+            <span class="ty"><span class="num" style="width: 18px; height: 18px; border-radius: 9px; background: var(--err); color: #FFFFFF; font-size: 11px; display: flex; align-items: center; justify-content: center">2</span>Аудиторія зайнята</span>
+            <p style="font-size: 13px; line-height: 19px; color: var(--text-2)"><b style="color: var(--text); font-weight: 600">Ауд. 214</b> у чт, 2 пара: ПДт-11, Основи програмування, Ковальчук Н.І.</p>
+            <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 12px"><span class="muted">Вільні в цей час:</span><button type="button" class="chip" style="height: 24px">305</button><button type="button" class="chip" style="height: 24px">101</button></div>
+          </div>
+          <div class="cf">
+            <span class="ty"><span class="num" style="width: 18px; height: 18px; border-radius: 9px; background: var(--err); color: #FFFFFF; font-size: 11px; display: flex; align-items: center; justify-content: center">3</span>Перевищено години за тиждень</span>
+            <p style="font-size: 13px; line-height: 19px; color: var(--text-2)"><b style="color: var(--text); font-weight: 600">Вища математика · ПДт-12:</b> розставлено 6 год/тиж, за навантаженням — 4.</p>
+            <div style="display: flex; gap: 12px"><button type="button" class="lnk">Показати</button><button type="button" class="lnk">Зробити «лише верхній»</button></div>
+          </div>
+          <div style="padding: 12px 14px; display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--text-3)">
+            <span style="font-weight: 600; color: var(--text-2)">Не вважається конфліктом</span>
+            <span>Верхній і нижній тиждень в одній клітинці.</span>
+            <span>Дві підгрупи одночасно в різних аудиторіях.</span>
+          </div>
+          <div style="margin: 0 14px 14px; padding: 10px 12px; border-radius: 6px; background: var(--sunken); font-size: 12px; color: var(--text-2)">Опублікувати можна після усунення конфліктів.</div>
+        </aside>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1080}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

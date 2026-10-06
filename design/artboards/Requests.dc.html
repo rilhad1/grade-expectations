@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Запити на перенесення</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ge{--bg:#F7F5F0;--surface:#FFFFFF;--surface-2:#FBFAF7;--sunken:#F1EEE7;--line:#E4E0D6;--line-2:#D3CEC2;--text:#1F2328;--text-2:#4E545B;--text-3:#676C73;--accent:#1F3A5F;--accent-soft:#E7EDF4;--accent-line:#B9C8DA;--ok:#2E6A3E;--ok-bg:#E5F1E8;--warn:#7A4A06;--warn-bg:#FBF0DB;--err:#A3352B;--err-fg:#8F2B22;--err-bg:#FBE9E6;font-family:'Golos Text',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.4;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+.ge *{box-sizing:border-box}
+.ge h1,.ge h2,.ge h3,.ge p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border-radius:6px;border:1px solid var(--line-2);background:var(--surface);color:var(--text);font:inherit;font-weight:500;cursor:pointer;white-space:nowrap}
+.btn-p{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
+.btn-d{color:var(--err-fg);border-color:#E3B8B1}
+.ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.chip{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:15px;border:1px solid var(--line-2);background:var(--surface);font:inherit;font-size:13px;font-weight:500;color:var(--text-2);cursor:pointer}
+.chip[aria-pressed=true]{background:var(--accent-soft);border-color:var(--accent-line);color:var(--accent);font-weight:600}
+.rq{display:flex;flex-direction:column;gap:6px;padding:14px 16px;border:0;border-bottom:1px solid var(--line);background:transparent;width:100%;text-align:left;font:inherit;color:var(--text);cursor:pointer}
+.st{display:inline-flex;align-items:center;height:20px;padding:0 7px;border-radius:4px;font-size:11px;font-weight:600}
+.lbl{font-size:12px;font-weight:600;color:var(--text-3)}
+.slot{display:flex;flex-direction:column;gap:6px;padding:12px;border:1px solid var(--line);border-radius:8px;background:var(--surface);width:100%;text-align:left;font:inherit;color:var(--text);cursor:pointer}
+.ok3{display:flex;gap:10px;font-size:12px;color:var(--ok)}
+.ok3 span{display:inline-flex;align-items:center;gap:3px}
+.muted{color:var(--text-3)}.s2{color:var(--text-2)}
+</style>
+</helmet>
+<div class="ge" style="width: 1440px; height: 1000px; display: grid; grid-template-columns: 248px minmax(0, 1fr); overflow: hidden">
+  <dc-import name="Sidebar" role="moderator" active="requests" height="1000" user="Левицька Г.М." hint-size="248px,1000px"></dc-import>
+  <div style="display: flex; flex-direction: column; min-width: 0">
+    <dc-import name="Topbar" sync="ok" hint-size="1192px,64px"></dc-import>
+    <main style="padding: 20px 32px; display: flex; flex-direction: column; gap: 16px; min-width: 0">
+      <div style="display: flex; align-items: center; gap: 12px">
+        <h1 style="font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -0.01em; margin-right: 8px">Запити на перенесення</h1>
+        <div style="display: flex; gap: 6px" role="group" aria-label="Статус">
+          <button type="button" class="chip" aria-pressed="true">Нові <b class="num">5</b></button>
+          <button type="button" class="chip" aria-pressed="false">Погоджені <span class="num">12</span></button>
+          <button type="button" class="chip" aria-pressed="false">Відхилені <span class="num">2</span></button>
+          <button type="button" class="chip" aria-pressed="false">Усі</button>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 360px minmax(0, 1fr) 320px; gap: 16px; align-items: start">
+        <section class="card" aria-label="Список запитів" style="overflow: hidden">
+          <button type="button" class="rq" aria-current="true" style="background: var(--accent-soft)">
+            <span style="display: flex; justify-content: space-between; align-items: center"><b style="font-weight: 600">Бойчук В.В.</b><span class="muted num" style="font-size: 12px">сьогодні, 9:12</span></span>
+            <span style="display: flex; align-items: center; gap: 6px; font-size: 13px"><i style="width: 8px; height: 8px; border-radius: 2px; background: #4C6A92"></i>Інформатика · ПДт-12</span>
+            <span class="num s2" style="font-size: 13px">чт, 8 жовт., 2 пара → пт, 9 жовт., 3 пара</span>
+          </button>
+          <button type="button" class="rq">
+            <span style="display: flex; justify-content: space-between; align-items: center"><b style="font-weight: 600">Гуменюк О.П.</b><span class="muted num" style="font-size: 12px">сьогодні, 8:40</span></span>
+            <span style="display: flex; align-items: center; gap: 6px; font-size: 13px"><i style="width: 8px; height: 8px; border-radius: 2px; background: #94701F"></i>Вища математика · ПДт-11</span>
+            <span class="num s2" style="font-size: 13px">вт, 6 жовт., 1 пара → ср, 7 жовт., 4 пара</span>
+          </button>
+          <button type="button" class="rq">
+            <span style="display: flex; justify-content: space-between; align-items: center"><b style="font-weight: 600">Ковальчук Н.І.</b><span class="muted num" style="font-size: 12px">пт, 2 жовт.</span></span>
+            <span style="display: flex; align-items: center; gap: 6px; font-size: 13px"><i style="width: 8px; height: 8px; border-radius: 2px; background: #7A5C8C"></i>Основи програмування · ПДт-13</span>
+            <span class="num s2" style="font-size: 13px">чт, 8 жовт., 4 пара → без дати</span>
+            <span class="st" style="background: var(--warn-bg); color: var(--warn); align-self: flex-start">Немає вільного слоту</span>
+          </button>
+          <button type="button" class="rq">
+            <span style="display: flex; justify-content: space-between; align-items: center"><b style="font-weight: 600">Дорош М.С.</b><span class="muted num" style="font-size: 12px">пт, 2 жовт.</span></span>
+            <span style="display: flex; align-items: center; gap: 6px; font-size: 13px"><i style="width: 8px; height: 8px; border-radius: 2px; background: #4C6A92"></i>Інформатика · ПДт-13</span>
+            <span class="num s2" style="font-size: 13px">пт, 9 жовт., 1 пара → пн, 12 жовт., 5 пара</span>
+          </button>
+          <button type="button" class="rq" style="border-bottom: 0">
+            <span style="display: flex; justify-content: space-between; align-items: center"><b style="font-weight: 600">Гуменюк О.П.</b><span class="muted num" style="font-size: 12px">чт, 1 жовт.</span></span>
+            <span style="display: flex; align-items: center; gap: 6px; font-size: 13px"><i style="width: 8px; height: 8px; border-radius: 2px; background: #94701F"></i>Вища математика · ПДт-13</span>
+            <span class="num s2" style="font-size: 13px">пн, 12 жовт., 3 пара → вт, 13 жовт., 3 пара</span>
+          </button>
+        </section>
+
+        <section class="card" aria-labelledby="rq-t" style="padding: 20px; display: flex; flex-direction: column; gap: 18px">
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <span class="st" style="background: var(--accent-soft); color: var(--accent); align-self: flex-start">Новий</span>
+            <h2 id="rq-t" style="font-size: 18px; line-height: 24px; font-weight: 600">Перенести Інформатику, ПДт-12</h2>
+            <span class="s2" style="font-size: 13px">Бойчук В.В. · подано сьогодні о 9:12 з телефона</span>
+          </div>
+          <div style="display: grid; grid-template-columns: minmax(0, 1fr) 24px minmax(0, 1fr); gap: 8px; align-items: stretch">
+            <div style="padding: 12px; border: 1px solid var(--line); border-radius: 8px; display: flex; flex-direction: column; gap: 4px"><span class="lbl">Зараз</span><b class="num" style="font-weight: 600">чт, 8 жовт.</b><span class="num s2" style="font-size: 13px">2 пара · 10:00–11:20</span><span class="s2" style="font-size: 13px">ауд. 214 · практична</span></div>
+            <div style="display: flex; align-items: center; justify-content: center; color: var(--text-3)"><svg class="ic" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></div>
+            <div style="padding: 12px; border: 1px solid var(--accent-line); background: var(--accent-soft); border-radius: 8px; display: flex; flex-direction: column; gap: 4px"><span class="lbl" style="color: var(--accent)">Бажано</span><b class="num" style="font-weight: 600">пт, 9 жовт.</b><span class="num s2" style="font-size: 13px">3 пара · 11:40–13:00</span><span class="s2" style="font-size: 13px">ауд. 214</span></div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 4px">
+            <span class="lbl">Причина</span>
+            <p style="font-size: 14px; line-height: 21px">Участь у методичному семінарі викладачів інформатики. Рубіжну атестацію ПДт-12 можна провести в п’ятницю.</p>
+          </div>
+          <div style="padding: 10px 12px; border-radius: 6px; background: var(--warn-bg); color: var(--warn); font-size: 13px; display: flex; gap: 8px"><svg class="ic" viewBox="0 0 24 24" style="margin-top: 1px"><path d="M12 3 2 20h20z"></path><path d="M12 10v4M12 17h.01"></path></svg><span>Це заняття — 1-ша рубіжна атестація. Період атестації закінчується 9 жовт., перенесення в межах періоду.</span></div>
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <label for="rq-c" class="lbl">Коментар для викладача</label>
+            <textarea id="rq-c" rows="3" placeholder="Необов’язково при погодженні, обов’язково при відмові" style="border: 1px solid var(--line-2); border-radius: 6px; padding: 10px 12px; font: inherit; font-size: 14px; color: var(--text); background: var(--surface); resize: vertical"></textarea>
+          </div>
+          <div style="display: flex; gap: 8px">
+            <button type="button" class="btn btn-p" style="flex: 1">Погодити: пт, 9 жовт., 3 пара</button>
+            <button type="button" class="btn btn-d">Відхилити</button>
+          </div>
+        </section>
+
+        <aside class="card" aria-labelledby="fs" style="padding: 16px; display: flex; flex-direction: column; gap: 10px">
+          <h3 id="fs" style="font-size: 14px; font-weight: 600">Вільні слоти</h3>
+          <p class="muted" style="font-size: 12px">Група ПДт-12, Бойчук В.В. і аудиторія вільні одночасно · тиждень 5–9 жовт.</p>
+          <button type="button" class="slot" style="border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent)">
+            <span style="display: flex; justify-content: space-between"><b class="num" style="font-weight: 600">пт, 9 жовт. · 3 пара</b><span class="st" style="background: var(--accent-soft); color: var(--accent)">бажаний</span></span>
+            <span class="num s2" style="font-size: 13px">11:40–13:00 · ауд. 214</span>
+            <span class="ok3"><span>✓ група</span><span>✓ викладач</span><span>✓ аудиторія</span></span>
+          </button>
+          <button type="button" class="slot">
+            <b class="num" style="font-weight: 600">пт, 9 жовт. · 5 пара</b>
+            <span class="num s2" style="font-size: 13px">14:40–16:00 · ауд. 214</span>
+            <span class="ok3"><span>✓ група</span><span>✓ викладач</span><span>✓ аудиторія</span></span>
+          </button>
+          <button type="button" class="slot">
+            <b class="num" style="font-weight: 600">ср, 7 жовт. · 3 пара</b>
+            <span class="num s2" style="font-size: 13px">11:40–13:00 · ауд. 305</span>
+            <span class="ok3"><span>✓ група</span><span>✓ викладач</span><span>✓ аудиторія</span></span>
+          </button>
+          <button type="button" class="slot">
+            <b class="num" style="font-weight: 600">чт, 8 жовт. · 5 пара</b>
+            <span class="num s2" style="font-size: 13px">14:40–16:00 · ауд. 101</span>
+            <span class="ok3"><span>✓ група</span><span>✓ викладач</span><span>✓ аудиторія</span></span>
+          </button>
+          <span class="muted" style="font-size: 12px">Слоти поза періодом рубіжної атестації приховано</span>
+        </aside>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

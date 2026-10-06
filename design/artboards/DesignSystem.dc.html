@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Дизайн-система</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ge{--bg:#F7F5F0;--surface:#FFFFFF;--surface-2:#FBFAF7;--sunken:#F1EEE7;--line:#E4E0D6;--line-2:#D3CEC2;--text:#1F2328;--text-2:#4E545B;--text-3:#676C73;--accent:#1F3A5F;--accent-soft:#E7EDF4;--accent-line:#B9C8DA;--ok:#2E6A3E;--ok-bg:#E5F1E8;--warn:#7A4A06;--warn-bg:#FBF0DB;--err:#A3352B;--err-fg:#8F2B22;--err-bg:#FBE9E6;font-family:'Golos Text',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.45;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+.ge *{box-sizing:border-box}
+.ge h1,.ge h2,.ge h3,.ge p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+.sec{display:grid;grid-template-columns:240px minmax(0,1fr);gap:32px;padding:40px 0;border-top:1px solid var(--line-2)}
+.sec > header{display:flex;flex-direction:column;gap:6px}
+.sec > header h2{font-size:20px;line-height:28px;font-weight:600;letter-spacing:-0.01em}
+.sec > header p{font-size:13px;color:var(--text-2)}
+.cap{font-size:12px;font-weight:600;color:var(--text-3)}
+.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.sw{display:flex;flex-direction:column;gap:6px;width:132px}
+.sw i{display:block;height:56px;border-radius:6px;border:1px solid rgba(0,0,0,.06)}
+.sw b{font-size:13px;font-weight:600}
+.sw span{font-size:12px;color:var(--text-3);font-variant-numeric:tabular-nums}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 14px;border-radius:6px;border:1px solid var(--line-2);background:var(--surface);color:var(--text);font:inherit;font-weight:500;cursor:pointer;white-space:nowrap}
+.btn-p{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
+.btn-g{background:transparent;border-color:transparent;color:var(--accent)}
+.btn-d{color:var(--err-fg);border-color:#E3B8B1}
+.btn-sm{height:28px;padding:0 10px;font-size:13px}
+.btn-lg{height:48px;padding:0 20px;font-size:15px}
+.focus{outline:2px solid var(--accent);outline-offset:2px}
+.ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.f{display:flex;flex-direction:column;gap:6px;width:240px}
+.f label{font-size:13px;font-weight:500;color:var(--text-2)}
+.inp{height:36px;border:1px solid var(--line-2);border-radius:6px;background:var(--surface);padding:0 10px;font:inherit;color:var(--text);width:100%}
+.st{display:inline-flex;align-items:center;justify-content:center;min-width:28px;height:24px;padding:0 7px;border-radius:4px;font-size:13px;font-weight:700}
+.gc{position:relative;width:48px;height:36px;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);font-variant-numeric:tabular-nums;font-size:13px;font-weight:500;background:var(--surface)}
+.lc{position:relative;width:200px;height:112px;display:flex;flex-direction:column;gap:3px;padding:8px 10px;border-radius:6px;border:1px solid transparent;font-size:13px}
+.lc .t{display:flex;align-items:center;gap:6px;font-weight:600}
+.lc .t i{width:8px;height:8px;border-radius:2px}
+.lc .m{font-size:12px;color:var(--text-2)}
+.lc .k{position:absolute;top:8px;right:8px;font-size:11px;font-weight:700;color:var(--text-2)}
+.tag{display:inline-flex;align-items:center;gap:4px;height:20px;padding:0 6px;border-radius:4px;font-size:11px;font-weight:600;align-self:flex-start;margin-top:auto}
+.d1{background:#EAF0F7;border-color:#D3DDEA}
+.bdg{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 10px;border-radius:12px;font-size:12px;font-weight:600;white-space:nowrap}
+.cf{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:4px;font-size:12px;font-weight:600;letter-spacing:.02em}
+.ty{display:grid;grid-template-columns:200px 120px minmax(0,1fr);gap:16px;align-items:baseline;padding:12px 0;border-bottom:1px solid var(--line)}
+.muted{color:var(--text-3)}.s2{color:var(--text-2)}
+</style>
+</helmet>
+<div class="ge" style="width: 1440px; height: 3400px; padding: 56px 64px">
+  <div style="display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding-bottom: 40px">
+    <div style="display: flex; flex-direction: column; gap: 8px">
+      <span class="cap">GRADE EXPECTATIONS</span>
+      <h1 style="font-size: 36px; line-height: 44px; font-weight: 600; letter-spacing: -0.02em">Дизайн-система</h1>
+      <p class="s2" style="font-size: 15px; max-width: 720px">Спокійний академічний інструмент: теплий нейтральний фон, білі поверхні, один акцент, тонкі лінії замість тіней. Сітка 8 px, радіуси 6 і 10 px, табличні цифри всюди, де є оцінки, години, дати й час.</p>
+    </div>
+    <span class="muted num" style="font-size: 13px">Golos UI · 400 / 500 / 600 / 700 · локально, лише кирилиця й латиниця</span>
+  </div>
+
+  <section class="sec">
+    <header><h2>Акцент</h2><p>Два кандидати. Для всіх екранів обрано чорнильно-синій.</p></header>
+    <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px">
+      <div class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 16px; border-color: #1F3A5F; box-shadow: 0 0 0 1px #1F3A5F">
+        <div style="display: flex; align-items: center; justify-content: space-between"><b style="font-size: 15px">A · Чорнильно-синій</b><span class="bdg" style="background: #1F3A5F; color: #FFFFFF">Обрано</span></div>
+        <div class="row" style="gap: 8px"><i style="width: 56px; height: 40px; border-radius: 6px; background: #1F3A5F"></i><i style="width: 56px; height: 40px; border-radius: 6px; background: #162C49"></i><i style="width: 56px; height: 40px; border-radius: 6px; background: #E7EDF4; border: 1px solid #B9C8DA"></i><i style="width: 56px; height: 40px; border-radius: 6px; background: #9DB8DA"></i><span class="num muted" style="font-size: 12px">#1F3A5F · наведення #162C49 · тло #E7EDF4 · темна тема #9DB8DA</span></div>
+        <div class="row"><button type="button" class="btn" style="background: #1F3A5F; border-color: #1F3A5F; color: #FFFFFF">Почати пару</button><span class="bdg" style="background: #E7EDF4; color: #1F3A5F; border: 1px solid #B9C8DA">Нижній тиждень</span><a href="#" style="color: #1F3A5F; font-weight: 500">Відкрити журнал</a></div>
+        <p class="s2" style="font-size: 13px">Не конфліктує з зеленим «10–12» і з міткою Метрології; контраст з білим 11,5 : 1.</p>
+      </div>
+      <div class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 16px">
+        <div style="display: flex; align-items: center; justify-content: space-between"><b style="font-size: 15px">B · Глибокий синьо-зелений</b><span class="bdg" style="background: var(--sunken); color: var(--text-2)">Альтернатива</span></div>
+        <div class="row" style="gap: 8px"><i style="width: 56px; height: 40px; border-radius: 6px; background: #0F5C5C"></i><i style="width: 56px; height: 40px; border-radius: 6px; background: #0A4848"></i><i style="width: 56px; height: 40px; border-radius: 6px; background: #E2F0EE; border: 1px solid #A9CFCA"></i><i style="width: 56px; height: 40px; border-radius: 6px; background: #7FC3BC"></i><span class="num muted" style="font-size: 12px">#0F5C5C · наведення #0A4848 · тло #E2F0EE · темна тема #7FC3BC</span></div>
+        <div class="row"><button type="button" class="btn" style="background: #0F5C5C; border-color: #0F5C5C; color: #FFFFFF">Почати пару</button><span class="bdg" style="background: #E2F0EE; color: #0F5C5C; border: 1px solid #A9CFCA">Нижній тиждень</span><a href="#" style="color: #0F5C5C; font-weight: 500">Відкрити журнал</a></div>
+        <p class="s2" style="font-size: 13px">Зливається з підсвіткою високих оцінок і зеленим статусом «проведено».</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <header><h2>Нейтральні</h2><p>Світла тема за замовчуванням. Темна — через перемикач у меню користувача або за налаштуванням системи. У компонентах лише токени, без прописаних кольорів.</p></header>
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <div class="row" style="gap: 16px">
+        <div class="sw"><i style="background: #F7F5F0"></i><b>Фон</b><span>#F7F5F0</span></div>
+        <div class="sw"><i style="background: #FFFFFF"></i><b>Поверхня</b><span>#FFFFFF</span></div>
+        <div class="sw"><i style="background: #F1EEE7"></i><b>Заглиблена</b><span>#F1EEE7</span></div>
+        <div class="sw"><i style="background: #E4E0D6"></i><b>Лінія</b><span>#E4E0D6</span></div>
+        <div class="sw"><i style="background: #D3CEC2"></i><b>Межа поля</b><span>#D3CEC2</span></div>
+        <div class="sw"><i style="background: #676C73"></i><b>Текст 3</b><span>#676C73 · 5,3 : 1</span></div>
+        <div class="sw"><i style="background: #4E545B"></i><b>Текст 2</b><span>#4E545B</span></div>
+        <div class="sw"><i style="background: #1F2328"></i><b>Текст</b><span>#1F2328</span></div>
+      </div>
+      <div class="row" style="gap: 16px; padding: 16px; border-radius: 10px; background: #14171B">
+        <div class="sw"><i style="background: #14171B; border-color: #3B424B"></i><b style="color: #E9E7E2">Фон</b><span style="color: #979DA5">#14171B</span></div>
+        <div class="sw"><i style="background: #1B1F25; border-color: #3B424B"></i><b style="color: #E9E7E2">Поверхня</b><span style="color: #979DA5">#1B1F25</span></div>
+        <div class="sw"><i style="background: #262B32"></i><b style="color: #E9E7E2">Заглиблена</b><span style="color: #979DA5">#262B32</span></div>
+        <div class="sw"><i style="background: #2E343C"></i><b style="color: #E9E7E2">Лінія</b><span style="color: #979DA5">#2E343C</span></div>
+        <div class="sw"><i style="background: #979DA5"></i><b style="color: #E9E7E2">Текст 3</b><span style="color: #979DA5">#979DA5</span></div>
+        <div class="sw"><i style="background: #E9E7E2"></i><b style="color: #E9E7E2">Текст</b><span style="color: #979DA5">#E9E7E2</span></div>
+        <div class="sw"><i style="background: #9DB8DA"></i><b style="color: #E9E7E2">Акцент</b><span style="color: #979DA5">#9DB8DA</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <header><h2>Відвідуваність і оцінки</h2><p>Статус завжди має літеру — колір лише підсилює. Оцінки 1–3 і 10–12 мають ледь помітне тло.</p></header>
+    <div style="display: flex; flex-direction: column; gap: 20px">
+      <div class="row" style="gap: 24px">
+        <span style="display: flex; align-items: center; gap: 8px"><span class="st" style="background: #F0EEE8; color: #4E545B">✓</span><span class="s2">присутній · нейтральний</span></span>
+        <span style="display: flex; align-items: center; gap: 8px"><span class="st" style="background: #F7E4E1; color: #8F2B22">н</span><span class="s2">відсутній</span></span>
+        <span style="display: flex; align-items: center; gap: 8px"><span class="st" style="background: #F9ECD4; color: #7A4A06">нп</span><span class="s2">з поважної причини</span></span>
+        <span style="display: flex; align-items: center; gap: 8px"><span class="st" style="background: #E3EBF7; color: #1E4D8A">з</span><span class="s2">запізнився</span></span>
+        <span style="display: flex; align-items: center; gap: 8px; padding: 6px 10px; border-radius: 8px; background: #1B1F25"><span class="st" style="background: #4A2420; color: #F4BCB3">н</span><span class="st" style="background: #46351A; color: #F2D29A">нп</span><span class="st" style="background: #1F3350; color: #B3CBEE">з</span><span style="color: #B6BBC2; font-size: 12px">темна тема</span></span>
+      </div>
+      <div style="display: flex; gap: 0">
+        <span class="gc" style="background: #FBECE9">1</span><span class="gc" style="background: #FBECE9">2</span><span class="gc" style="background: #FBECE9">3</span><span class="gc">4</span><span class="gc">5</span><span class="gc">6</span><span class="gc">7</span><span class="gc">8</span><span class="gc">9</span><span class="gc" style="background: #E6F2E9">10</span><span class="gc" style="background: #E6F2E9">11</span><span class="gc" style="background: #E6F2E9">12</span>
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 10px">
+        <span class="cap">КЛІТИНКА ОЦІНКИ · СТАНИ</span>
+        <div class="row" style="gap: 20px; align-items: flex-start">
+          <span style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span class="gc"></span><span class="muted" style="font-size: 12px">порожня</span></span>
+          <span style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span class="gc">7</span><span class="muted" style="font-size: 12px">з оцінкою</span></span>
+          <span style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span class="gc" style="background: #F7E4E1; color: #8F2B22; font-weight: 700; font-size: 12px">н</span><span class="muted" style="font-size: 12px">«н»</span></span>
+          <span style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span class="gc" style="box-shadow: inset 0 0 0 2px #1F3A5F">10<span style="width: 1px; height: 15px; background: #1F2328; margin-left: 1px"></span></span><span class="muted" style="font-size: 12px">редагується</span></span>
+          <span style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span class="gc" style="box-shadow: inset 0 0 0 1.5px #A3352B; background: #E6F2E9">11<span style="position: absolute; right: 2px; top: 2px; width: 12px; height: 12px; border-radius: 6px; background: #A3352B; color: #FFFFFF; font-size: 9px; font-weight: 700; display: flex; align-items: center; justify-content: center">!</span></span><span class="muted" style="font-size: 12px">помилка</span></span>
+          <span style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span class="gc">4<span style="position: absolute; right: 4px; top: 4px; width: 5px; height: 5px; border-radius: 3px; background: #B57A12"></span></span><span class="muted" style="font-size: 12px">очікує синхр.</span></span>
+          <span style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span class="gc" style="box-shadow: inset 0 0 0 1.5px #B57A12">9</span><span class="muted" style="font-size: 12px">конфлікт</span></span>
+          <span style="display: flex; flex-direction: column; align-items: center; gap: 6px"><span class="gc" style="background: #FBF0DB; color: #7A4A06; font-weight: 600">н/а</span><span class="muted" style="font-size: 12px">не атестовано</span></span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <header><h2>Мітки дисциплін</h2><p>Приглушені, однакові в розкладі, журналі, картках і фільтрах. Чотири зайняті, чотири в запасі.</p></header>
+    <div class="row" style="gap: 16px">
+      <div class="sw"><i style="background: #4C6A92"></i><b>Інформатика</b><span>#4C6A92 / #EAF0F7</span></div>
+      <div class="sw"><i style="background: #3D7A72"></i><b>Метрологія ІОС</b><span>#3D7A72 / #E5F1EF</span></div>
+      <div class="sw"><i style="background: #7A5C8C"></i><b>Осн. програмування</b><span>#7A5C8C / #F1EBF5</span></div>
+      <div class="sw"><i style="background: #94701F"></i><b>Вища математика</b><span>#94701F / #F6EFDF</span></div>
+      <div class="sw"><i style="background: #A65E46"></i><b>Мітка 5</b><span>#A65E46 / #F7EAE5</span></div>
+      <div class="sw"><i style="background: #667536"></i><b>Мітка 6</b><span>#667536 / #EEF1E2</span></div>
+      <div class="sw"><i style="background: #9B5470"></i><b>Мітка 7</b><span>#9B5470 / #F6E8EE</span></div>
+      <div class="sw"><i style="background: #5D6B78"></i><b>Мітка 8</b><span>#5D6B78 / #ECEFF2</span></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <header><h2>Типографіка</h2><p>Golos UI, підключений локально (застосунок працює офлайн): добре опрацьована кирилиця, табличні цифри. 14 px на десктопі, 16 px на мобільному.</p></header>
+    <div style="display: flex; flex-direction: column">
+      <div class="ty"><span style="font-size: 28px; line-height: 36px; font-weight: 600; letter-spacing: -0.015em">Заголовок екрана</span><span class="num muted" style="font-size: 12px">28 / 36 · 600</span><span class="s2" style="font-size: 13px">Онбординг, підсумки</span></div>
+      <div class="ty"><span style="font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -0.01em">Сьогодні</span><span class="num muted" style="font-size: 12px">24 / 32 · 600</span><span class="s2" style="font-size: 13px">Заголовок розділу</span></div>
+      <div class="ty"><span style="font-size: 16px; line-height: 24px; font-weight: 600">Пари сьогодні</span><span class="num muted" style="font-size: 12px">16 / 24 · 600</span><span class="s2" style="font-size: 13px">Заголовок блоку</span></div>
+      <div class="ty"><span style="font-size: 14px; line-height: 20px">Алгоритми та їх властивості</span><span class="num muted" style="font-size: 12px">14 / 20 · 400</span><span class="s2" style="font-size: 13px">Основний текст, десктоп</span></div>
+      <div class="ty"><span style="font-size: 16px; line-height: 24px">Коваленко Анна</span><span class="num muted" style="font-size: 12px">16 / 24 · 400</span><span class="s2" style="font-size: 13px">Основний текст, мобільний</span></div>
+      <div class="ty"><span style="font-size: 13px; line-height: 18px">Мельник Остап · 7 · 10 · н</span><span class="num muted" style="font-size: 12px">13 / 18 і 12 / 16</span><span class="s2" style="font-size: 13px">Щільні таблиці журналу</span></div>
+      <div class="ty" style="border-bottom: 0"><span class="num" style="font-size: 20px; font-weight: 600">08:30 · 10,5 · 2 140 · 48 з 72</span><span class="num muted" style="font-size: 12px">tnum</span><span class="s2" style="font-size: 13px">Табличні цифри: оцінки, години, дати, час. Дати — «пн, 5 жовт.», «5 жовтня 2026».</span></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <header><h2>Кнопки і поля</h2><p>Радіус 6 px. Зони дотику на мобільному — від 48 px. Фокус — 2 px контур акценту.</p></header>
+    <div style="display: flex; flex-direction: column; gap: 24px">
+      <div class="row">
+        <button type="button" class="btn btn-p">Основна</button>
+        <button type="button" class="btn">Другорядна</button>
+        <button type="button" class="btn btn-g">Текстова</button>
+        <button type="button" class="btn btn-d">Відхилити</button>
+        <button type="button" class="btn btn-p focus">Фокус</button>
+        <button type="button" class="btn btn-p" aria-disabled="true" style="opacity: .5; cursor: not-allowed">Недоступна</button>
+        <button type="button" class="btn" aria-busy="true"><svg class="ic" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7"></path></svg>Збереження</button>
+      </div>
+      <div class="row"><button type="button" class="btn btn-p btn-sm">28 px</button><button type="button" class="btn btn-p">36 px · десктоп</button><button type="button" class="btn btn-p btn-lg">48 px · мобільний</button></div>
+      <div class="row" style="align-items: flex-start; gap: 20px">
+        <div class="f"><label for="ds1">Звичайне</label><input id="ds1" class="inp" placeholder="Назва теми"></div>
+        <div class="f"><label for="ds2">Фокус</label><input id="ds2" class="inp" value="Алгоритми" style="border-color: #1F3A5F; box-shadow: 0 0 0 1px #1F3A5F"></div>
+        <div class="f"><label for="ds3">Помилка</label><input id="ds3" class="inp" value="13" style="border-color: #A3352B; box-shadow: 0 0 0 1px #A3352B" aria-invalid="true"><span style="font-size: 12px; color: #8F2B22">Оцінка від 1 до 12</span></div>
+        <div class="f"><label for="ds4">Недоступне</label><input id="ds4" class="inp" value="Екзамен" disabled style="background: var(--sunken); color: var(--text-3)"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <header><h2>Картка заняття</h2><p>Тло — колір дисципліни, стан — тегом унизу. Однакова в «Сьогодні», розкладі й конструкторі.</p></header>
+    <div class="row" style="gap: 16px; align-items: flex-start">
+      <div style="display: flex; flex-direction: column; gap: 6px"><div class="lc d1"><span class="k">Л</span><span class="t"><i style="background: #4C6A92"></i>Інформатика</span><span class="m">ПДт-13 · ауд. 214</span></div><span class="muted" style="font-size: 12px">заплановано</span></div>
+      <div style="display: flex; flex-direction: column; gap: 6px"><div class="lc d1" style="box-shadow: 0 0 0 1.5px #1F3A5F"><span class="k">ПР</span><span class="t"><i style="background: #4C6A92"></i>Інформатика</span><span class="m">ПДт-12 · ауд. 214</span><span class="tag" style="background: #E5F1E8; color: #2E6A3E">Триває · до 11:20</span></div><span class="muted" style="font-size: 12px">триває</span></div>
+      <div style="display: flex; flex-direction: column; gap: 6px"><div class="lc d1"><span class="k">Л</span><span class="t"><i style="background: #4C6A92"></i>Інформатика</span><span class="m">ПДт-11 · ауд. 214</span><span class="tag" style="background: #E5F1E8; color: #2E6A3E">✓ Проведено · 22/25</span></div><span class="muted" style="font-size: 12px">проведено</span></div>
+      <div style="display: flex; flex-direction: column; gap: 6px"><div class="lc" style="background: var(--surface-2); border: 1px dashed var(--line-2); color: var(--text-3)"><span class="k" style="color: var(--text-3)">ЛР</span><span class="t" style="text-decoration: line-through"><i style="background: #B8A9C2"></i>Осн. програмування</span><span class="m" style="color: var(--text-3); text-decoration: line-through">ПДт-13 · комп. клас 2</span><span class="tag" style="background: #FBE9E6; color: #8F2B22">Скасовано</span></div><span class="muted" style="font-size: 12px">скасовано</span></div>
+      <div style="display: flex; flex-direction: column; gap: 6px"><div class="lc" style="background: #E5F1EF; border-color: #CBE2DE"><span class="k">ПР</span><span class="t"><i style="background: #3D7A72"></i>Метрологія ІОС</span><span class="m">ПДт-13 · ауд. 305</span><span class="tag" style="background: #FFFFFF; color: #1F3A5F; border: 1px solid #B9C8DA">Перенесено з пт, 9 жовт.</span></div><span class="muted" style="font-size: 12px">перенесено</span></div>
+      <div style="display: flex; flex-direction: column; gap: 6px"><div class="lc" style="background: #F6EFDF; border-color: #E8DCC0"><span class="k">Л</span><span class="t"><i style="background: #94701F"></i>Вища математика</span><span class="m">ПДт-12 · ауд. 101</span><span class="tag" style="background: #F9ECD4; color: #7A4A06">Заміна · за Гуменюк О.П.</span></div><span class="muted" style="font-size: 12px">заміна</span></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <header><h2>Бейджі</h2><p>Тиждень, роль, форма контролю, статус студента і версії розкладу.</p></header>
+    <div style="display: flex; flex-direction: column; gap: 16px">
+      <div class="row">
+        <span class="cap" style="width: 150px">Тиждень</span>
+        <span class="bdg" style="background: #E7EDF4; color: #1F3A5F; border: 1px solid #B9C8DA"><span style="display: flex; flex-direction: column; gap: 2px; width: 12px"><i style="display: block; height: 4px; background: #1F3A5F; border-radius: 1px"></i><i style="display: block; height: 4px; border: 1px solid #1F3A5F; border-radius: 1px"></i></span>Верхній тиждень</span>
+        <span class="bdg" style="background: #E7EDF4; color: #1F3A5F; border: 1px solid #B9C8DA"><span style="display: flex; flex-direction: column; gap: 2px; width: 12px"><i style="display: block; height: 4px; border: 1px solid #1F3A5F; border-radius: 1px"></i><i style="display: block; height: 4px; background: #1F3A5F; border-radius: 1px"></i></span>Нижній тиждень</span>
+      </div>
+      <div class="row"><span class="cap" style="width: 150px">Роль</span><span class="bdg" style="height: 20px; font-size: 11px; background: #E7EDF4; color: #1F3A5F">Викладач</span><span class="bdg" style="height: 20px; font-size: 11px; background: #EFE7D6; color: #6B4E12">Модератор</span></div>
+      <div class="row"><span class="cap" style="width: 150px">Форма контролю</span><span class="cf" style="background: #1F3A5F; color: #FFFFFF">Екзамен</span><span class="cf" style="border: 1px solid #1F3A5F; color: #1F3A5F">Залік</span></div>
+      <div class="row"><span class="cap" style="width: 150px">Статус студента</span><span class="bdg" style="background: #E5F1E8; color: #2E6A3E">Навчається</span><span class="bdg" style="background: #FBF0DB; color: #7A4A06">Академвідпустка</span><span class="bdg" style="background: #F1EEE7; color: #4E545B">Відрахований</span><span class="bdg" style="background: #E7EDF4; color: #1F3A5F">Переведений</span></div>
+      <div class="row"><span class="cap" style="width: 150px">Версія розкладу</span><span class="bdg" style="background: #F1EEE7; color: #4E545B">Чернетка</span><span class="bdg" style="background: #E5F1E8; color: #2E6A3E">Опубліковано 1 вер.</span><span class="bdg" style="background: #FBF0DB; color: #7A4A06"><span style="width: 6px; height: 6px; border-radius: 3px; background: #B57A12"></span>Є неопубліковані зміни</span></div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <header><h2>Перемикач семестру</h2><p>У шапці. Минулі семестри — архів, лише читання.</p></header>
+    <div class="row" style="align-items: flex-start; gap: 32px">
+      <button type="button" class="btn num"><svg class="ic" viewBox="0 0 24 24" style="color: var(--text-3)"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>2026/2027 · I семестр<svg class="ic" viewBox="0 0 24 24" style="color: var(--text-3)"><path d="m6 9 6 6 6-6"></path></svg></button>
+      <div style="display: flex; flex-direction: column; gap: 6px">
+        <button type="button" class="btn num" aria-expanded="true" style="border-color: #1F3A5F; box-shadow: 0 0 0 1px #1F3A5F; align-self: flex-start"><svg class="ic" viewBox="0 0 24 24" style="color: var(--text-3)"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>2026/2027 · I семестр<svg class="ic" viewBox="0 0 24 24" style="color: var(--text-3); transform: rotate(180deg)"><path d="m6 9 6 6 6-6"></path></svg></button>
+        <div role="listbox" class="card" style="width: 300px; padding: 6px; box-shadow: 0 8px 24px rgba(31,35,40,.10)">
+          <div class="cap" style="padding: 6px 10px">2026/2027</div>
+          <div role="option" aria-selected="true" class="num" style="display: flex; align-items: center; justify-content: space-between; height: 36px; padding: 0 10px; border-radius: 6px; background: #E7EDF4; color: #1F3A5F; font-weight: 600">I семестр <span style="font-size: 12px; font-weight: 500">поточний</span></div>
+          <div role="option" aria-selected="false" class="num" style="display: flex; align-items: center; justify-content: space-between; height: 36px; padding: 0 10px; border-radius: 6px">II семестр <span class="muted" style="font-size: 12px">з 12 січ.</span></div>
+          <div class="cap" style="padding: 10px 10px 6px">2025/2026</div>
+          <div role="option" aria-selected="false" class="num" style="display: flex; align-items: center; justify-content: space-between; height: 36px; padding: 0 10px; border-radius: 6px; color: var(--text-2)">II семестр <span class="muted" style="display: flex; align-items: center; gap: 4px; font-size: 12px"><svg class="ic" viewBox="0 0 24 24" style="width: 12px; height: 12px"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>архів</span></div>
+          <div role="option" aria-selected="false" class="num" style="display: flex; align-items: center; justify-content: space-between; height: 36px; padding: 0 10px; border-radius: 6px; color: var(--text-2)">I семестр <span class="muted" style="display: flex; align-items: center; gap: 4px; font-size: 12px"><svg class="ic" viewBox="0 0 24 24" style="width: 12px; height: 12px"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>архів</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec">
+    <header><h2>Навігація</h2><p>Бічна панель згортається до іконок. Меню користувача — ПІБ, бейдж ролі, перемикач ролі, тема «Світла / Темна / Як у системі», вихід.</p></header>
+    <div class="row" style="align-items: flex-start; gap: 24px">
+      <div class="card" style="overflow: hidden; width: 248px; height: 640px"><dc-import name="Sidebar" role="teacher" active="journal" menu-open="{{ true }}" height="640" user="Бойчук В.В." hint-size="248px,640px"></dc-import></div>
+      <div class="card" style="overflow: hidden; width: 72px; height: 640px"><dc-import name="Sidebar" role="moderator" active="requests" collapsed="{{ true }}" height="640" user="Левицька Г.М." hint-size="72px,640px"></dc-import></div>
+      <div style="display: flex; flex-direction: column; gap: 12px">
+        <span class="cap">МОБІЛЬНИЙ · НИЖНЯ ПАНЕЛЬ</span>
+        <div class="card" style="overflow: hidden; width: 390px"><dc-import name="MobileNav" active="today" hint-size="390px,80px"></dc-import></div>
+        <span class="cap" style="margin-top: 12px">СІТКА, РАДІУСИ, ТІНІ</span>
+        <div class="row" style="gap: 16px">
+          <span style="width: 64px; height: 64px; border: 1px solid var(--line-2); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 12px" class="num">6 px</span>
+          <span style="width: 64px; height: 64px; border: 1px solid var(--line-2); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 12px" class="num">10 px</span>
+          <span style="width: 64px; height: 64px; border-radius: 10px; background: #FFFFFF; box-shadow: 0 8px 24px rgba(31,35,40,.10); display: flex; align-items: center; justify-content: center; font-size: 12px">меню</span>
+          <span class="num muted" style="font-size: 12px; max-width: 160px">Відступи 4 · 8 · 12 · 16 · 24 · 32. Тіні — лише для меню й діалогів.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":3400}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Новий семестр — крок 1</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ge{--bg:#F7F5F0;--surface:#FFFFFF;--surface-2:#FBFAF7;--sunken:#F1EEE7;--line:#E4E0D6;--line-2:#D3CEC2;--text:#1F2328;--text-2:#4E545B;--text-3:#676C73;--accent:#1F3A5F;--accent-soft:#E7EDF4;--accent-line:#B9C8DA;--ok:#2E6A3E;--ok-bg:#E5F1E8;--warn:#7A4A06;--warn-bg:#FBF0DB;font-family:'Golos Text',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.4;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+.ge *{box-sizing:border-box}
+.ge h1,.ge h2,.ge h3,.ge p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 16px;border-radius:6px;border:1px solid var(--line-2);background:var(--surface);color:var(--text);font:inherit;font-weight:500;cursor:pointer;white-space:nowrap;text-decoration:none}
+.btn-p{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
+.ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.stp{display:flex;align-items:center;gap:12px}
+.stp li{display:flex;align-items:center;gap:10px;list-style:none;font-size:14px;color:var(--text-3);font-weight:500}
+.stp li i{width:28px;height:28px;border-radius:14px;border:1.5px solid var(--line-2);display:flex;align-items:center;justify-content:center;font-style:normal;font-size:13px;font-weight:600;font-variant-numeric:tabular-nums;background:var(--surface)}
+.stp li[aria-current=step]{color:var(--text);font-weight:600}
+.stp li[aria-current=step] i{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
+.stp li.done i{background:var(--ok-bg);border-color:var(--ok-bg);color:var(--ok)}
+.stp .ln{flex:1;height:1px;background:var(--line-2);min-width:24px}
+.f{display:flex;flex-direction:column;gap:6px}
+.f label,.lbl{font-size:13px;font-weight:500;color:var(--text-2)}
+.inp{height:40px;border:1px solid var(--line-2);border-radius:6px;background:var(--surface);padding:0 12px;font:inherit;color:var(--text);font-variant-numeric:tabular-nums;width:100%}
+.seg{display:grid;padding:3px;gap:3px;background:var(--sunken);border:1px solid var(--line-2);border-radius:8px}
+.seg button{height:34px;border:0;border-radius:6px;background:transparent;font:inherit;font-size:13px;font-weight:500;color:var(--text-2);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--surface);color:var(--text);box-shadow:0 0 0 1px var(--line-2);font-weight:600}
+.pr{display:grid;grid-template-columns:14px minmax(0,1fr) 180px 36px;gap:12px;align-items:center;min-height:48px;padding:0 16px;border-bottom:1px solid var(--line)}
+.pr i{width:10px;height:10px;border-radius:3px}
+.wk{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;color:var(--text-3);font-variant-numeric:tabular-nums}
+.wk b{width:100%;height:28px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700}
+.T{background:var(--accent-soft);color:var(--accent);border:1px solid var(--accent-line)}
+.B{background:var(--accent);color:#FFFFFF}
+.H{background:repeating-linear-gradient(135deg,#EFE8D8 0 4px,#F7F1E4 4px 8px);color:var(--warn)}
+.muted{color:var(--text-3)}.s2{color:var(--text-2)}
+</style>
+</helmet>
+<div class="ge" style="width: 1440px; height: 1000px; display: grid; grid-template-columns: 248px minmax(0, 1fr); overflow: hidden">
+  <dc-import name="Sidebar" role="moderator" active="semesters" height="1000" user="Левицька Г.М." hint-size="248px,1000px"></dc-import>
+  <div style="display: flex; flex-direction: column; min-width: 0; position: relative">
+    <dc-import name="Topbar" sync="ok" hint-size="1192px,64px"></dc-import>
+    <main style="padding: 20px 32px 100px; display: flex; flex-direction: column; gap: 20px; min-width: 0">
+      <div style="display: flex; flex-direction: column; gap: 4px">
+        <span class="muted" style="font-size: 13px">Семестри · Новий семестр</span>
+        <h1 style="font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -0.01em">I семестр 2027/2028</h1>
+      </div>
+      <ol class="stp" aria-label="Кроки майстра" style="margin: 0; padding: 0">
+        <li aria-current="step"><i>1</i>Дати і періоди</li><span class="ln"></span>
+        <li><i>2</i>Групи і контингент</li><span class="ln"></span>
+        <li><i>3</i>Навантаження</li><span class="ln"></span>
+        <li><i>4</i>Шаблон розкладу</li>
+      </ol>
+
+      <div style="display: grid; grid-template-columns: 360px minmax(0, 1fr); gap: 20px; align-items: start">
+        <section class="card" style="padding: 20px; display: flex; flex-direction: column; gap: 16px">
+          <h2 style="font-size: 16px; font-weight: 600">Основне</h2>
+          <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px">
+            <div class="f"><label for="s1">Початок</label><input id="s1" class="inp" value="1 вер. 2027"></div>
+            <div class="f"><label for="s2">Кінець</label><input id="s2" class="inp" value="28 груд. 2027"></div>
+          </div>
+          <div class="f"><span class="lbl" id="fw">Перший тиждень семестру</span>
+            <div class="seg" role="group" aria-labelledby="fw" style="grid-template-columns: repeat(2, minmax(0, 1fr))"><button type="button" aria-pressed="true">Верхній</button><button type="button" aria-pressed="false">Нижній</button></div>
+            <span class="muted num" style="font-size: 12px">Тиждень 30 серп. – 5 вер. — верхній</span>
+          </div>
+          <div class="f"><span class="lbl" id="ab">Після канікул</span>
+            <div class="seg" role="group" aria-labelledby="ab" style="grid-template-columns: repeat(2, minmax(0, 1fr))"><button type="button" aria-pressed="true">Продовжити чергування</button><button type="button" aria-pressed="false">Почати з верхнього</button></div>
+          </div>
+          <div class="f"><label for="s3">Днів навчання на тиждень</label><select id="s3" class="inp"><option>5 — понеділок–п’ятниця</option><option>6 — з суботою</option></select></div>
+        </section>
+
+        <section style="display: flex; flex-direction: column; gap: 20px; min-width: 0">
+          <div class="card" style="overflow: hidden">
+            <div style="display: flex; align-items: center; justify-content: space-between; padding: 14px 16px; border-bottom: 1px solid var(--line)">
+              <h2 style="font-size: 16px; font-weight: 600">Періоди</h2>
+              <button type="button" class="btn" style="height: 32px; font-size: 13px"><svg class="ic" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"></path></svg>Період</button>
+            </div>
+            <div class="pr"><i style="background: #D8C49A"></i><span>Осінні канікули</span><span class="num s2">25 – 31 жовт.</span><button type="button" aria-label="Змінити" style="width: 32px; height: 32px; border: 0; background: transparent; color: var(--text-3); border-radius: 6px">⋯</button></div>
+            <div class="pr"><i style="background: #D8C49A"></i><span>Вихідний · День захисників</span><span class="num s2">14 жовт.</span><button type="button" aria-label="Змінити" style="width: 32px; height: 32px; border: 0; background: transparent; color: var(--text-3); border-radius: 6px">⋯</button></div>
+            <div class="pr"><i style="background: #4C6A92"></i><span>1-ша рубіжна атестація</span><span class="num s2">4 – 8 жовт.</span><button type="button" aria-label="Змінити" style="width: 32px; height: 32px; border: 0; background: transparent; color: var(--text-3); border-radius: 6px">⋯</button></div>
+            <div class="pr"><i style="background: #7A5C8C"></i><span>Директорська контрольна робота</span><span class="num s2">15 – 19 лист.</span><button type="button" aria-label="Змінити" style="width: 32px; height: 32px; border: 0; background: transparent; color: var(--text-3); border-radius: 6px">⋯</button></div>
+            <div class="pr" style="border-bottom: 0"><i style="background: #A65E46"></i><span>Екзаменаційна сесія</span><span class="num s2">20 – 28 груд.</span><button type="button" aria-label="Змінити" style="width: 32px; height: 32px; border: 0; background: transparent; color: var(--text-3); border-radius: 6px">⋯</button></div>
+          </div>
+
+          <div class="card" style="padding: 16px; display: flex; flex-direction: column; gap: 12px">
+            <div style="display: flex; align-items: center; justify-content: space-between"><h2 style="font-size: 16px; font-weight: 600">Тижні семестру</h2><span class="muted num" style="font-size: 12px">16 навчальних тижнів · 78 навчальних днів</span></div>
+            <div style="display: grid; grid-template-columns: repeat(18, minmax(0, 1fr)); gap: 4px">
+              <div class="wk"><b class="T">В</b>30.08</div>
+              <div class="wk"><b class="B">Н</b>6.09</div>
+              <div class="wk"><b class="T">В</b>13.09</div>
+              <div class="wk"><b class="B">Н</b>20.09</div>
+              <div class="wk"><b class="T">В</b>27.09</div>
+              <div class="wk"><b class="B" style="box-shadow: 0 -3px 0 #4C6A92">Н</b>4.10</div>
+              <div class="wk"><b class="T">В</b>11.10</div>
+              <div class="wk"><b class="B">Н</b>18.10</div>
+              <div class="wk"><b class="H">—</b>25.10</div>
+              <div class="wk"><b class="T">В</b>1.11</div>
+              <div class="wk"><b class="B">Н</b>8.11</div>
+              <div class="wk"><b class="T" style="box-shadow: 0 -3px 0 #7A5C8C">В</b>15.11</div>
+              <div class="wk"><b class="B">Н</b>22.11</div>
+              <div class="wk"><b class="T">В</b>29.11</div>
+              <div class="wk"><b class="B">Н</b>6.12</div>
+              <div class="wk"><b class="T">В</b>13.12</div>
+              <div class="wk"><b class="H" style="box-shadow: 0 -3px 0 #A65E46">С</b>20.12</div>
+              <div class="wk"><b class="H" style="box-shadow: 0 -3px 0 #A65E46">С</b>27.12</div>
+            </div>
+            <div style="display: flex; gap: 16px; font-size: 12px; color: var(--text-2)">
+              <span style="display: flex; align-items: center; gap: 6px"><i class="T" style="width: 14px; height: 10px; border-radius: 2px"></i>верхній</span>
+              <span style="display: flex; align-items: center; gap: 6px"><i class="B" style="width: 14px; height: 10px; border-radius: 2px"></i>нижній</span>
+              <span style="display: flex; align-items: center; gap: 6px"><i class="H" style="width: 14px; height: 10px; border-radius: 2px"></i>канікули, сесія</span>
+              <span>Смужка над тижнем — період атестації</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+    <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 72px; background: var(--surface); border-top: 1px solid var(--line-2); display: flex; align-items: center; gap: 12px; padding: 0 32px">
+      <button type="button" class="btn" style="border-color: transparent; color: var(--text-2)">Скасувати</button>
+      <div style="flex: 1"></div>
+      <span class="muted" style="font-size: 13px">Чернетку збережено</span>
+      <a href="WizardStep2.dc.html" class="btn btn-p">Далі: групи і контингент</a>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1000}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

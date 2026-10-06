@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Дані й календар</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ge{--bg:#F7F5F0;--surface:#FFFFFF;--surface-2:#FBFAF7;--sunken:#F1EEE7;--line:#E4E0D6;--line-2:#D3CEC2;--text:#1F2328;--text-2:#4E545B;--text-3:#676C73;--accent:#1F3A5F;--accent-soft:#E7EDF4;--accent-line:#B9C8DA;--ok:#2E6A3E;--ok-bg:#E5F1E8;--warn:#7A4A06;--warn-bg:#FBF0DB;--err-fg:#8F2B22;font-family:'Golos Text',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.45;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+.ge *{box-sizing:border-box}
+.ge h1,.ge h2,.ge h3,.ge p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 14px;border-radius:6px;border:1px solid var(--line-2);background:var(--surface);color:var(--text);font:inherit;font-weight:500;cursor:pointer;white-space:nowrap}
+.btn-p{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
+.ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.chk{display:flex;align-items:center;gap:10px;min-height:40px;border-bottom:1px solid var(--line)}
+.chk input{width:18px;height:18px;accent-color:#1F3A5F}
+.ex{display:grid;grid-template-columns:minmax(0,1fr) 160px 140px;gap:12px;align-items:center;min-height:52px;border-bottom:1px solid var(--line)}
+.muted{color:var(--text-3)}.s2{color:var(--text-2)}
+</style>
+</helmet>
+<div class="ge" style="width: 1440px; height: 900px; display: grid; grid-template-columns: 248px minmax(0, 1fr); overflow: hidden">
+  <dc-import name="Sidebar" role="teacher" active="data" height="900" user="Бойчук В.В." hint-size="248px,900px"></dc-import>
+  <div style="display: flex; flex-direction: column; min-width: 0">
+    <dc-import name="Topbar" sync="ok" hint-size="1192px,64px"></dc-import>
+    <main style="padding: 20px 32px; display: flex; flex-direction: column; gap: 20px; min-width: 0">
+      <h1 style="font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -0.01em">Дані й календар</h1>
+
+      <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start">
+        <section class="card" aria-labelledby="ics" style="padding: 20px; display: flex; flex-direction: column; gap: 16px">
+          <div style="display: flex; gap: 12px; align-items: flex-start">
+            <span style="width: 40px; height: 40px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); display: flex; align-items: center; justify-content: center; flex: none"><svg class="ic" viewBox="0 0 24 24" style="width: 20px; height: 20px"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg></span>
+            <div style="display: flex; flex-direction: column; gap: 2px"><h2 id="ics" style="font-size: 16px; font-weight: 600">Розклад у вашому календарі</h2><p class="s2" style="font-size: 13px">Підписка ICS: пари оновлюються самі, зокрема заміни й перенесення.</p></div>
+          </div>
+          <div style="display: flex; flex-direction: column; gap: 6px">
+            <label for="ics-u" style="font-size: 13px; font-weight: 500; color: var(--text-2)">Особисте посилання</label>
+            <div style="display: flex; gap: 8px"><input id="ics-u" readonly value="https://demo-college.edu.ua/api/v1/ics/u/7f3c…a91e.ics" style="flex: 1; min-width: 0; height: 36px; border: 1px solid var(--line-2); border-radius: 6px; padding: 0 10px; font: inherit; font-size: 13px; color: var(--text-2); background: var(--surface-2)"><button type="button" class="btn btn-p"><svg class="ic" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg>Копіювати</button></div>
+            <span class="muted" style="font-size: 12px">Хто має посилання, бачить ваш розклад. Не надсилайте його іншим.</span>
+          </div>
+          <ol style="margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text-2)">
+            <li>Google Calendar: «Інші календарі» → «+» → «За URL-адресою».</li>
+            <li>iPhone: Параметри → Календар → Облікові записи → «Додати підписку».</li>
+            <li>Оновлення в календарі з’являються з затримкою до кількох годин.</li>
+          </ol>
+          <div style="display: flex; align-items: center; gap: 12px; padding-top: 4px; border-top: 1px solid var(--line)">
+            <span class="muted num" style="flex: 1; font-size: 12px; padding-top: 12px">Створено 1 вер. 2026</span>
+            <button type="button" class="btn" style="margin-top: 12px; color: var(--err-fg); border-color: #E3B8B1">Перевипустити посилання</button>
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="zip" style="padding: 20px; display: flex; flex-direction: column; gap: 16px">
+          <div style="display: flex; gap: 12px; align-items: flex-start">
+            <span style="width: 40px; height: 40px; border-radius: 8px; background: var(--sunken); color: var(--text-2); display: flex; align-items: center; justify-content: center; flex: none"><svg class="ic" viewBox="0 0 24 24" style="width: 20px; height: 20px"><path d="M12 3v12M7 10l5 5 5-5M4 20h16"></path></svg></span>
+            <div style="display: flex; flex-direction: column; gap: 2px"><h2 id="zip" style="font-size: 16px; font-weight: 600">Експорт моїх даних</h2><p class="s2" style="font-size: 13px">Архів ZIP з таблицями CSV — для власної копії або передачі справ.</p></div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px"><label for="zs" style="font-size: 13px; font-weight: 500; color: var(--text-2)">Семестр</label><select id="zs" style="height: 36px; border: 1px solid var(--line-2); border-radius: 6px; padding: 0 10px; font: inherit; color: var(--text); background: var(--surface)"><option>2026/2027 · I семестр</option><option>2025/2026 · II семестр</option></select></div>
+          <div>
+            <label class="chk"><input type="checkbox" checked>Журнали: оцінки і відвідуваність</label>
+            <label class="chk"><input type="checkbox" checked>Атестації і відомості</label>
+            <label class="chk"><input type="checkbox" checked>Тематичні плани</label>
+            <label class="chk" style="border-bottom: 0"><input type="checkbox" checked>Вичитка годин</label>
+          </div>
+          <button type="button" class="btn btn-p" style="align-self: flex-start">Сформувати архів</button>
+          <div style="display: flex; flex-direction: column">
+            <span style="font-size: 12px; font-weight: 600; color: var(--text-3); padding-bottom: 4px">Останні архіви</span>
+            <div class="ex"><span class="num">I семестр 2026/2027</span><span style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--accent)"><span style="width: 60px; height: 4px; border-radius: 2px; background: var(--accent-soft); overflow: hidden"><i style="display: block; width: 60%; height: 100%; background: var(--accent)"></i></span>Формується</span><span class="muted num" style="font-size: 12px; text-align: right">щойно</span></div>
+            <div class="ex" style="border-bottom: 0"><span class="num">II семестр 2025/2026</span><a href="#" style="font-size: 13px; color: var(--accent); font-weight: 500">Завантажити · 1,2 МБ</a><span class="muted num" style="font-size: 12px; text-align: right">30 черв. 2026</span></div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":900}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {};
+  }
+}
+</script>
+</body>
+</html>

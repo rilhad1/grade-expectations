@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Шапка</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<header style="{{rootStyle}}">
+  <button type="button" aria-haspopup="listbox" aria-label="Навчальний рік і семестр" style="display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 10px 0 12px; border: 1px solid var(--line-2, #D3CEC2); border-radius: 6px; background: var(--surface, #FFFFFF); font: inherit; font-size: 14px; font-weight: 500; color: var(--text, #1F2328); cursor: pointer; white-space: nowrap; font-variant-numeric: tabular-nums">
+    <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: none; stroke: var(--text-3, #676C73); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round"><rect x="3" y="5" width="18" height="16" rx="2"></rect><path d="M3 10h18M8 3v4M16 3v4"></path></svg>
+    {{semester}}
+    <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: none; stroke: var(--text-3, #676C73); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round"><path d="m6 9 6 6 6-6"></path></svg>
+  </button>
+
+  <sc-if value="{{archive}}" hint-placeholder-val="{{ false }}">
+    <span style="display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 12px; background: var(--sunken, #F1EEE7); border: 1px solid var(--line-2, #D3CEC2); color: var(--text-2, #4E545B); font-size: 12px; font-weight: 600; white-space: nowrap">
+      <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round"><rect x="5" y="11" width="14" height="10" rx="2"></rect><path d="M8 11V8a4 4 0 0 1 8 0v3"></path></svg>
+      Архів · лише читання
+    </span>
+  </sc-if>
+  <sc-if value="{{notArchive}}" hint-placeholder-val="{{ true }}">
+    <span title="Пари «лише у верхній» цього тижня не проводяться" style="display: inline-flex; align-items: center; gap: 8px; height: 24px; padding: 0 10px 0 8px; border-radius: 12px; background: var(--accent-soft, #E7EDF4); border: 1px solid var(--accent-line, #B9C8DA); color: var(--accent, #1F3A5F); font-size: 12px; font-weight: 600; white-space: nowrap">
+      <span aria-hidden="true" style="display: flex; flex-direction: column; gap: 2px; width: 12px">
+        <i style="{{wkTop}}"></i>
+        <i style="{{wkBottom}}"></i>
+      </span>
+      {{weekLabel}}
+    </span>
+  </sc-if>
+
+  <div style="flex: 1"></div>
+
+  <div role="status" style="{{syncStyle}}">
+    <span aria-hidden="true" style="{{syncDot}}"></span>
+    <span>{{syncText}}</span>
+  </div>
+</header>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"sync":{"editor":"enum","options":["ok","syncing","offline","error"],"default":"ok"},"archive":{"editor":"boolean","default":false},"week":{"editor":"enum","options":["bottom","top"],"default":"bottom"},"$preview":{"width":1192,"height":64}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const sync = this.props.sync ?? 'ok';
+    const archive = this.props.archive === true || this.props.archive === 'true';
+    const top = (this.props.week ?? 'bottom') === 'top';
+    const map = {
+      ok: ['Синхронізовано · 10:41', 'var(--text-2,#4E545B)', 'transparent', '#2E6A3E'],
+      syncing: ['Синхронізація · 3 з 14', 'var(--accent,#1F3A5F)', 'var(--accent-soft,#E7EDF4)', 'var(--accent,#1F3A5F)'],
+      offline: ['Офлайн · 14 змін на пристрої', '#7A4A06', '#F9ECD4', '#B57A12'],
+      error: ['Помилка синхронізації · Повторити', '#8F2B22', '#F7E4E1', '#A3352B']
+    };
+    const m = map[sync] || map.ok;
+    const filled = 'display:block;height:4px;border-radius:1px;background:var(--accent,#1F3A5F)';
+    const hollow = 'display:block;height:4px;border-radius:1px;border:1px solid var(--accent,#1F3A5F);box-sizing:border-box';
+    return {
+      semester: archive ? '2025/2026 · II семестр' : '2026/2027 · I семестр',
+      archive,
+      notArchive: !archive,
+      weekLabel: top ? 'Верхній тиждень' : 'Нижній тиждень',
+      wkTop: top ? filled : hollow,
+      wkBottom: top ? hollow : filled,
+      syncText: m[0],
+      syncStyle: 'display:flex;align-items:center;gap:8px;height:28px;padding:0 10px;border-radius:14px;font-size:13px;font-weight:500;white-space:nowrap;font-variant-numeric:tabular-nums;color:' + m[1] + ';background:' + m[2],
+      syncDot: 'width:8px;height:8px;border-radius:4px;flex:none;background:' + m[3] + (sync === 'syncing' ? ';box-shadow:0 0 0 3px rgba(31,58,95,.18)' : ''),
+      rootStyle: 'width:100%;min-width:0;height:64px;box-sizing:border-box;display:flex;align-items:center;gap:12px;padding:0 32px;border-bottom:1px solid var(--line,#E4E0D6);background:var(--surface,#FFFFFF);font-family:\'Golos Text\',system-ui,sans-serif;color:var(--text,#1F2328)'
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<title>Атестація</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+.ge{--bg:#F7F5F0;--surface:#FFFFFF;--surface-2:#FBFAF7;--sunken:#F1EEE7;--line:#E4E0D6;--line-2:#D3CEC2;--text:#1F2328;--text-2:#4E545B;--text-3:#676C73;--accent:#1F3A5F;--accent-soft:#E7EDF4;--accent-line:#B9C8DA;--ok:#2E6A3E;--ok-bg:#E5F1E8;--warn:#7A4A06;--warn-bg:#FBF0DB;font-family:'Golos Text',system-ui,-apple-system,'Segoe UI',sans-serif;font-size:14px;line-height:1.4;color:var(--text);background:var(--bg);-webkit-font-smoothing:antialiased}
+.ge *{box-sizing:border-box}
+.ge h1,.ge p{margin:0}
+.num{font-variant-numeric:tabular-nums}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:36px;padding:0 14px;border-radius:6px;border:1px solid var(--line-2);background:var(--surface);color:var(--text);font:inherit;font-weight:500;cursor:pointer;white-space:nowrap;text-decoration:none}
+.btn-p{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
+.ic{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line-2)}
+.tab{display:flex;align-items:center;gap:8px;height:44px;padding:0 14px;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;background:transparent;font:inherit;font-weight:500;color:var(--text-2);cursor:pointer}
+.tab[aria-selected=true]{border-bottom-color:var(--accent);color:var(--text);font-weight:600}
+.tab small{font-size:12px;color:var(--text-3);font-weight:500}
+.tr{display:grid;grid-template-columns:40px minmax(0,1.1fr) 96px 104px 150px 108px minmax(0,1.3fr) 104px;align-items:center;min-height:38px;border-bottom:1px solid var(--line)}
+.th{min-height:40px;background:var(--surface-2);font-size:12px;font-weight:600;color:var(--text-3);border-bottom:1px solid var(--line-2)}
+.tr > *{padding:0 10px}
+.inp{height:28px;width:56px;border:1px solid var(--line-2);border-radius:6px;background:var(--surface);font:inherit;font-weight:600;text-align:center;font-variant-numeric:tabular-nums;color:var(--text)}
+.cm{height:28px;width:100%;border:1px solid transparent;border-radius:6px;background:transparent;font:inherit;font-size:13px;color:var(--text);padding:0 8px}
+.chk{width:20px;height:20px;border-radius:4px;border:1.5px solid var(--line-2);display:inline-flex;align-items:center;justify-content:center;background:var(--surface)}
+.chk.on{background:var(--accent);border-color:var(--accent);color:#FFFFFF}
+.prop{display:inline-flex;align-items:center;gap:6px;font-weight:600;font-variant-numeric:tabular-nums}
+.info{width:16px;height:16px;border-radius:8px;border:1px solid var(--line-2);display:inline-flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--text-3);background:var(--surface)}
+.muted{color:var(--text-3)}.s2{color:var(--text-2)}
+</style>
+</helmet>
+<div class="ge" style="width: 1440px; height: 1400px; display: grid; grid-template-columns: 248px minmax(0, 1fr); overflow: hidden">
+  <dc-import name="Sidebar" role="teacher" active="attest" height="1400" user="Бойчук В.В." hint-size="248px,1400px"></dc-import>
+  <div style="display: flex; flex-direction: column; min-width: 0; position: relative">
+    <dc-import name="Topbar" sync="ok" hint-size="1192px,64px"></dc-import>
+    <main style="padding: 20px 32px 96px; display: flex; flex-direction: column; gap: 16px; min-width: 0">
+      <div style="display: flex; align-items: center; gap: 12px">
+        <h1 style="font-size: 24px; line-height: 32px; font-weight: 600; letter-spacing: -0.01em; margin-right: 8px">Атестація</h1>
+        <button type="button" class="btn"><i style="width: 8px; height: 8px; border-radius: 2px; background: #4C6A92"></i>Інформатика<svg class="ic" viewBox="0 0 24 24" style="color: var(--text-3)"><path d="m6 9 6 6 6-6"></path></svg></button>
+        <button type="button" class="btn">ПДт-12<svg class="ic" viewBox="0 0 24 24" style="color: var(--text-3)"><path d="m6 9 6 6 6-6"></path></svg></button>
+        <span style="display: inline-flex; align-items: center; height: 24px; padding: 0 10px; border-radius: 4px; background: #1F3A5F; color: #FFFFFF; font-size: 12px; font-weight: 600; letter-spacing: .02em">Екзамен</span>
+        <div style="flex: 1"></div>
+        <button type="button" class="btn"><svg class="ic" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg>Експорт відомості PDF</button>
+        <button type="button" class="btn"><svg class="ic" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg>DOCX</button>
+      </div>
+
+      <div class="tabs" role="tablist" aria-label="Модулі атестації">
+        <button type="button" class="tab" role="tab" aria-selected="true">1-ша рубіжна <small class="num">1 вер – 8 жовт</small></button>
+        <button type="button" class="tab" role="tab" aria-selected="false">Директорська контрольна <small class="num">16–20 лист.</small></button>
+        <button type="button" class="tab" role="tab" aria-selected="false">Середній бал <small>за семестр</small></button>
+        <button type="button" class="tab" role="tab" aria-selected="false">Екзамен <small class="num">сесія 21–28 груд.</small></button>
+      </div>
+
+      <div style="display: flex; gap: 16px; align-items: flex-start; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px">
+        <svg class="ic" viewBox="0 0 24 24" style="width: 20px; height: 20px; color: var(--accent); margin-top: 1px"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v6M12 7.5h.01"></path></svg>
+        <p style="flex: 1; font-size: 14px; line-height: 21px; color: var(--text-2)"><b style="color: var(--text); font-weight: 600">Як рахується пропонована оцінка.</b> Зважене середнє всіх оцінок за 1 вер – 8 жовт.: контрольні ×2, практичні й лабораторні ×1, усні ×0,5. Округлення до цілого (8,5 → 9). Пропонується «н/а», якщо оцінок менше трьох або неповажних пропусків понад 30%. Фінальну оцінку ставите ви.</p>
+        <a href="MyDisciplines.dc.html" style="font-size: 13px; color: var(--accent); white-space: nowrap; font-weight: 500">Правила оцінювання</a>
+      </div>
+
+      <div role="table" aria-label="Атестація ПДт-12" style="background: var(--surface); border: 1px solid var(--line); border-radius: 10px">
+        <div class="tr th" role="row">
+          <span>№</span><span>Студент</span><span style="text-align: right">Сер. бал</span><span style="text-align: right">Пропуски</span><span>Пропонована</span><span>Фінальна</span><span>Коментар</span><span style="text-align: center">Перевірено</span>
+        </div>
+        <sc-for list="{{rows}}" as="r" hint-placeholder-count="25">
+          <div class="tr" role="row" style="{{r.rowStyle}}">
+            <span class="num muted" style="font-size: 12px">{{r.no}}</span>
+            <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.name}}</span>
+            <span class="num" style="text-align: right; font-weight: 500">{{r.avg}}</span>
+            <span class="num" style="{{r.absStyle}}">{{r.abs}}</span>
+            <span style="position: relative">
+              <span class="prop" style="{{r.propStyle}}">{{r.prop}}<span class="info" aria-label="{{r.expl}}" title="{{r.expl}}">i</span></span>
+              <sc-if value="{{r.tip}}" hint-placeholder-val="{{ false }}">
+                <span role="tooltip" style="position: absolute; left: 10px; bottom: 30px; z-index: 5; background: #1F2328; color: #FFFFFF; font-size: 12px; line-height: 17px; padding: 8px 10px; border-radius: 6px; white-space: nowrap; box-shadow: 0 4px 12px rgba(0,0,0,.18)">{{r.expl}}<br><span style="color: #B9BEC5">контрольні ×2 · практичні ×1 · усні ×0,5</span></span>
+              </sc-if>
+            </span>
+            <span><input class="inp" aria-label="Фінальна оцінка: {{r.name}}" value="{{r.final}}" style="{{r.finalStyle}}"></span>
+            <span><input class="cm" aria-label="Коментар: {{r.name}}" value="{{r.comment}}" placeholder="Додати коментар"></span>
+            <span style="display: flex; justify-content: center"><span role="checkbox" aria-checked="{{r.checkedAria}}" aria-label="Перевірено: {{r.name}}" class="{{r.chkClass}}"><sc-if value="{{r.checked}}" hint-placeholder-val="{{ true }}"><svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round"><path d="m5 12 5 5 9-10"></path></svg></sc-if></span></span>
+          </div>
+        </sc-for>
+      </div>
+    </main>
+
+    <div style="position: absolute; left: 0; right: 0; bottom: 0; height: 72px; background: var(--surface); border-top: 1px solid var(--line-2); display: flex; align-items: center; gap: 16px; padding: 0 32px">
+      <div style="display: flex; flex-direction: column; gap: 6px; width: 320px">
+        <span class="num" style="font-weight: 600">Перевірено 19 з 25</span>
+        <span style="height: 6px; border-radius: 3px; background: var(--sunken); overflow: hidden"><i style="display: block; width: 76%; height: 100%; background: var(--accent); border-radius: 3px"></i></span>
+      </div>
+      <span class="s2" style="font-size: 13px">2 студенти з «н/а» · 1 оцінку змінено вручну</span>
+      <div style="flex: 1"></div>
+      <span class="muted" style="font-size: 13px">Збережено о 10:38</span>
+      <button type="button" class="btn btn-p" aria-disabled="true" style="opacity: .55; cursor: not-allowed">Затвердити атестацію</button>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":1400}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const NAMES = ['Андрієнко Богдан','Бондар Максим','Васильчук Дарина','Гнатюк Софія','Гончаренко Тарас','Дмитренко Вікторія','Єременко Артем','Захарчук Марія','Іваницький Назар','Коваленко Анна','Кравець Юлія','Лисенко Роман','Мазур Христина','Мельник Остап','Нестерук Ілля','Олійник Катерина','Павлюк Денис','Романюк Аліна','Савчук Олена','Сидоренко Владислав','Ткачук Ірина','Федорів Марко','Харченко Діана','Шевчук Андрій','Яковенко Поліна'];
+    const AVG = [8.4,3.4,9.1,6.2,7.0,9.6,6.6,8.8,7.4,10.0,8.0,5.8,9.2,7.2,6.8,8.4,6.3,10.4,5.5,4.0,10.6,7.6,11.0,6.9,8.5];
+    const CNT = [7,4,7,6,7,7,6,7,6,7,7,6,7,7,6,7,6,7,5,2,7,7,7,6,6];
+    const ABS = [12,32,0,20,8,0,8,4,12,10,0,16,0,8,12,4,10,0,24,18,4,8,0,12,6];
+    const UNEXC = [12,32,0,4,8,0,8,4,12,10,0,16,0,8,8,4,10,0,10,18,4,8,0,12,6];
+    const UNCHECKED = [2, 12, 19, 20, 22, 24];
+    const COMMENTS = { 10: 'Відмінна КР, +1 за олімпіадну задачу', 2: 'Неповажні пропуски 32%', 20: 'Лише 2 оцінки за період' };
+    const fmt = (n) => n.toFixed(1).replace('.', ',');
+    const rows = NAMES.map((name, i) => {
+      const no = i + 1;
+      const na = CNT[i] < 3 || UNEXC[i] > 30;
+      const prop = na ? 'н/а' : Math.floor(AVG[i] + 0.5);
+      const fin = no === 10 ? 11 : prop;
+      const checked = UNCHECKED.indexOf(no) === -1;
+      const expl = na ? (CNT[i] < 3 ? 'лише ' + CNT[i] + ' оцінки з 3 потрібних' : 'неповажні пропуски ' + UNEXC[i] + '% — понад поріг 30%') : 'середнє ' + fmt(AVG[i]) + ' з ' + CNT[i] + ' оцінок, пропуски ' + ABS[i] + '%';
+      const hiLo = (v) => typeof v !== 'number' ? '' : v <= 3 ? 'background:#FBECE9;' : v >= 10 ? 'background:#E6F2E9;' : '';
+      return {
+        no, name,
+        avg: fmt(AVG[i]),
+        abs: ABS[i] + '%',
+        absStyle: 'text-align:right;' + (UNEXC[i] > 30 ? 'color:#8F2B22;font-weight:600;' : ''),
+        prop: String(prop),
+        propStyle: na ? 'color:#7A4A06;' : '',
+        expl,
+        tip: no === 1,
+        final: String(fin),
+        finalStyle: hiLo(fin) + (na ? 'background:#FBF0DB;color:#7A4A06;border-color:#E9CE9B;' : '') + (no === 10 ? 'border-color:var(--accent);box-shadow:0 0 0 1px var(--accent);' : ''),
+        comment: COMMENTS[no] || '',
+        checked,
+        checkedAria: checked ? 'true' : 'false',
+        chkClass: checked ? 'chk on' : 'chk',
+        rowStyle: na ? 'background:#FDF6E8;' : ''
+      };
+    });
+    return { rows };
+  }
+}
+</script>
+</body>
+</html>
