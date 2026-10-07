@@ -12,3 +12,6 @@ playwright-report
 apps/web/.tanstack
 .env.*
 !.env.example
+
+# персональні дані (журнал, експорт) не комітимо
+/data/
