@@ -1,13 +1,12 @@
 import {
   Alert,
+  Box,
   Button,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  List,
-  ListItem,
-  ListItemText,
+  Stack,
   Typography,
 } from '@mui/material';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
@@ -62,25 +61,55 @@ export function PublishDialog({
         {run.isSuccess && <Alert severity="success">{d.done}</Alert>}
         {data && !run.isSuccess && (
           <>
-            <List dense>
-              <ListItem>
-                <ListItemText primary={`${d.teachers}: ${data.teachers}`} />
-              </ListItem>
-              <ListItem>
-                <ListItemText primary={`${d.create}: ${data.create}`} />
-              </ListItem>
-              <ListItem>
-                <ListItemText primary={`${d.cancel}: ${data.cancel}`} />
-              </ListItem>
-              <ListItem>
-                <ListItemText primary={`${d.keep}: ${data.keep}`} />
-              </ListItem>
-            </List>
-            {blocked && (
-              <Alert severity="error">
-                {d.blocked} ({data.conflicts.length})
-              </Alert>
-            )}
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, minmax(0, 1fr))',
+                border: 1,
+                borderColor: 'divider',
+                borderRadius: '10px',
+                mb: 2,
+              }}
+            >
+              {[
+                [d.receive, data.teachers, d.teachersUnit],
+                [d.create, data.create, d.lessonsUnit],
+                [d.cancel, data.cancel, d.lessonsUnit],
+              ].map(([label, value, unit], i) => (
+                <Box
+                  key={String(label)}
+                  sx={{ p: 1.75, borderLeft: i > 0 ? 1 : 0, borderColor: 'divider' }}
+                >
+                  <Typography variant="caption" sx={{ fontWeight: 600, color: 'ge.text3' }}>
+                    {label}
+                  </Typography>
+                  <Typography className="tnum" sx={{ fontSize: 24, fontWeight: 600 }}>
+                    {value}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    {unit}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+            <Stack spacing={1.25} sx={{ fontSize: 13, color: 'text.secondary' }}>
+              <Box sx={{ display: 'flex', gap: 1.25, color: blocked ? 'error.main' : 'ge.ok' }}>
+                <span aria-hidden>{blocked ? '✕' : '✓'}</span>
+                <span>
+                  {blocked ? `${d.blocked} (${String(data.conflicts.length)})` : d.noConflicts}
+                </span>
+              </Box>
+              <Box sx={{ display: 'flex', gap: 1.25, color: 'ge.ok' }}>
+                <span aria-hidden>✓</span>
+                <span>{d.protectedLessons}</span>
+              </Box>
+              <Box sx={{ display: 'flex', gap: 1.25 }}>
+                <span aria-hidden>ⓘ</span>
+                <span>
+                  {d.keep}: <b className="tnum">{data.keep}</b>
+                </span>
+              </Box>
+            </Stack>
           </>
         )}
       </DialogContent>

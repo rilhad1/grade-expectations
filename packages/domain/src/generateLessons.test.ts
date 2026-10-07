@@ -142,4 +142,57 @@ describe('generateLessons', () => {
       ).toBe(false);
     });
   });
+
+  it('сесія одного курсу не скасовує пари інших курсів', () => {
+    const semester = {
+      startDate: '2026-12-07',
+      endDate: '2026-12-23',
+      firstWeekParity: 'TOP' as const,
+      parityAfterBreak: 'CONTINUE' as const,
+      periods: [
+        {
+          kind: 'EXAM_SESSION' as const,
+          startDate: '2026-12-14',
+          endDate: '2026-12-23',
+          course: 2,
+        },
+      ],
+    };
+    const slots = [
+      {
+        id: 's1',
+        loadId: 'first',
+        weekday: 1,
+        pairNumber: 1,
+        parity: 'EVERY' as const,
+        roomId: null,
+        validFrom: '2026-12-07',
+        validTo: null,
+      },
+      {
+        id: 's2',
+        loadId: 'second',
+        weekday: 1,
+        pairNumber: 2,
+        parity: 'EVERY' as const,
+        roomId: null,
+        validFrom: '2026-12-07',
+        validTo: null,
+      },
+    ];
+    const loadCourses = new Map([
+      ['first', 1],
+      ['second', 2],
+    ]);
+    const { create } = generateLessons(semester, { version: 1, slots }, [], { loadCourses });
+    const dates = (load: string) => create.filter((l) => l.loadId === load).map((l) => l.date);
+    // Перший курс вчиться до кінця семестру, другий — лише до початку сесії
+    expect(dates('first')).toEqual(['2026-12-07', '2026-12-14', '2026-12-21']);
+    expect(dates('second')).toEqual(['2026-12-07']);
+    // Без відомостей про курс сесія з курсом блокує всім (як і раніше)
+    const noCourses = generateLessons(semester, { version: 1, slots }, []).create;
+    expect(noCourses.filter((l) => l.loadId === 'first').map((l) => l.date)).toEqual([
+      '2026-12-07',
+    ]);
+  });
 });

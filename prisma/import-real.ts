@@ -116,7 +116,7 @@ const KIT = ['КІт-31', 'КІт-32', 'КІт-33', 'КІт-34'];
 const slotDefs: SlotDef[] = [
   // Інформатика та графіка (практичні)
   S('АТТт-22', 'inf', 'PRACTICE', 1, 4, 'EVERY', '2309'),
-  S('АТТт-21', 'inf', 'PRACTICE', 1, 6, 'EVERY', '2303'),
+  S('АТТт-21', 'inf', 'PRACTICE', 1, 6, 'BOTTOM', '2303'),
   S('АТт-21', 'inf', 'PRACTICE', 1, 7, 'EVERY', '2309'),
   S('АТт-31', 'graph', 'PRACTICE', 1, 8, 'EVERY', '2209'),
   S('ПДт-13', 'inf', 'PRACTICE', 2, 2, 'BOTTOM', '2113'),
@@ -225,7 +225,22 @@ const slots: (ScheduleSlotInput & { def: SlotDef })[] = slotDefs.map((s, i) => (
   validTo: null,
   def: s,
 }));
-const { create: generated } = generateLessons(semesterInput, { version: 1, slots }, []);
+// Сесія 14–23 грудня є лише у 2–3 курсів: пар у ці дні в них немає, а в першого курсу заняття тривають
+const generationInput: SemesterInput = {
+  ...semesterInput,
+  periods: [2, 3].map((course) => ({
+    kind: 'EXAM_SESSION' as const,
+    startDate: '2026-12-14',
+    endDate: '2026-12-23',
+    course,
+  })),
+};
+const loadCourses = new Map(
+  slotDefs.map((s) => [loadId(s.group, s.disc, s.kind), courseOf(s.group)]),
+);
+const { create: generated } = generateLessons(generationInput, { version: 1, slots }, [], {
+  loadCourses,
+});
 type Gen = (typeof generated)[number];
 const genByLoadDate = new Map<string, Gen>();
 for (const g of generated) genByLoadDate.set(`${g.loadId}|${g.date}`, g);

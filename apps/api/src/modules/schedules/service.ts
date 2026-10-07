@@ -335,7 +335,10 @@ export async function deleteSlot(ctx: AuthContext, id: string): Promise<void> {
 async function semesterContext(ctx: AuthContext, semesterId: string) {
   const semester = await findSemester(ctx.db, ctx.organization.id, semesterId);
   if (!semester) throw notFound('Семестр не знайдено');
-  const loads = await ctx.db.teachingLoad.findMany({ where: { semesterId, deletedAt: null } });
+  const loads = await ctx.db.teachingLoad.findMany({
+    where: { semesterId, deletedAt: null },
+    include: { group: { select: { course: true } } },
+  });
   const input: SemesterInput = {
     startDate: isoOf(semester.startDate),
     endDate: isoOf(semester.endDate),
@@ -345,6 +348,7 @@ async function semesterContext(ctx: AuthContext, semesterId: string) {
       kind: p.kind,
       startDate: isoOf(p.startDate),
       endDate: isoOf(p.endDate),
+      course: p.course,
     })),
   };
   const loadInputs: LoadInput[] = loads.map((l) => ({
@@ -356,9 +360,14 @@ async function semesterContext(ctx: AuthContext, semesterId: string) {
     plannedHours: l.plannedHours,
     controlForm: l.controlForm,
     streamId: l.streamId,
+    course: l.group.course,
   }));
   return { semester, input, loads: loadInputs };
 }
+
+/** Курс групи кожного навантаження: сесія й практика одного курсу не блокують інші. */
+const coursesOf = (loads: readonly LoadInput[]): Map<string, number> =>
+  new Map(loads.flatMap((l) => (l.course === undefined ? [] : [[l.id, l.course] as const])));
 
 /** Години, які дає розклад за навантаженням, рахуються з реального календаря семестру (канікули, парність). */
 function hoursConflicts(
@@ -371,6 +380,7 @@ function hoursConflicts(
     semester,
     { version: revision, slots: slots.map(slotInput) },
     [],
+    { loadCourses: coursesOf(loads) },
   );
   const scheduled = new Map<string, number>();
   for (const lesson of create)
@@ -468,6 +478,7 @@ export async function publishSchedule(
     existing,
     {
       today: ctx.today(),
+      loadCourses: coursesOf(loads),
     },
   );
   const loadById = new Map(loads.map((l) => [l.id, l]));

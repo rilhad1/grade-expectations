@@ -285,14 +285,30 @@ function BuilderPage() {
       )}
 
       {current && (
-        <Stack direction={{ xs: 'column', lg: 'row' }} spacing={2} alignItems="flex-start">
+        <Box
+          sx={{
+            display: 'grid',
+            gap: 2,
+            alignItems: 'start',
+            gridTemplateColumns: { xs: '1fr', lg: editable ? '288px minmax(0,1fr)' : '1fr' },
+            // Навантаження | сітка | конфлікти (як у макеті) — коли вистачає ширини; інакше конфлікти під навантаженням
+            '@media (min-width: 1560px)': {
+              gridTemplateColumns: editable ? '288px minmax(0,1fr) 300px' : '1fr',
+            },
+          }}
+        >
           {editable && (
-            <Stack spacing={2} sx={{ width: { xs: '100%', lg: 280 }, flexShrink: 0 }}>
-              <ConflictsPanel conflicts={conflicts} />
-              <UnplacedPanel items={unplaced} disabled={!editable} roomView={view === 'room'} />
-            </Stack>
+            <UnplacedPanel items={unplaced} disabled={!editable} roomView={view === 'room'} />
           )}
-          <Box sx={{ flexGrow: 1, minWidth: 0, width: '100%' }}>
+          <Box
+            sx={{
+              minWidth: 0,
+              width: '100%',
+              gridColumn: { lg: editable ? 2 : 1 },
+              gridRow: { lg: editable ? '1 / span 2' : 'auto' },
+              '@media (min-width: 1560px)': { gridRow: 1 },
+            }}
+          >
             <ScheduleGrid
               bells={bells}
               slots={visibleSlots}
@@ -306,7 +322,18 @@ function BuilderPage() {
               onSelectSlot={setSelectedSlot}
             />
           </Box>
-        </Stack>
+          {editable && (
+            <Box
+              sx={{
+                gridColumn: 1,
+                gridRow: { lg: 2 },
+                '@media (min-width: 1560px)': { gridColumn: 3, gridRow: 1 },
+              }}
+            >
+              <ConflictsPanel conflicts={conflicts} />
+            </Box>
+          )}
+        </Box>
       )}
 
       {selectedSlot && (

@@ -30,6 +30,7 @@ export async function semesterInputOf(
       kind: p.kind,
       startDate: isoOf(p.startDate),
       endDate: isoOf(p.endDate),
+      course: p.course,
     })),
   };
 }
@@ -46,7 +47,13 @@ export async function freeSlotsFor(
   const semester = await semesterInputOf(ctx, lesson.load.semesterId);
   if (!semester) return [];
 
-  const dates = teachingDays(semester).filter((d) => d >= window.from && d <= window.to);
+  const group = await ctx.db.group.findFirst({
+    where: { id: lesson.load.groupId },
+    select: { course: true },
+  });
+  const dates = teachingDays(semester, group?.course).filter(
+    (d) => d >= window.from && d <= window.to,
+  );
   if (dates.length === 0) return [];
 
   const [bells, rooms, lessons] = await Promise.all([

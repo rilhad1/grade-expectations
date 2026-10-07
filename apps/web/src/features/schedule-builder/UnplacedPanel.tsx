@@ -1,4 +1,6 @@
-import { Box, Paper, Stack, Typography } from '@mui/material';
+import SearchIcon from '@mui/icons-material/Search';
+import { Box, Chip, InputAdornment, Paper, Stack, TextField, Typography } from '@mui/material';
+import { useState } from 'react';
 
 import { uk } from '../../shared/i18n/uk';
 import { DisciplineDot } from '../../shared/ui/DisciplineDot';
@@ -17,20 +19,81 @@ export function UnplacedPanel({
   disabled: boolean;
   roomView: boolean;
 }) {
+  const [text, setText] = useState('');
+  const [kind, setKind] = useState<UnplacedLoad['load']['kind'] | null>(null);
+  const kinds = [...new Set(items.map((i) => i.load.kind))];
+  const needle = text.trim().toLowerCase();
+  const shown = items.filter(
+    ({ load }) =>
+      (kind === null || load.kind === kind) &&
+      (needle === '' ||
+        `${loadCaption(load)} ${load.teacher.fullName}`.toLowerCase().includes(needle)),
+  );
   return (
     <Paper
       variant="outlined"
+      component="section"
+      aria-labelledby="loads-panel"
       sx={{
         p: 1.5,
-        width: { xs: '100%', lg: 280 },
-        flexShrink: 0,
+        width: '100%',
         maxHeight: { lg: 'calc(100vh - 220px)' },
         overflow: 'auto',
       }}
     >
-      <Typography variant="subtitle1" component="h2" sx={{ mb: 0.5 }}>
-        {uk.builder.unplaced}: {items.length}
-      </Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 0.5 }}>
+        <Typography id="loads-panel" variant="subtitle1" component="h2">
+          {uk.builder.loadsPanel}
+        </Typography>
+        <Chip
+          size="small"
+          color={items.length > 0 ? 'warning' : 'default'}
+          label={`${uk.builder.unplaced}: ${String(items.length)}`}
+        />
+      </Box>
+      <TextField
+        size="small"
+        fullWidth
+        placeholder={uk.builder.filterLoads}
+        value={text}
+        onChange={(e) => {
+          setText(e.target.value);
+        }}
+        slotProps={{
+          htmlInput: { 'aria-label': uk.builder.filterLoads },
+          input: {
+            startAdornment: (
+              <InputAdornment position="start">
+                <SearchIcon fontSize="small" />
+              </InputAdornment>
+            ),
+          },
+        }}
+        sx={{ mb: 1 }}
+      />
+      {kinds.length > 1 && (
+        <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap sx={{ mb: 1 }}>
+          <Chip
+            size="small"
+            label={uk.gradebook.kindFilter.ALL}
+            color={kind === null ? 'primary' : 'default'}
+            onClick={() => {
+              setKind(null);
+            }}
+          />
+          {kinds.map((k) => (
+            <Chip
+              key={k}
+              size="small"
+              label={uk.loads.kindsShort[k]}
+              color={kind === k ? 'primary' : 'default'}
+              onClick={() => {
+                setKind(kind === k ? null : k);
+              }}
+            />
+          ))}
+        </Stack>
+      )}
       <Typography variant="caption" color="text.secondary" component="p" sx={{ mb: 1 }}>
         {roomView ? uk.builder.unplacedRoomView : uk.builder.unplacedHint}
       </Typography>
@@ -40,7 +103,7 @@ export function UnplacedPanel({
         </Typography>
       )}
       <Stack spacing={1}>
-        {items.map(({ load, missingHours, pairsPerWeek }) => (
+        {shown.map(({ load, missingHours, pairsPerWeek }) => (
           <Box
             key={load.id}
             draggable={!disabled}

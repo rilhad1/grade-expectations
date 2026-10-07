@@ -198,7 +198,7 @@ test.describe('запит на перенесення: викладач → де
       .first()
       .click();
     await expect(dean.getByText('Відрядження на конференцію')).toBeVisible();
-    await dean.getByRole('button', { name: 'Погодити', exact: true }).click();
+    await dean.getByRole('button', { name: /^Погодити/ }).click();
     await expect(dean.getByText('Запитів немає')).toBeVisible(); // список «Очікує» спорожнів
 
     // У розкладі викладача оригінал позначено «перенесено», нова пара з’явилась 20 жовтня

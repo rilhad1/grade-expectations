@@ -15,6 +15,8 @@ export interface SemesterPeriodInput {
   kind: PeriodKind;
   startDate: IsoDate;
   endDate: IsoDate;
+  /** Курс, для якого діє період; без значення — для всіх курсів. */
+  course?: number | null;
 }
 
 export interface SemesterInput {
@@ -45,6 +47,8 @@ export interface LoadInput {
   kind: LessonKind;
   plannedHours: number;
   controlForm: ControlForm;
+  /** Курс групи: періоди сесії й практики діють лише для своїх курсів. */
+  course?: number;
   /** Потік: навантаження з однаковим streamId ведуться як одна пара (викладач і аудиторія спільні). */
   streamId?: string | null;
 }

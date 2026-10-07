@@ -46,4 +46,24 @@ describe('teachingDays', () => {
     expect(days[0]).toBe('2026-09-01');
     expect(days.at(-1)).toBe('2026-09-14');
   });
+
+  it('періоди з курсом діють лише для свого курсу', () => {
+    const semester = {
+      startDate: '2026-12-14',
+      endDate: '2026-12-18',
+      firstWeekParity: 'TOP' as const,
+      parityAfterBreak: 'CONTINUE' as const,
+      periods: [
+        {
+          kind: 'EXAM_SESSION' as const,
+          startDate: '2026-12-16',
+          endDate: '2026-12-18',
+          course: 2,
+        },
+      ],
+    };
+    expect(teachingDays(semester, 1)).toHaveLength(5);
+    expect(teachingDays(semester, 2)).toEqual(['2026-12-14', '2026-12-15']);
+    expect(teachingDays(semester)).toEqual(['2026-12-14', '2026-12-15']);
+  });
 });

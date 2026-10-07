@@ -1,6 +1,6 @@
 import type { IsoDate } from '@ge/shared';
 
-import { isoWeekday } from './dates.js';
+import { eachDay, isoWeekday } from './dates.js';
 import { teachingDays } from './teachingDays.js';
 import type { ExistingLesson, GeneratedLesson, ScheduleSlotInput, SemesterInput } from './types.js';
 import { weekParity } from './weekParity.js';
@@ -17,6 +17,8 @@ export interface GenerateLessonsResult {
 export interface GenerateLessonsOptions {
   /** Поточна дата: минуле не створюється і не скасовується. Без неї обробляється весь семестр. */
   today?: IsoDate;
+  /** Курс групи кожного навантаження: сесія й практика одного курсу не блокують інші. */
+  loadCourses?: ReadonlyMap<string, number>;
 }
 
 /** Детермінований ключ заняття: повторний запуск нічого не дублює. */
@@ -33,14 +35,27 @@ export function generateLessons(
   existing: readonly ExistingLesson[],
   options: GenerateLessonsOptions = {},
 ): GenerateLessonsResult {
-  const { today } = options;
+  const { today, loadCourses } = options;
   const wanted = new Map<string, GeneratedLesson>();
 
-  for (const date of teachingDays(semester)) {
+  // Навчальні дні рахуються по курсах: сесія 2–3 курсів не скасовує пари першого
+  const daysByCourse = new Map<number | undefined, ReadonlySet<IsoDate>>();
+  const daysFor = (course: number | undefined): ReadonlySet<IsoDate> => {
+    let days = daysByCourse.get(course);
+    if (!days) {
+      days = new Set(teachingDays(semester, course));
+      daysByCourse.set(course, days);
+    }
+    return days;
+  };
+
+  for (const date of eachDay(semester.startDate, semester.endDate)) {
     const weekday = isoWeekday(date);
+    if (weekday > 6) continue;
     const parity = weekParity(date, semester);
     for (const slot of schedule.slots) {
       if (slot.weekday !== weekday) continue;
+      if (!daysFor(loadCourses?.get(slot.loadId)).has(date)) continue;
       if (date < slot.validFrom || (slot.validTo !== null && date > slot.validTo)) continue;
       if (slot.parity !== 'EVERY' && slot.parity !== parity) continue;
       wanted.set(lessonKey(slot.loadId, date, slot.pairNumber), {

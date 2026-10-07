@@ -64,9 +64,10 @@ test.describe('сценарії деканату', () => {
 
     await page.getByRole('button', { name: 'Опублікувати' }).click();
     const dialog = page.getByRole('dialog');
-    await expect(dialog.getByText('Розклад отримають викладачів: 2')).toBeVisible();
-    await expect(dialog.getByText('Буде створено занять: 0')).toBeVisible();
-    await expect(dialog.getByText('Без змін: 102')).toBeVisible();
+    await expect(dialog.getByText('Опублікувати розклад?')).toBeVisible();
+    await expect(dialog.getByText('Отримають', { exact: true })).toBeVisible();
+    await expect(dialog.getByText('Конфліктів немає.')).toBeVisible();
+    await expect(dialog.getByText(/Без змін \(занять\)/)).toContainText('102');
 
     await dialog.getByRole('button', { name: 'Опублікувати' }).click();
     await expect(dialog.getByText('Розклад опубліковано')).toBeVisible();
