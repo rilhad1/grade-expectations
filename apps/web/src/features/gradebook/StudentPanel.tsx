@@ -115,6 +115,50 @@ export function StudentPanel({
           />
         )}
 
+        {data.assessments.length > 0 && (
+          <>
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="subtitle2" gutterBottom>
+              {p.assessments}
+            </Typography>
+            <Stack spacing={1}>
+              {data.assessments.map((a) => {
+                const g = student.assessmentGrades[a.id];
+                return (
+                  <Stack key={a.id} direction="row" alignItems="center" spacing={1.25}>
+                    {g ? (
+                      <GradeChip value={g.value} scale={scale} size="sm" />
+                    ) : (
+                      <Box
+                        component="span"
+                        sx={{
+                          minWidth: 26,
+                          height: 24,
+                          borderRadius: '4px',
+                          bgcolor: 'ge.sunken',
+                          color: 'ge.text3',
+                          fontSize: 13,
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        {uk.common.none}
+                      </Box>
+                    )}
+                    <Typography variant="body2" sx={{ flexGrow: 1 }}>
+                      {a.title}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary">
+                      {a.attestationKind ? uk.attestations.modules[a.attestationKind] : ''}
+                    </Typography>
+                  </Stack>
+                );
+              })}
+            </Stack>
+          </>
+        )}
+
         <Divider sx={{ my: 2 }} />
         <Typography variant="subtitle2" gutterBottom>
           {p.timeline}

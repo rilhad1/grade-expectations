@@ -52,7 +52,8 @@ test.describe('сценарії викладача (сьогодні — 12 жо
     page,
   }) => {
     await login(page, users.teacher);
-    await page.getByRole('link', { name: 'Журнал' }).click();
+    await page.getByRole('link', { name: 'Журнал', exact: true }).click();
+    await expect(page).toHaveURL(/\/gradebook$/);
     await page
       .getByText(/Інформатика/)
       .first()
@@ -85,7 +86,8 @@ test.describe('сценарії викладача (сьогодні — 12 жо
     page,
   }) => {
     await login(page, users.teacher);
-    await page.getByRole('link', { name: 'Журнал' }).click();
+    await page.getByRole('link', { name: 'Журнал', exact: true }).click();
+    await expect(page).toHaveURL(/\/gradebook$/);
     await page
       .getByText(/Інформатика/)
       .first()
@@ -125,7 +127,8 @@ test.describe('сценарії викладача (сьогодні — 12 жо
 
   test('картка студента відкривається з журналу', async ({ page }) => {
     await login(page, users.teacher);
-    await page.getByRole('link', { name: 'Журнал' }).click();
+    await page.getByRole('link', { name: 'Журнал', exact: true }).click();
+    await expect(page).toHaveURL(/\/gradebook$/);
     await page
       .getByText(/Інформатика/)
       .first()
@@ -136,7 +139,8 @@ test.describe('сценарії викладача (сьогодні — 12 жо
 
   test('тематичний план: додати тему і зберегти', async ({ page }) => {
     await login(page, users.teacher);
-    await page.getByRole('link', { name: 'Мої дисципліни' }).click();
+    await page.getByRole('link', { name: 'Мої дисципліни', exact: true }).click();
+    await expect(page).toHaveURL(/\/my-disciplines$/);
     await page.getByRole('main').getByRole('link').first().click();
     await expect(page.getByRole('region', { name: 'Тематичний план' })).toBeVisible();
 
@@ -149,7 +153,8 @@ test.describe('сценарії викладача (сьогодні — 12 жо
 
   test('правила оцінювання: ваги й поріг пропусків', async ({ page }) => {
     await login(page, users.teacher);
-    await page.getByRole('link', { name: 'Мої дисципліни' }).click();
+    await page.getByRole('link', { name: 'Мої дисципліни', exact: true }).click();
+    await expect(page).toHaveURL(/\/my-disciplines$/);
     await page.getByRole('main').getByRole('link').first().click();
     await page.getByLabel('Поріг неповажних пропусків, %', { exact: true }).fill('40');
     await expect(page.getByText(/понад 40%/)).toBeVisible();

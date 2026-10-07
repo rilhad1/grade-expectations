@@ -30,6 +30,8 @@ export function LessonScreen({ lessonId }: { lessonId: string }) {
   const detail = lesson.query.data;
   const [sheet, setSheet] = useState<{ student: RosterEntry; grade?: GradeEntry } | null>(null);
   const [topicOpen, setTopicOpen] = useState(false);
+  // Проведене заняття відкривається підсумком; «Змінити відмітки» вмикає редагування ростера
+  const [editHeld, setEditHeld] = useState(false);
   const [now, setNow] = useState(() => new Date());
   const sync = useSyncStore();
   const todayQuery = useQuery({
@@ -74,7 +76,7 @@ export function LessonScreen({ lessonId }: { lessonId: string }) {
   const excused = detail.roster.filter((r) => r.attendance === 'EXCUSED').length;
   const late = detail.roster.filter((r) => r.attendance === 'LATE').length;
 
-  if (held)
+  if (held && !editHeld)
     return (
       <>
         <ErrorAlert error={mutationError} />
@@ -88,6 +90,9 @@ export function LessonScreen({ lessonId }: { lessonId: string }) {
             lesson.reopen.mutate();
           }}
           undoDisabled={lesson.reopen.isPending}
+          onEdit={() => {
+            setEditHeld(true);
+          }}
         />
       </>
     );
@@ -287,13 +292,14 @@ export function LessonScreen({ lessonId }: { lessonId: string }) {
             <Button
               variant="contained"
               size="large"
-              disabled={isFuture || lesson.finish.isPending}
+              disabled={!held && (isFuture || lesson.finish.isPending)}
               onClick={() => {
-                lesson.finish.mutate();
+                if (held) setEditHeld(false);
+                else lesson.finish.mutate();
               }}
               sx={{ minHeight: 52, px: 2.5, whiteSpace: 'nowrap' }}
             >
-              {uk.lesson.finish}
+              {held ? uk.lesson.doneEditing : uk.lesson.finish}
             </Button>
           )}
         </Box>

@@ -174,6 +174,25 @@ describe('LessonScreen («На парі»)', () => {
     expect((await db.outbox.toArray()).map((r) => r.op.type)).toEqual(['lesson.finish']);
   });
 
+  it('проведене заняття (у тому числі давнє) можна виправити: «Змінити відмітки й оцінки»', async () => {
+    api.fetchLesson.mockResolvedValue(lesson({ status: 'HELD' }));
+    renderWithClient(<LessonScreen lessonId="l1" />);
+    // Спершу підсумок; редагування вмикається кнопкою (скасування завершення давно недоступне)
+    fireEvent.click(await screen.findByRole('button', { name: uk.lesson.editHeld }));
+    await screen.findByTestId('row-e1');
+    fireEvent.click(row(2));
+    await waitFor(() => {
+      expect(counter()).toBe(`${uk.lesson.present} 2 ${uk.lesson.of} 3`);
+    });
+    expect((await db.outbox.toArray()).map((r) => r.op.type)).toEqual(['attendance.set']);
+    // «Готово» повертає підсумок без повторного завершення заняття
+    fireEvent.click(screen.getByRole('button', { name: uk.lesson.doneEditing }));
+    expect(
+      await screen.findByRole('heading', { name: uk.lesson.finishedTitle }),
+    ).toBeInTheDocument();
+    expect((await db.outbox.toArray()).map((r) => r.op.type)).toEqual(['attendance.set']);
+  });
+
   it('майбутнє заняття не можна завершити; скасоване не приймає відміток', async () => {
     api.fetchLesson.mockResolvedValue(lesson({ date: '2099-01-01' }));
     const first = renderWithClient(<LessonScreen lessonId="l1" />);

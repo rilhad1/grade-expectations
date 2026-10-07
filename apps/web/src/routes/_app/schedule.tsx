@@ -44,6 +44,7 @@ import { EmptyState } from '../../shared/ui/EmptyState';
 import { ErrorAlert } from '../../shared/ui/ErrorAlert';
 import { LessonCard } from '../../shared/ui/LessonCard';
 import { PageHeader } from '../../shared/ui/PageHeader';
+import { ListSkeleton } from '../../shared/ui/Skeletons';
 import { LinkButton } from '../../shared/ui/links';
 
 export const Route = createFileRoute('/_app/schedule')({ component: SchedulePage });
@@ -194,6 +195,7 @@ function SchedulePage() {
         }
       />
       <ErrorAlert error={lessons.error} />
+      {lessons.isPending && <ListSkeleton rows={5} label={uk.common.loading} />}
       {lessons.isSuccess && list.length === 0 && (
         <Alert severity="info" sx={{ mb: 2 }}>
           {t.noLessons}

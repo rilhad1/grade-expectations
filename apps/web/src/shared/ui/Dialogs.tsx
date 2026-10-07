@@ -74,6 +74,8 @@ export function BottomSheet({
       anchor="bottom"
       open={open}
       onClose={onClose}
+      // Над діалогами (в тому числі повноекранними), як і належить шторці вибору
+      sx={{ zIndex: (t) => t.zIndex.modal + 1 }}
       slotProps={{
         paper: {
           role: 'dialog',

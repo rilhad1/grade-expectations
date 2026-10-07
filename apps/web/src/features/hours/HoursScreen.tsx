@@ -11,6 +11,9 @@ import {
   TableFooter,
   TableHead,
   TableRow,
+  Typography,
+  useMediaQuery,
+  useTheme,
 } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 
@@ -40,6 +43,9 @@ function download(text: string, fileName: string): void {
 export function HoursScreen() {
   const { semester } = useCurrentSemester();
   const { isModerator } = useMe();
+  const theme = useTheme();
+  // Таблиця — на широких екранах, картки — на телефоні (у тестах без matchMedia лишається таблиця)
+  const wide = useMediaQuery(theme.breakpoints.up('md'), { defaultMatches: true, noSsr: true });
   const loads = useQuery({ ...q.loads(semester?.id ?? ''), enabled: semester !== null });
   if (!semester) return <Alert severity="info">{uk.gradebook.noSemester}</Alert>;
 
@@ -111,7 +117,59 @@ export function HoursScreen() {
           />
         </Box>
       )}
-      {rows.length > 0 && (
+      {rows.length > 0 && !wide && (
+        <Box
+          component="ul"
+          aria-label={t.title}
+          sx={{ listStyle: 'none', m: 0, p: 0, display: 'grid', gap: 1 }}
+        >
+          {rows.map((r) => (
+            <Paper key={r.loadId} component="li" variant="outlined" sx={{ p: 1.75 }}>
+              <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1, mb: 1 }}>
+                <Typography sx={{ fontWeight: 600, flex: 1, minWidth: 0 }} noWrap>
+                  {r.discipline} · {r.group}
+                </Typography>
+                <Typography variant="body2" color="text.secondary">
+                  {uk.loads.kinds[r.kind]}
+                </Typography>
+              </Box>
+              <ProgressBar
+                value={r.planned === 0 ? 0 : r.held / r.planned}
+                color={colorOf.get(r.loadId)}
+                label={`${r.discipline} · ${r.group}`}
+              />
+              <Box
+                className="tnum"
+                sx={{ display: 'flex', flexWrap: 'wrap', columnGap: 1.5, mt: 1, fontSize: 14 }}
+              >
+                <span>
+                  {t.columns.held} <b>{r.held}</b> {uk.loads.hoursOf} <b>{r.planned}</b>
+                </span>
+                <span>
+                  {t.columns.forecast} <b>{r.forecast}</b>
+                </span>
+                {r.deficit > 0 && (
+                  <Box component="span" sx={{ color: 'error.main', fontWeight: 600 }}>
+                    {uk.loads.deficit} {r.deficit}
+                  </Box>
+                )}
+                {isModerator && r.teacher && (
+                  <Box component="span" sx={{ color: 'ge.text3' }}>
+                    {r.teacher}
+                  </Box>
+                )}
+              </Box>
+            </Paper>
+          ))}
+          <Paper component="li" variant="outlined" sx={{ p: 1.75, bgcolor: 'ge.surface2' }}>
+            <Typography className="tnum" sx={{ fontWeight: 600 }}>
+              {t.total}: {totals.held} {uk.loads.hoursOf} {totals.planned} {uk.today.hoursUnit}
+              {totals.deficit > 0 ? ` · ${uk.loads.deficit} ${String(totals.deficit)}` : ''}
+            </Typography>
+          </Paper>
+        </Box>
+      )}
+      {rows.length > 0 && wide && (
         <TableContainer component={Paper} variant="outlined">
           <Table size="small" aria-label={t.title}>
             <TableHead>

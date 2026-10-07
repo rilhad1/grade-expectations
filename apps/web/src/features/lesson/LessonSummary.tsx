@@ -58,6 +58,7 @@ export function LessonSummary({
   today,
   onUndo,
   undoDisabled,
+  onEdit,
 }: {
   detail: LessonDetailDto;
   present: number;
@@ -66,6 +67,8 @@ export function LessonSummary({
   today: TodayDto | undefined;
   onUndo: () => void;
   undoDisabled: boolean;
+  /** Виправити відмітки й оцінки проведеного заняття (також за минулі дати). */
+  onEdit: () => void;
 }) {
   const total = detail.roster.length;
   const count = (s: 'ABSENT' | 'EXCUSED' | 'LATE') =>
@@ -226,6 +229,9 @@ export function LessonSummary({
           <LinkButton to="/" variant="contained" size="large" fullWidth>
             {uk.lesson.summary.toToday}
           </LinkButton>
+          <Button variant="outlined" size="large" fullWidth onClick={onEdit}>
+            {uk.lesson.editHeld}
+          </Button>
           {detail.undoUntil && (
             <Button
               variant="outlined"

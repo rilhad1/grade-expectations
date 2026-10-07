@@ -3,10 +3,7 @@ import {
   Alert,
   Box,
   Button,
-  List,
-  ListItemButton,
   MenuItem,
-  Paper,
   TextField,
   Typography,
   useMediaQuery,
@@ -23,11 +20,13 @@ import { DisciplineDot } from '../../shared/ui/DisciplineDot';
 import { ErrorAlert } from '../../shared/ui/ErrorAlert';
 import { TableSkeleton } from '../../shared/ui/Skeletons';
 import { GradeSheet } from '../lesson/GradeSheet';
-import { defaultGradeKind, gradeTone, isValidGrade, scaleRange } from '../lesson/model';
+import { defaultGradeKind, isValidGrade, scaleRange } from '../lesson/model';
 
 import { AssessmentDialog } from './AssessmentDialog';
+import { AssessmentGradesDialog } from './AssessmentGradesDialog';
 import { GradebookGrid, type GridSelection } from './GradebookGrid';
 import { GradebookToolbar } from './GradebookToolbar';
+import { MobileJournal } from './MobileJournal';
 import { StudentPanel } from './StudentPanel';
 import { KIND_ORDER } from './loadNav';
 import { bufferIsFinal, interpretKey, moveSelection } from './model';
@@ -95,6 +94,8 @@ export function GradebookScreen({
   // Діалог колонки оцінювання: 'create' — нова колонка, інакше id колонки для редагування; і підтвердження видалення
   const [columnDialog, setColumnDialog] = useState<string | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  // Телефон: колонка, оцінки якої вводяться списком
+  const [gradesColumn, setGradesColumn] = useState<string | null>(null);
   const buffer = useRef('');
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -252,12 +253,15 @@ export function GradebookScreen({
       .map((x) => Number(/(\d+)\s*$/.exec(x.title)?.[1] ?? 0));
     return `${base} ${String(Math.max(0, ...numbers) + 1)}`;
   };
+  const gradesAssessment = data.assessments.find((x) => x.id === gradesColumn);
   const editing =
     columnDialog && columnDialog !== 'create'
       ? data.assessments.find((x) => x.id === columnDialog)
       : undefined;
   const closeColumnDialog = () => {
     setColumnDialog(null);
+    if (gradesColumn !== null && !data.assessments.some((x) => x.id === gradesColumn))
+      setGradesColumn(null);
     setConfirmDelete(null);
     book.createColumn.reset();
     book.updateColumn.reset();
@@ -329,70 +333,41 @@ export function GradebookScreen({
       )}
 
       {!desktop && (
-        <Paper variant="outlined" sx={{ overflow: 'hidden' }}>
-          <List disablePadding>
-            {data.students.map((s, index) => {
-              const avg = s.summary.average;
-              const tone = avg === null ? 'none' : gradeTone(scale, Math.round(avg));
-              return (
-                <ListItemButton
-                  key={s.enrollmentId}
-                  onClick={() => {
-                    setPanel(s);
-                  }}
-                  sx={{ minHeight: 60, gap: 1.25, borderBottom: 1, borderColor: 'divider' }}
-                >
-                  <Typography
-                    className="tnum"
-                    sx={{ width: 20, fontSize: 13, color: 'ge.text3', textAlign: 'right' }}
-                  >
-                    {index + 1}
-                  </Typography>
-                  <Typography
-                    noWrap
-                    sx={{ flex: 1, color: s.summary.risk.length > 0 ? 'ge.errFg' : 'text.primary' }}
-                  >
-                    {s.lastName} {s.firstName}
-                  </Typography>
-                  {s.summary.absences.unexcused > 0 && (
-                    <Typography
-                      className="tnum"
-                      sx={{
-                        fontSize: 14,
-                        color: s.summary.absencePercent > 30 ? 'ge.errFg' : 'text.secondary',
-                      }}
-                    >
-                      {s.summary.absences.unexcused} {uk.gradebook.absShort}
-                    </Typography>
-                  )}
-                  <Box
-                    component="span"
-                    className="tnum"
-                    sx={{
-                      minWidth: 40,
-                      height: 30,
-                      px: 0.75,
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderRadius: '6px',
-                      fontSize: 15,
-                      fontWeight: 600,
-                      bgcolor:
-                        tone === 'low'
-                          ? 'ge.grade.low'
-                          : tone === 'high'
-                            ? 'ge.grade.high'
-                            : 'ge.sunken',
-                    }}
-                  >
-                    {avg === null ? uk.common.none : avg.toFixed(1).replace('.', ',')}
-                  </Box>
-                </ListItemButton>
-              );
-            })}
-          </List>
-        </Paper>
+        <MobileJournal
+          data={data}
+          onOpenStudent={setPanel}
+          onAddColumn={() => {
+            setColumnDialog('create');
+          }}
+          onOpenColumn={setGradesColumn}
+        />
+      )}
+
+      {!desktop && gradesAssessment && (
+        <AssessmentGradesDialog
+          assessment={gradesAssessment}
+          students={data.students}
+          scale={scale}
+          onSet={(enrollmentId, value) => {
+            book.setAssessmentGrade.mutate({
+              assessmentId: gradesAssessment.id,
+              enrollmentId,
+              value,
+            });
+          }}
+          onClear={(enrollmentId) => {
+            book.clearAssessmentGrade.mutate({
+              assessmentId: gradesAssessment.id,
+              enrollmentId,
+            });
+          }}
+          onEdit={() => {
+            setColumnDialog(gradesAssessment.id);
+          }}
+          onClose={() => {
+            setGradesColumn(null);
+          }}
+        />
       )}
 
       {columnDialog !== null && !confirmDelete && (columnDialog === 'create' || editing) && (

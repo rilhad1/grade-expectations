@@ -52,12 +52,14 @@ export function GradebookToolbar({
           inputProps={{ 'aria-label': uk.gradebook.discipline }}
           IconComponent={ExpandMore}
           renderValue={() => (
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', minWidth: 0 }}>
               <DisciplineDot color={current?.discipline.color ?? '#5D6B78'} size={8} gap={1} />
-              {current?.discipline.title}
+              <Box component="span" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                {current?.discipline.title}
+              </Box>
             </Box>
           )}
-          sx={{ minWidth: 200, height: 36, fontWeight: 500 }}
+          sx={{ minWidth: 200, maxWidth: '100%', height: 36, fontWeight: 500 }}
         >
           {nav.disciplines.map((d) => (
             <MenuItem key={d.id} value={d.id}>

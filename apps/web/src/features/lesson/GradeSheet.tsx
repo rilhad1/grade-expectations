@@ -26,6 +26,7 @@ export function GradeSheet({
   scale,
   defaultKind,
   dateLabel,
+  showKind = true,
   onSave,
   onDelete,
   onClose,
@@ -35,6 +36,8 @@ export function GradeSheet({
   scale: LessonDetailDto['scale'];
   defaultKind: Kind;
   dateLabel?: string;
+  /** Вибір типу оцінки (для колонок оцінювання тип заданий колонкою). */
+  showKind?: boolean;
   onSave: (result: GradeSheetResult) => void;
   onDelete?: () => void;
   onClose: () => void;
@@ -67,37 +70,39 @@ export function GradeSheet({
           {grade && <GradeChip value={grade.value} scale={scale} />}
         </Box>
 
-        <Box
-          role="radiogroup"
-          aria-label={uk.lesson.gradeKind}
-          sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 1 }}
-        >
-          {KINDS.map((k) => {
-            const on = kind === k;
-            return (
-              <ButtonBase
-                key={k}
-                role="radio"
-                aria-checked={on}
-                onClick={() => {
-                  setKind(k);
-                }}
-                sx={{
-                  height: 44,
-                  borderRadius: '6px',
-                  fontSize: 15,
-                  fontWeight: on ? 600 : 500,
-                  border: on ? '1.5px solid' : '1px solid',
-                  borderColor: on ? 'primary.main' : 'ge.line2',
-                  bgcolor: on ? 'ge.accentSoft' : 'background.paper',
-                  color: on ? 'primary.main' : 'text.primary',
-                }}
-              >
-                {uk.lesson.gradeKinds[k]}
-              </ButtonBase>
-            );
-          })}
-        </Box>
+        {showKind && (
+          <Box
+            role="radiogroup"
+            aria-label={uk.lesson.gradeKind}
+            sx={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 1 }}
+          >
+            {KINDS.map((k) => {
+              const on = kind === k;
+              return (
+                <ButtonBase
+                  key={k}
+                  role="radio"
+                  aria-checked={on}
+                  onClick={() => {
+                    setKind(k);
+                  }}
+                  sx={{
+                    height: 44,
+                    borderRadius: '6px',
+                    fontSize: 15,
+                    fontWeight: on ? 600 : 500,
+                    border: on ? '1.5px solid' : '1px solid',
+                    borderColor: on ? 'primary.main' : 'ge.line2',
+                    bgcolor: on ? 'ge.accentSoft' : 'background.paper',
+                    color: on ? 'primary.main' : 'text.primary',
+                  }}
+                >
+                  {uk.lesson.gradeKinds[k]}
+                </ButtonBase>
+              );
+            })}
+          </Box>
+        )}
 
         {pad ? (
           <Box
