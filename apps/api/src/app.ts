@@ -35,6 +35,8 @@ import { sessionPlugin } from './plugins/session.js';
 export async function buildApp(env: Env): Promise<FastifyInstance> {
   const app = Fastify({
     logger: env.NODE_ENV === 'test' ? false : { level: 'info' },
+    // За проксі Render і Cloudflare реальний IP клієнта лише в X-Forwarded-For (ліміти входу, журнали)
+    trustProxy: env.NODE_ENV === 'production',
   });
 
   app.setValidatorCompiler(validatorCompiler);

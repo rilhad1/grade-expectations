@@ -1,0 +1,26 @@
+# Blueprint для Render: API (Node) на безкоштовному плані. Веб — на Cloudflare Pages, БД — Neon.
+# Змінні з sync: false Render запитає під час створення; значення — з docs/DEPLOY.md.
+services:
+  - type: web
+    name: ge-api
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: corepack enable && pnpm install --frozen-lockfile --prod=false && pnpm db:generate && pnpm --filter @ge/shared --filter @ge/domain --filter @ge/api build
+    startCommand: pnpm db:deploy && node apps/api/dist/main.js
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: NODE_ENV
+        value: production
+      - key: JOBS_DRIVER
+        value: inline
+      - key: API_PORT
+        value: 10000
+      - key: DATABASE_URL
+        sync: false
+      - key: BETTER_AUTH_SECRET
+        generateValue: true
+      - key: WEB_ORIGIN
+        sync: false
