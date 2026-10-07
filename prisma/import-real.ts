@@ -53,7 +53,19 @@ const sheets = JSON.parse(readFileSync('data/journal.json', 'utf8')) as Sheet[];
 // ── Довідкові дані (з календаря викладача) ──────────
 type Kind = 'LECTURE' | 'PRACTICE';
 const DISC = {
-  inf: { title: 'Інформатика', short: 'Інформ.', color: '#3B6EA5', control: 'CREDIT' },
+  // Інформатика 1 і 2 курсів — різні предмети (різні програми й теми)
+  inf1: {
+    title: 'Інформатика (1 курс)',
+    short: 'Інформ. 1к',
+    color: '#3B6EA5',
+    control: 'CREDIT',
+  },
+  inf2: {
+    title: 'Інформатика (2 курс)',
+    short: 'Інформ. 2к',
+    color: '#2F8F9D',
+    control: 'CREDIT',
+  },
   graph: {
     title: "Комп'ютерна та інженерна графіка",
     short: 'Графіка',
@@ -90,7 +102,9 @@ const sheetMeta = (sheet: string): { group: string; disc: DiscKey } => {
       ? 'per'
       : sheet.includes('Графіка')
         ? 'graph'
-        : 'inf';
+        : Number((group.split('-')[1] ?? '1')[0]) >= 2
+          ? 'inf2'
+          : 'inf1';
   return { group, disc };
 };
 
@@ -115,18 +129,18 @@ const S = (
 const KIT = ['КІт-31', 'КІт-32', 'КІт-33', 'КІт-34'];
 const slotDefs: SlotDef[] = [
   // Інформатика та графіка (практичні)
-  S('АТТт-22', 'inf', 'PRACTICE', 1, 4, 'EVERY', '2309'),
-  S('АТТт-21', 'inf', 'PRACTICE', 1, 6, 'BOTTOM', '2303'),
-  S('АТт-21', 'inf', 'PRACTICE', 1, 7, 'EVERY', '2309'),
+  S('АТТт-22', 'inf2', 'PRACTICE', 1, 4, 'EVERY', '2309'),
+  S('АТТт-21', 'inf2', 'PRACTICE', 1, 6, 'BOTTOM', '2303'),
+  S('АТт-21', 'inf2', 'PRACTICE', 1, 7, 'EVERY', '2309'),
   S('АТт-31', 'graph', 'PRACTICE', 1, 8, 'EVERY', '2209'),
-  S('ПДт-13', 'inf', 'PRACTICE', 2, 2, 'BOTTOM', '2113'),
-  S('ПДт-11', 'inf', 'PRACTICE', 2, 3, 'BOTTOM', '2113'),
-  S('ПДт-12', 'inf', 'PRACTICE', 2, 3, 'TOP', '2113'),
-  S('АТТт-21', 'inf', 'PRACTICE', 2, 6, 'EVERY', '2303'),
-  S('АТТт-22', 'inf', 'PRACTICE', 2, 7, 'TOP', '2209'),
-  S('АТт-21', 'inf', 'PRACTICE', 2, 8, 'TOP', '2209'),
+  S('ПДт-13', 'inf1', 'PRACTICE', 2, 2, 'BOTTOM', '2113'),
+  S('ПДт-11', 'inf1', 'PRACTICE', 2, 3, 'BOTTOM', '2113'),
+  S('ПДт-12', 'inf1', 'PRACTICE', 2, 3, 'TOP', '2113'),
+  S('АТТт-21', 'inf2', 'PRACTICE', 2, 6, 'EVERY', '2303'),
+  S('АТТт-22', 'inf2', 'PRACTICE', 2, 7, 'TOP', '2209'),
+  S('АТт-21', 'inf2', 'PRACTICE', 2, 8, 'TOP', '2209'),
   S('АТт-31', 'graph', 'PRACTICE', 4, 4, 'EVERY', '2209'),
-  S('АТт-11', 'inf', 'PRACTICE', 5, 3, 'BOTTOM', null),
+  S('АТт-11', 'inf1', 'PRACTICE', 5, 3, 'BOTTOM', null),
   // Метрологія: практичні по групах (середа) і потокова лекція (вівторок)
   S('КІт-31', 'met', 'PRACTICE', 3, 4, 'EVERY', '2403'),
   S('КІт-32', 'met', 'PRACTICE', 3, 5, 'EVERY', '2203'),
