@@ -2,6 +2,7 @@ import type { GradebookDto, LessonKind } from '@ge/shared';
 import {
   Alert,
   Box,
+  Button,
   List,
   ListItemButton,
   MenuItem,
@@ -17,12 +18,14 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { q } from '../../api/queries';
 import { useCurrentSemester } from '../../app/SemesterSwitcher';
 import { uk } from '../../shared/i18n/uk';
+import { ConfirmDialog } from '../../shared/ui/Dialogs';
 import { DisciplineDot } from '../../shared/ui/DisciplineDot';
 import { ErrorAlert } from '../../shared/ui/ErrorAlert';
 import { TableSkeleton } from '../../shared/ui/Skeletons';
 import { GradeSheet } from '../lesson/GradeSheet';
 import { defaultGradeKind, gradeTone, isValidGrade, scaleRange } from '../lesson/model';
 
+import { AssessmentDialog } from './AssessmentDialog';
 import { GradebookGrid, type GridSelection } from './GradebookGrid';
 import { GradebookToolbar } from './GradebookToolbar';
 import { StudentPanel } from './StudentPanel';
@@ -89,6 +92,9 @@ export function GradebookScreen({
   const [selection, setSelection] = useState<GridSelection>({ row: 0, col: 0 });
   const [sheet, setSheet] = useState<{ student: Student; lessonId: string } | null>(null);
   const [panel, setPanel] = useState<Student | null>(null);
+  // Діалог колонки оцінювання: 'create' — нова колонка, інакше id колонки для редагування; і підтвердження видалення
+  const [columnDialog, setColumnDialog] = useState<string | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const buffer = useRef('');
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -106,6 +112,7 @@ export function GradebookScreen({
 
   const scale = data.load.gradingRules.scale;
   const { max } = scaleRange[scale];
+  const lessonCount = data.lessons.length;
   const lessonAt = (col: number) => data.lessons[col];
   const studentAt = (row: number) => data.students[row];
   const current = () => {
@@ -113,8 +120,26 @@ export function GradebookScreen({
     const lesson = lessonAt(selection.col);
     return student && lesson ? { student, lesson, cell: student.cells[lesson.id] } : null;
   };
+  /** Вибрана клітинка колонки оцінювання (колонки йдуть після занять). */
+  const currentAssessment = () => {
+    const student = studentAt(selection.row);
+    const assessment = data.assessments[selection.col - lessonCount];
+    return student && assessment
+      ? { student, assessment, grade: student.assessmentGrades[assessment.id] }
+      : null;
+  };
 
   const commitValue = (value: number) => {
+    const a = currentAssessment();
+    if (a) {
+      if (isValidGrade(scale, value))
+        book.setAssessmentGrade.mutate({
+          assessmentId: a.assessment.id,
+          enrollmentId: a.student.enrollmentId,
+          value,
+        });
+      return;
+    }
     const c = current();
     if (!c || !isValidGrade(scale, value)) return;
     const last = c.cell?.grades.at(-1);
@@ -141,7 +166,7 @@ export function GradebookScreen({
     const action = interpretKey(e.key, buffer.current);
     if (!action) return;
     e.preventDefault();
-    const size = { rows: data.students.length, cols: data.lessons.length };
+    const size = { rows: data.students.length, cols: lessonCount + data.assessments.length };
 
     if (action.type === 'move') {
       if (buffer.current) flush();
@@ -160,6 +185,15 @@ export function GradebookScreen({
           status: action.status,
         });
     } else if (action.type === 'delete') {
+      const a = currentAssessment();
+      if (a) {
+        if (a.grade)
+          book.clearAssessmentGrade.mutate({
+            assessmentId: a.assessment.id,
+            enrollmentId: a.student.enrollmentId,
+          });
+        return;
+      }
       const c = current();
       const last = c?.cell?.grades.at(-1);
       if (c && last)
@@ -203,7 +237,32 @@ export function GradebookScreen({
       </TextField>
     ) : null;
 
-  const mutationError = book.attendance.error ?? book.upsertGrade.error ?? book.clearGrade.error;
+  const mutationError =
+    book.attendance.error ??
+    book.upsertGrade.error ??
+    book.clearGrade.error ??
+    book.setAssessmentGrade.error ??
+    book.clearAssessmentGrade.error;
+
+  // Підказка назви нової колонки: наступний номер серед колонок того ж виду
+  const suggestTitle = (kind: 'LAB' | 'TEST') => {
+    const base = uk.gradebook.assessment.suggest[kind];
+    const numbers = data.assessments
+      .filter((x) => x.title.toLowerCase().startsWith(base.toLowerCase()))
+      .map((x) => Number(/(\d+)\s*$/.exec(x.title)?.[1] ?? 0));
+    return `${base} ${String(Math.max(0, ...numbers) + 1)}`;
+  };
+  const editing =
+    columnDialog && columnDialog !== 'create'
+      ? data.assessments.find((x) => x.id === columnDialog)
+      : undefined;
+  const closeColumnDialog = () => {
+    setColumnDialog(null);
+    setConfirmDelete(null);
+    book.createColumn.reset();
+    book.updateColumn.reset();
+    book.deleteColumn.reset();
+  };
   const sheetCell = sheet ? sheet.student.cells[sheet.lessonId] : undefined;
   const sheetGrade = sheetCell?.grades.at(-1);
 
@@ -239,13 +298,28 @@ export function GradebookScreen({
         </Alert>
       )}
 
-      {desktop && data.students.length > 0 && data.lessons.length > 0 && (
+      {desktop && data.students.length > 0 && (
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 1 }}>
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={() => {
+              setColumnDialog('create');
+            }}
+          >
+            + {uk.gradebook.assessment.add}
+          </Button>
+        </Box>
+      )}
+
+      {desktop && data.students.length > 0 && lessonCount + data.assessments.length > 0 && (
         <>
           <GradebookGrid
             data={data}
             selection={selection}
             onSelect={setSelection}
             onOpenStudent={setPanel}
+            onEditAssessment={setColumnDialog}
             onKeyDown={onKeyDown}
           />
           <Typography variant="caption" color="text.secondary" component="p" sx={{ mt: 1 }}>
@@ -320,6 +394,47 @@ export function GradebookScreen({
           </List>
         </Paper>
       )}
+
+      {columnDialog !== null && !confirmDelete && (columnDialog === 'create' || editing) && (
+        <AssessmentDialog
+          key={columnDialog}
+          {...(editing && { initial: editing })}
+          suggestedTitle={suggestTitle}
+          busy={book.createColumn.isPending || book.updateColumn.isPending}
+          error={book.createColumn.error ?? book.updateColumn.error}
+          onClose={closeColumnDialog}
+          onSubmit={(values) => {
+            if (editing)
+              book.updateColumn.mutate(
+                { id: editing.id, version: editing.version, ...values },
+                { onSuccess: closeColumnDialog },
+              );
+            else book.createColumn.mutate(values, { onSuccess: closeColumnDialog });
+          }}
+          {...(editing && {
+            onDelete: () => {
+              setConfirmDelete(editing.id);
+            },
+          })}
+        />
+      )}
+      <ConfirmDialog
+        open={confirmDelete !== null}
+        tone="error"
+        title={uk.common.delete}
+        description={uk.gradebook.assessment.deleteConfirm(
+          data.assessments.find((x) => x.id === confirmDelete)?.title ?? '',
+        )}
+        confirmLabel={uk.common.delete}
+        busy={book.deleteColumn.isPending}
+        onClose={() => {
+          setConfirmDelete(null);
+        }}
+        onConfirm={() => {
+          if (confirmDelete)
+            book.deleteColumn.mutate(confirmDelete, { onSuccess: closeColumnDialog });
+        }}
+      />
 
       {panel && (
         <StudentPanel

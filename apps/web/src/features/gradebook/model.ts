@@ -58,6 +58,38 @@ export const removeCellGrade = (
     grades: c.grades.filter((g) => g.id !== gradeId),
   }));
 
+/** Ставить (value) або прибирає (null) оцінку студента в колонці оцінювання. */
+export const setAssessmentCell = (
+  dto: GradebookDto,
+  enrollmentId: string,
+  assessmentId: string,
+  value: number | null,
+): GradebookDto => ({
+  ...dto,
+  students: dto.students.map((s: Student) => {
+    if (s.enrollmentId !== enrollmentId) return s;
+    const rest = Object.fromEntries(
+      Object.entries(s.assessmentGrades).filter(([id]) => id !== assessmentId),
+    );
+    const current = s.assessmentGrades[assessmentId];
+    return {
+      ...s,
+      assessmentGrades:
+        value === null
+          ? rest
+          : {
+              ...rest,
+              [assessmentId]: {
+                id: current?.id ?? `tmp-${assessmentId}-${enrollmentId}`,
+                value,
+                comment: current?.comment ?? null,
+                version: current?.version ?? 0,
+              },
+            },
+    };
+  }),
+});
+
 /** Текст клітинки: оцінки через кому і літера відмітки («10, 8 н»). */
 export function cellText(
   cell: GradebookCell | undefined,

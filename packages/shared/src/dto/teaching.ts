@@ -104,6 +104,52 @@ export const studentSummarySchema = z.object({
 });
 export type StudentSummary = z.infer<typeof studentSummarySchema>;
 
+// ── Колонки оцінювання (практичні, модулі) ────────────
+/** Вид колонки: практична/лабораторна чи модуль (контрольна). */
+export const assessmentKindSchema = z.enum(['LAB', 'TEST']);
+export const assessmentDtoSchema = z.object({
+  id: uuidSchema,
+  title: z.string(),
+  kind: z.enum(['TEST', 'LAB', 'SELF_STUDY', 'DIRECTOR_TEST']),
+  maxScore: z.int(),
+  /** До якої атестації належить колонка; null — без прив'язки. */
+  attestationKind: AttestationKind.schema.nullable(),
+  version: z.int().default(0),
+});
+export type AssessmentDto = z.infer<typeof assessmentDtoSchema>;
+
+export const createAssessmentSchema = z.object({
+  id: clientIdSchema,
+  title: z.string().trim().min(1).max(60),
+  kind: assessmentKindSchema.default('LAB'),
+  attestationKind: AttestationKind.schema.nullable().default(null),
+});
+export type CreateAssessmentInput = z.infer<typeof createAssessmentSchema>;
+
+export const updateAssessmentSchema = z
+  .object({
+    title: z.string().trim().min(1).max(60),
+    kind: assessmentKindSchema,
+    attestationKind: AttestationKind.schema.nullable(),
+  })
+  .partial()
+  .extend(versionSchema.shape);
+export type UpdateAssessmentInput = z.infer<typeof updateAssessmentSchema>;
+
+export const setAssessmentGradeSchema = z.object({
+  value: z.number().int().min(0).max(100),
+  comment: z.string().trim().max(500).nullable().default(null),
+});
+export type SetAssessmentGradeInput = z.infer<typeof setAssessmentGradeSchema>;
+
+export const assessmentGradeDtoSchema = z.object({
+  id: uuidSchema,
+  value: z.int(),
+  comment: z.string().nullable(),
+  version: z.int(),
+});
+export type AssessmentGradeDto = z.infer<typeof assessmentGradeDtoSchema>;
+
 export const gradebookDtoSchema = z.object({
   load: z.object({
     id: uuidSchema,
@@ -140,32 +186,12 @@ export const gradebookDtoSchema = z.object({
       enrollmentStatus: EnrollmentStatus.schema,
       cells: z.record(uuidSchema, gradebookCellSchema),
       /** Оцінки колонок оцінювання (практичні, модулі): assessmentId → оцінка. */
-      assessmentGrades: z
-        .record(
-          uuidSchema,
-          z.object({
-            id: uuidSchema,
-            value: z.int(),
-            comment: z.string().nullable(),
-            version: z.int(),
-          }),
-        )
-        .default({}),
+      assessmentGrades: z.record(uuidSchema, assessmentGradeDtoSchema).default({}),
       summary: studentSummarySchema,
     }),
   ),
-  /** Колонки оцінювання навантаження: окремі від занять (без прив'язки до дат). */
-  assessments: z
-    .array(
-      z.object({
-        id: uuidSchema,
-        title: z.string(),
-        kind: z.enum(['TEST', 'LAB', 'SELF_STUDY', 'DIRECTOR_TEST']),
-        maxScore: z.int(),
-        attestationKind: z.enum(['INTERIM', 'DIRECTOR_TEST', 'AVERAGE', 'EXAM']).nullable(),
-      }),
-    )
-    .default([]),
+  /** Колонки оцінювання журналу: окремі від занять (без прив'язки до дат). */
+  assessments: z.array(assessmentDtoSchema).default([]),
   /** Періоди атестацій і сесії (межі в журналі). */
   periods: z.array(
     z.object({ kind: PeriodKind.schema, startDate: isoDateSchema, endDate: isoDateSchema }),

@@ -44,12 +44,15 @@ export function GradebookGrid({
   selection,
   onSelect,
   onOpenStudent,
+  onEditAssessment,
   onKeyDown,
 }: {
   data: GradebookDto;
   selection: GridSelection;
   onSelect: (s: GridSelection) => void;
   onOpenStudent: (student: Student) => void;
+  /** Клік по заголовку колонки оцінювання: редагувати або видалити. */
+  onEditAssessment?: (assessmentId: string) => void;
   onKeyDown: (e: React.KeyboardEvent) => void;
 }) {
   const scroller = useRef<HTMLDivElement>(null);
@@ -209,9 +212,34 @@ export function GradebookGrid({
                     ...(left !== undefined ? sticky(left) : {}),
                   }}
                 >
-                  <strong>{String(header.column.columnDef.header)}</strong>
-                  {lesson && <span>{uk.loads.kindsShort[lesson.kind]}</span>}
-                  {assessment && <span>{assessment.maxScore}</span>}
+                  {assessment ? (
+                    <Box
+                      component="button"
+                      type="button"
+                      aria-label={uk.gradebook.assessment.column(assessment.title)}
+                      onClick={() => {
+                        onEditAssessment?.(assessment.id);
+                      }}
+                      sx={{
+                        all: 'unset',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        width: '100%',
+                        '&:hover': { color: 'primary.main' },
+                        '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main' },
+                      }}
+                    >
+                      <strong>{String(header.column.columnDef.header)}</strong>
+                      <span>{assessment.maxScore}</span>
+                    </Box>
+                  ) : (
+                    <>
+                      <strong>{String(header.column.columnDef.header)}</strong>
+                      {lesson && <span>{uk.loads.kindsShort[lesson.kind]}</span>}
+                    </>
+                  )}
                 </Box>
               );
               if (assessment)
@@ -384,13 +412,27 @@ export function GradebookGrid({
                     </Tooltip>
                   );
                 })}
-                {data.assessments.map((a) => {
+                {data.assessments.map((a, aIndex) => {
                   const g = student.assessmentGrades[a.id];
+                  const aCol = lessonCount + aIndex;
+                  const aSelected = selection.row === item.index && selection.col === aCol;
                   return (
                     <Box
                       key={a.id}
+                      role="gridcell"
+                      aria-selected={aSelected}
+                      aria-label={`${student.lastName} ${student.firstName}, ${a.title}`}
                       data-testid={`assessment-${String(item.index)}-${a.id}`}
+                      onClick={() => {
+                        onSelect({ row: item.index, col: aCol });
+                      }}
                       sx={{
+                        cursor: 'cell',
+                        position: 'relative',
+                        zIndex: aSelected ? 1 : 0,
+                        boxShadow: aSelected
+                          ? 'inset 0 0 0 2px var(--mui-palette-primary-main)'
+                          : 'none',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',

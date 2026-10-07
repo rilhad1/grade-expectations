@@ -81,6 +81,48 @@ test.describe('сценарії викладача (сьогодні — 12 жо
     await expect(page.getByTestId('cell-1-0')).not.toContainText('н');
   });
 
+  test('журнал: колонка оцінювання — створити, виставити оцінку з клавіатури, перейменувати, видалити', async ({
+    page,
+  }) => {
+    await login(page, users.teacher);
+    await page.getByRole('link', { name: 'Журнал' }).click();
+    await page
+      .getByText(/Інформатика/)
+      .first()
+      .click();
+    await expect(page.getByRole('grid')).toBeVisible();
+
+    await page.getByRole('button', { name: '+ Колонка' }).click();
+    const dialog = page.getByRole('dialog');
+    await expect(dialog.getByLabel('Назва')).toHaveValue('Практична 1');
+    await dialog.getByRole('button', { name: 'Зберегти' }).click();
+    await expect(dialog).toBeHidden();
+
+    const header = page.getByRole('button', { name: 'Колонка: Практична 1' });
+    await expect(header).toBeVisible();
+    const cell = page.getByTestId(/^assessment-0-/);
+    await cell.click();
+    await page.keyboard.press('9');
+    await expect(cell).toContainText('9');
+
+    await page.reload();
+    await expect(page.getByTestId(/^assessment-0-/)).toContainText('9');
+
+    await page.getByRole('button', { name: 'Колонка: Практична 1' }).click();
+    await page.getByRole('dialog').getByLabel('Назва').fill('Модуль 1');
+    await page.getByRole('dialog').getByRole('button', { name: 'Зберегти' }).click();
+    await expect(page.getByRole('button', { name: 'Колонка: Модуль 1' })).toBeVisible();
+
+    await page.getByRole('button', { name: 'Колонка: Модуль 1' }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Видалити' }).click();
+    await page
+      .getByRole('dialog')
+      .filter({ hasText: 'Видалити колонку' })
+      .getByRole('button', { name: 'Видалити' })
+      .click();
+    await expect(page.getByRole('button', { name: 'Колонка: Модуль 1' })).toHaveCount(0);
+  });
+
   test('картка студента відкривається з журналу', async ({ page }) => {
     await login(page, users.teacher);
     await page.getByRole('link', { name: 'Журнал' }).click();

@@ -1,17 +1,31 @@
 import {
+  assessmentDtoSchema,
+  assessmentGradeDtoSchema,
   attendanceMarksSchema,
+  createAssessmentSchema,
   createGradeSchema,
   gradebookDtoSchema,
   gradebookQuerySchema,
   idParamSchema,
   lessonDetailDtoSchema,
+  setAssessmentGradeSchema,
   todayDtoSchema,
+  updateAssessmentSchema,
   updateGradeSchema,
   updateLessonSchema,
 } from '@ge/shared';
 import type { FastifyInstance, FastifyRequest } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
+import { z } from 'zod';
 
+import {
+  assessmentOwner,
+  clearAssessmentGrade,
+  createAssessment,
+  deleteAssessment,
+  setAssessmentGrade,
+  updateAssessment,
+} from './assessments.js';
 import { getGradebook, loadOwner } from './gradebook.js';
 import * as service from './service.js';
 import { getToday } from './today.js';
@@ -36,6 +50,14 @@ export function journalRoutes(app: FastifyInstance): void {
       return {
         organizationId: ctx.organization.id,
         teacherId: await service.gradeOwner(ctx, idOf(req)),
+      };
+    });
+  const byAssessment = (action: Parameters<typeof app.authorize>[0]) =>
+    app.authorize(action, async (req) => {
+      const ctx = await auth(req);
+      return {
+        organizationId: ctx.organization.id,
+        teacherId: await assessmentOwner(ctx, idOf(req)),
       };
     });
   const byLoad = (action: Parameters<typeof app.authorize>[0]) =>
@@ -145,5 +167,62 @@ export function journalRoutes(app: FastifyInstance): void {
       },
     },
     async (req) => getGradebook(await auth(req), req.params.id, req.query),
+  );
+
+  // ── Колонки оцінювання (практичні, модулі) ──
+  r.post(
+    '/loads/:id/assessments',
+    {
+      preHandler: byLoad('grade:write'),
+      schema: {
+        params: idParamSchema,
+        body: createAssessmentSchema,
+        response: { 201: assessmentDtoSchema },
+      },
+    },
+    async (req, reply) =>
+      reply.status(201).send(await createAssessment(await auth(req), req.params.id, req.body)),
+  );
+  r.patch(
+    '/assessments/:id',
+    {
+      preHandler: byAssessment('grade:write'),
+      schema: {
+        params: idParamSchema,
+        body: updateAssessmentSchema,
+        response: { 200: assessmentDtoSchema },
+      },
+    },
+    async (req) => updateAssessment(await auth(req), req.params.id, req.body),
+  );
+  r.delete(
+    '/assessments/:id',
+    { preHandler: byAssessment('grade:write'), schema: { params: idParamSchema } },
+    async (req, reply) => {
+      await deleteAssessment(await auth(req), req.params.id);
+      return reply.status(204).send();
+    },
+  );
+  const gradeParams = z.object({ id: z.uuid(), enrollmentId: z.uuid() });
+  r.put(
+    '/assessments/:id/grades/:enrollmentId',
+    {
+      preHandler: byAssessment('grade:write'),
+      schema: {
+        params: gradeParams,
+        body: setAssessmentGradeSchema,
+        response: { 200: assessmentGradeDtoSchema },
+      },
+    },
+    async (req) =>
+      setAssessmentGrade(await auth(req), req.params.id, req.params.enrollmentId, req.body),
+  );
+  r.delete(
+    '/assessments/:id/grades/:enrollmentId',
+    { preHandler: byAssessment('grade:write'), schema: { params: gradeParams } },
+    async (req, reply) => {
+      await clearAssessmentGrade(await auth(req), req.params.id, req.params.enrollmentId);
+      return reply.status(204).send();
+    },
   );
 }

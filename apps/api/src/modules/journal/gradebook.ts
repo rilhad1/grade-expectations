@@ -296,6 +296,7 @@ export async function getGradebook(
       kind: a.kind,
       maxScore: a.maxScore,
       attestationKind: a.attestationKind,
+      version: a.version,
     })),
     periods: periodsFor(load)
       .filter((p) => ['INTERIM_ATTESTATION', 'DIRECTOR_TEST', 'EXAM_SESSION'].includes(p.kind))

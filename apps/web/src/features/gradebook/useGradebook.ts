@@ -4,13 +4,18 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 
 import {
   fetchGradebook,
+  patchAssessment,
   patchGrade,
+  postAssessment,
   postGrade,
+  putAssessmentGrade,
   putAttendance,
+  removeAssessment,
+  removeAssessmentGrade,
   removeGrade,
 } from '../../api/teaching';
 
-import { removeCellGrade, setCellAttendance, setCellGrade } from './model';
+import { removeCellGrade, setAssessmentCell, setCellAttendance, setCellGrade } from './model';
 
 export interface Range {
   from?: string;
@@ -87,5 +92,62 @@ export function useGradebook(loadId: string, range: Range) {
     mutationFn: (v) => removeGrade(v.gradeId),
   });
 
-  return { query, attendance, upsertGrade, clearGrade, newId: () => uuidv7() };
+  type AssessmentCell = { assessmentId: string; enrollmentId: string };
+
+  /** Оцінка в колонці оцінювання (створення чи зміна — одним PUT). */
+  const setAssessmentGrade = useMutation({
+    ...options<AssessmentCell & { value: number }>((d, v) =>
+      setAssessmentCell(d, v.enrollmentId, v.assessmentId, v.value),
+    ),
+    mutationFn: (v) => putAssessmentGrade(v.assessmentId, v.enrollmentId, v.value),
+  });
+  const clearAssessmentGrade = useMutation({
+    ...options<AssessmentCell>((d, v) =>
+      setAssessmentCell(d, v.enrollmentId, v.assessmentId, null),
+    ),
+    mutationFn: (v) => removeAssessmentGrade(v.assessmentId, v.enrollmentId),
+  });
+
+  /** Керування самими колонками (не оптимістичне: після відповіді журнал перезапитується). */
+  const refresh = () => {
+    void queryClient.invalidateQueries({ queryKey: ['gradebook', loadId] });
+    void queryClient.invalidateQueries({ queryKey: ['today'] });
+  };
+  const createColumn = useMutation({
+    mutationFn: (v: { title: string; kind: string; attestationKind: string | null }) =>
+      postAssessment(loadId, { id: uuidv7(), ...v }),
+    onSuccess: refresh,
+  });
+  const updateColumn = useMutation({
+    mutationFn: (v: {
+      id: string;
+      version: number;
+      title: string;
+      kind: string;
+      attestationKind: string | null;
+    }) =>
+      patchAssessment(v.id, v.version, {
+        title: v.title,
+        kind: v.kind,
+        attestationKind: v.attestationKind,
+      }),
+    onSuccess: refresh,
+  });
+  const deleteColumn = useMutation({
+    mutationFn: (id: string) => removeAssessment(id),
+    onSuccess: refresh,
+  });
+
+  return {
+    query,
+    attendance,
+    upsertGrade,
+    clearGrade,
+    setAssessmentGrade,
+    clearAssessmentGrade,
+    createColumn,
+    updateColumn,
+    deleteColumn,
+    newId: () => uuidv7(),
+  };
 }

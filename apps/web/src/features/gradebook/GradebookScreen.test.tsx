@@ -11,6 +11,11 @@ const api = vi.hoisted(() => ({
   patchGrade: vi.fn(),
   removeGrade: vi.fn(),
   putAttendance: vi.fn(),
+  postAssessment: vi.fn(),
+  patchAssessment: vi.fn(),
+  removeAssessment: vi.fn(),
+  putAssessmentGrade: vi.fn(),
+  removeAssessmentGrade: vi.fn(),
 }));
 vi.mock('../../api/teaching', () => api);
 
@@ -141,8 +146,22 @@ describe('GradebookScreen', () => {
   it('колонки оцінювання (практичні, модуль) показують оцінки окремо від занять', async () => {
     const data = book();
     data.assessments = [
-      { id: 'a1', title: 'Практична 1', kind: 'LAB', maxScore: 12, attestationKind: 'INTERIM' },
-      { id: 'a2', title: 'Модуль 1', kind: 'TEST', maxScore: 12, attestationKind: 'INTERIM' },
+      {
+        id: 'a1',
+        title: 'Практична 1',
+        kind: 'LAB',
+        maxScore: 12,
+        attestationKind: 'INTERIM',
+        version: 0,
+      },
+      {
+        id: 'a2',
+        title: 'Модуль 1',
+        kind: 'TEST',
+        maxScore: 12,
+        attestationKind: 'INTERIM',
+        version: 0,
+      },
     ];
     const first = data.students[0];
     if (first) first.assessmentGrades = { a1: { id: 'ga1', value: 11, comment: null, version: 0 } };
@@ -154,6 +173,108 @@ describe('GradebookScreen', () => {
     expect(screen.getByTestId('assessment-0-a1')).toHaveTextContent('11');
     expect(screen.getByTestId('assessment-0-a2')).toHaveTextContent('');
     expect(screen.getByTestId('assessment-1-a1')).toHaveTextContent('');
+  });
+
+  const withColumns = () => {
+    const data = book();
+    data.assessments = [
+      {
+        id: 'a1',
+        title: 'Практична 1',
+        kind: 'LAB',
+        maxScore: 12,
+        attestationKind: 'INTERIM',
+        version: 3,
+      },
+    ];
+    const first = data.students[0];
+    if (first) first.assessmentGrades = { a1: { id: 'ga1', value: 11, comment: null, version: 0 } };
+    api.fetchGradebook.mockResolvedValue(data);
+    return data;
+  };
+
+  it('цифра в клітинці колонки оцінювання виставляє оцінку', async () => {
+    withColumns();
+    api.putAssessmentGrade.mockReturnValue(new Promise(() => undefined)); // лишається оптимістичний стан
+    renderWithClient(<GradebookScreen loadId="load1" />);
+    await screen.findByRole('grid');
+    fireEvent.click(screen.getByTestId('assessment-1-a1'));
+    fireEvent.keyDown(grid(), { key: '9' });
+    await waitFor(() => {
+      expect(api.putAssessmentGrade).toHaveBeenCalledWith('a1', 'e2', 9);
+    });
+    expect(screen.getByTestId('assessment-1-a1')).toHaveTextContent('9');
+  });
+
+  it('Delete у клітинці колонки оцінювання прибирає оцінку', async () => {
+    withColumns();
+    api.removeAssessmentGrade.mockResolvedValue(undefined);
+    renderWithClient(<GradebookScreen loadId="load1" />);
+    await screen.findByRole('grid');
+    fireEvent.click(screen.getByTestId('assessment-0-a1'));
+    fireEvent.keyDown(grid(), { key: 'Delete' });
+    await waitFor(() => {
+      expect(api.removeAssessmentGrade).toHaveBeenCalledWith('a1', 'e1');
+    });
+  });
+
+  it('«+ Колонка» створює колонку з підказаною назвою', async () => {
+    withColumns();
+    api.postAssessment.mockResolvedValue({});
+    renderWithClient(<GradebookScreen loadId="load1" />);
+    await screen.findByRole('grid');
+    fireEvent.click(screen.getByRole('button', { name: `+ ${uk.gradebook.assessment.add}` }));
+    const dialog = await screen.findByRole('dialog');
+    expect(within(dialog).getByLabelText(uk.gradebook.assessment.title)).toHaveValue('Практична 2');
+    fireEvent.click(
+      within(dialog).getByRole('button', { name: uk.gradebook.assessment.kinds.TEST }),
+    );
+    expect(within(dialog).getByLabelText(uk.gradebook.assessment.title)).toHaveValue('Модуль 1');
+    fireEvent.click(within(dialog).getByRole('button', { name: uk.common.save }));
+    await waitFor(() => {
+      expect(api.postAssessment).toHaveBeenCalledWith(
+        'load1',
+        expect.objectContaining({ title: 'Модуль 1', kind: 'TEST', attestationKind: null }),
+      );
+    });
+  });
+
+  it('клік по заголовку колонки редагує її (версія з даних), видалення — з підтвердженням', async () => {
+    withColumns();
+    api.patchAssessment.mockResolvedValue({});
+    api.removeAssessment.mockResolvedValue(undefined);
+    renderWithClient(<GradebookScreen loadId="load1" />);
+    await screen.findByRole('grid');
+    fireEvent.click(
+      screen.getByRole('button', { name: uk.gradebook.assessment.column('Практична 1') }),
+    );
+    const dialog = await screen.findByRole('dialog');
+    const title = within(dialog).getByLabelText(uk.gradebook.assessment.title);
+    expect(title).toHaveValue('Практична 1');
+    fireEvent.change(title, { target: { value: 'Практична 1 (завдання)' } });
+    fireEvent.click(within(dialog).getByRole('button', { name: uk.common.save }));
+    await waitFor(() => {
+      expect(api.patchAssessment).toHaveBeenCalledWith(
+        'a1',
+        3,
+        expect.objectContaining({ title: 'Практична 1 (завдання)', attestationKind: 'INTERIM' }),
+      );
+    });
+
+    fireEvent.click(
+      screen.getByRole('button', { name: uk.gradebook.assessment.column('Практична 1') }),
+    );
+    const again = await screen.findByRole('dialog');
+    fireEvent.click(within(again).getByRole('button', { name: uk.common.delete }));
+    const confirm = await screen.findByText(uk.gradebook.assessment.deleteConfirm('Практична 1'));
+    fireEvent.click(
+      within(confirm.closest('[role="dialog"]') as HTMLElement).getByRole('button', {
+        name: uk.common.delete,
+      }),
+    );
+    await waitFor(() => {
+      expect(api.removeAssessment).toHaveBeenCalledWith('a1');
+    });
   });
 
   it('цифра у вибраній клітинці виставляє оцінку (9 — одразу), тип за видом заняття', async () => {

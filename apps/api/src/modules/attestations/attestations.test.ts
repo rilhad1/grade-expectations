@@ -678,3 +678,107 @@ describe('зведений журнал: усі види занять дисци
     expect(byLecture.body.load.gradingRules.scale).toBe(byPractice.body.load.gradingRules.scale);
   });
 });
+
+describe('керування колонками оцінювання', () => {
+  const column = { title: 'Практична 7', kind: 'LAB', attestationKind: 'INTERIM' };
+  let assessmentId = '';
+  let version = 0;
+
+  it('створення: колонка належить журналу, максимум за шкалою; дубль назви — 409', async () => {
+    const created = await teacher<{ id: string; maxScore: number; version: number }>(
+      'POST',
+      `/loads/${ids.examLoad}/assessments`,
+      column,
+    );
+    expect(created.status).toBe(201);
+    expect(created.body).toMatchObject({
+      title: 'Практична 7',
+      maxScore: 12,
+      attestationKind: 'INTERIM',
+    });
+    assessmentId = created.body.id;
+    version = created.body.version;
+
+    const book = await teacher<GradebookDto>('GET', `/loads/${ids.creditLoad}/gradebook`);
+    expect(book.body.assessments.map((a) => a.title)).toContain('Практична 7');
+
+    // Така сама назва (без урахування регістру) у тому ж журналі — конфлікт
+    const dup = await teacher('POST', `/loads/${ids.creditLoad}/assessments`, {
+      ...column,
+      title: 'практична 7',
+    });
+    expect(dup.status).toBe(409);
+  });
+
+  it('оцінка: виставлення, зміна, поза шкалою — 422, прибирання', async () => {
+    const e = ids.enrollments[2] ?? '';
+    const put = (value: number) =>
+      teacher<{ id: string; value: number; version: number }>(
+        'PUT',
+        `/assessments/${assessmentId}/grades/${e}`,
+        { value },
+      );
+    const first = await put(10);
+    expect(first.status).toBe(200);
+    expect(first.body.value).toBe(10);
+    const second = await put(12);
+    expect(second.body).toMatchObject({
+      id: first.body.id,
+      value: 12,
+      version: first.body.version + 1,
+    });
+    expect((await put(13)).status).toBe(422);
+
+    const book = await teacher<GradebookDto>('GET', `/loads/${ids.examLoad}/gradebook`);
+    const row = book.body.students.find((s) => s.enrollmentId === e);
+    expect(row?.assessmentGrades[assessmentId]?.value).toBe(12);
+
+    const del = await teacher('DELETE', `/assessments/${assessmentId}/grades/${e}`);
+    expect(del.status).toBe(204);
+    const after = await teacher<GradebookDto>('GET', `/loads/${ids.examLoad}/gradebook`);
+    expect(
+      after.body.students.find((s) => s.enrollmentId === e)?.assessmentGrades[assessmentId],
+    ).toBeUndefined();
+  });
+
+  it('студент не зі складу журналу — 422; чужий викладач не має доступу', async () => {
+    const stranger = await teacher(
+      'PUT',
+      `/assessments/${assessmentId}/grades/00000000-0000-4000-8000-000000000000`,
+      { value: 9 },
+    );
+    expect(stranger.status).toBe(422);
+    const foreign = await teacher2(
+      'PUT',
+      `/assessments/${assessmentId}/grades/${ids.enrollments[0] ?? ''}`,
+      {
+        value: 9,
+      },
+    );
+    expect([403, 404]).toContain(foreign.status);
+    expect(
+      (await teacher2('DELETE', `/assessments/${assessmentId}`)).status,
+    ).toBeGreaterThanOrEqual(403);
+  });
+
+  it('перейменування й привʼязка до атестації; застаріла версія — 409', async () => {
+    const renamed = await teacher<{ title: string; attestationKind: string; version: number }>(
+      'PATCH',
+      `/assessments/${assessmentId}`,
+      { title: 'Модуль 7', kind: 'TEST', attestationKind: 'DIRECTOR_TEST', version },
+    );
+    expect(renamed.status).toBe(200);
+    expect(renamed.body).toMatchObject({ title: 'Модуль 7', attestationKind: 'DIRECTOR_TEST' });
+    const stale = await teacher('PATCH', `/assessments/${assessmentId}`, { title: 'X', version });
+    expect(stale.status).toBe(409);
+  });
+
+  it('видалення прибирає колонку й її оцінки', async () => {
+    const e = ids.enrollments[0] ?? '';
+    await teacher('PUT', `/assessments/${assessmentId}/grades/${e}`, { value: 7 });
+    expect((await teacher('DELETE', `/assessments/${assessmentId}`)).status).toBe(204);
+    const book = await teacher<GradebookDto>('GET', `/loads/${ids.examLoad}/gradebook`);
+    expect(book.body.assessments.map((a) => a.id)).not.toContain(assessmentId);
+    expect(await prisma.grade.count({ where: { assessmentId, deletedAt: null } })).toBe(0);
+  });
+});

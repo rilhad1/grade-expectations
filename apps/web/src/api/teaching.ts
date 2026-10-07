@@ -1,4 +1,6 @@
 import {
+  assessmentDtoSchema,
+  assessmentGradeDtoSchema,
   gradebookDtoSchema,
   lessonDetailDtoSchema,
   lessonItemDtoSchema,
@@ -10,7 +12,7 @@ import {
 } from '@ge/shared';
 import { z } from 'zod';
 
-import { get, http, patch, post, put } from './http';
+import { del, get, http, patch, post, put } from './http';
 
 export const fetchToday = () => get('/today', todayDtoSchema);
 export const fetchLesson = (id: string): Promise<LessonDetailDto> =>
@@ -54,6 +56,22 @@ export const fetchGradebook = (loadId: string, range: { from?: string; to?: stri
     .join('&');
   return get(`/loads/${loadId}/gradebook${query ? `?${query}` : ''}`, gradebookDtoSchema);
 };
+
+/** Колонки оцінювання журналу (практичні, модулі): окремо від занять. */
+export const postAssessment = (
+  loadId: string,
+  body: { id: string; title: string; kind: string; attestationKind: string | null },
+) => post(`/loads/${loadId}/assessments`, body, assessmentDtoSchema);
+export const patchAssessment = (
+  id: string,
+  version: number,
+  body: { title?: string; kind?: string; attestationKind?: string | null },
+) => patch(`/assessments/${id}`, { ...body, version }, assessmentDtoSchema);
+export const removeAssessment = (id: string) => del(`/assessments/${id}`);
+export const putAssessmentGrade = (assessmentId: string, enrollmentId: string, value: number) =>
+  put(`/assessments/${assessmentId}/grades/${enrollmentId}`, { value }, assessmentGradeDtoSchema);
+export const removeAssessmentGrade = (assessmentId: string, enrollmentId: string) =>
+  del(`/assessments/${assessmentId}/grades/${enrollmentId}`);
 
 export const fetchTopics = (loadId: string) => get(`/loads/${loadId}/topics`, topicPlanDtoSchema);
 export const saveTopics = (
