@@ -1,8 +1,8 @@
 # Деплой на безкоштовних сервісах
 
-Схема: **Neon** (Postgres) ← **Render** (API) ← **Cloudflare Pages** (веб + проксі `/api`).
+Схема: **Neon** (Postgres) ← **Render** (API) ← **Cloudflare Workers** (веб + проксі `/api`).
 
-Веб і API для браузера — один origin: Cloudflare Pages Function (`functions/api/[[path]].js` у корені репозиторію) пересилає `/api/*` на Render. Через це cookie сесії першопартійні, CORS не потрібен.
+Веб і API для браузера — один origin: Cloudflare Worker (`worker/index.js`) пересилає `/api/*` на Render. Через це cookie сесії першопартійні, CORS не потрібен.
 
 > Умови безкоштовних планів змінюються — перед стартом гляньте актуальні ліміти на сторінках провайдерів.
 > Файли `render.yaml` і Pages Function написані без запуску на реальних сервісах: перший деплой перевіряйте за кроком 6.
@@ -45,17 +45,16 @@ rm /tmp/neon.env
 
 Безкоштовний сервіс засинає через 15 хвилин без запитів, перший запит після цього триває близько хвилини. Для PWA це терпимо: офлайн-кеш і черга синхронізації працюють.
 
-## 4. Веб (Cloudflare Pages)
+## 4. Веб (Cloudflare Workers)
 
-1. Workers & Pages → **Create → Pages → Connect to Git** → репозиторій.
-2. Налаштування збірки (корінь репозиторію, Root directory не чіпайте):
-   - Framework preset: None
-   - Build command: `corepack enable && pnpm install --frozen-lockfile && pnpm --filter @ge/shared --filter @ge/domain build && pnpm --filter @ge/web exec vite build`
-   - Build output directory: `apps/web/dist`
-   - Змінна середовища `NODE_VERSION` = `22`
-3. Pages підхопить теку `functions/` з кореня — це проксі `/api/*`.
-4. Settings → Variables and Secrets → додайте **`API_ORIGIN`** = адреса Render без слеша наприкінці (`https://ge-api.onrender.com`) і перезапустіть деплой.
-5. Запишіть адресу сайту (`https://<проєкт>.pages.dev`).
+Cloudflare тепер створює застосунки як Workers зі статикою; конфіг лежить у `wrangler.jsonc`, проксі — у `worker/index.js`.
+
+1. Compute → Workers & Pages → Create application → Import a repository (GitHub) → `grade-expectations`.
+2. Project name: `grade-expectations` (збігається з `name` у `wrangler.jsonc`).
+3. Build command: `corepack enable && pnpm install --frozen-lockfile && pnpm --filter @ge/shared --filter @ge/domain build && pnpm --filter @ge/web exec vite build`
+4. Deploy command: `npx wrangler deploy` (за замовчуванням). Версія Node береться з `.nvmrc`.
+5. Адресу API записано в `wrangler.jsonc` (`vars.API_ORIGIN`); змінюйте її там.
+6. Після деплою адреса сайту — `https://grade-expectations.<ваш-піддомен>.workers.dev`.
 
 ## 5. Зв'язати все докупи
 
