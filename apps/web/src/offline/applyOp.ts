@@ -28,6 +28,9 @@ export function applyOpToDetail(detail: LessonDetailDto, op: SyncOp): LessonDeta
         homework: op.homework === undefined ? detail.homework : op.homework,
         note: op.note === undefined ? detail.note : op.note,
       };
+    case 'assessment.grade.set':
+    case 'assessment.grade.clear':
+      return detail; // оцінки колонок живуть у журналі, не в занятті
     case 'lesson.finish':
       return {
         ...detail,

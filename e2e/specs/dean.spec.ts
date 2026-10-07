@@ -81,6 +81,9 @@ test.describe('сценарії деканату', () => {
     await page.getByRole('button', { name: 'Створити чернетку для редагування' }).click();
     await expect(page.getByRole('button', { name: 'Опублікувати' })).toBeVisible();
 
+    // Групи впорядковано за курсом і назвою: ПДт-11 перша, тож потрібну обираємо явно
+    await page.getByRole('combobox', { name: /Група/ }).click();
+    await page.getByRole('option', { name: 'ПДт-12' }).click();
     await page
       .getByRole('button', { name: /Метр\. · ПДт-12 Л/ })
       .first()

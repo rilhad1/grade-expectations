@@ -1,5 +1,7 @@
 import type { LessonKind, LoadDto } from '@ge/shared';
 
+import { compareByCourseDisciplineGroup, compareGroups } from '../../shared/sort';
+
 /** Порядок видів: основним у зведеному журналі вважається практичне навантаження, а не лекція. */
 const PRIMARY_ORDER: readonly LessonKind[] = ['PRACTICE', 'LAB', 'SEMINAR', 'CONTROL', 'LECTURE'];
 /** Порядок видів у фільтрі й переліках: лекція, практична, лабораторна… */
@@ -11,7 +13,6 @@ export const KIND_ORDER: readonly LessonKind[] = [
   'CONTROL',
 ];
 
-const byName = (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name, 'uk');
 const primaryRank = (l: LoadDto) => PRIMARY_ORDER.indexOf(l.kind);
 
 /** Основне навантаження журналу: його id стоїть в адресі сторінки. */
@@ -53,12 +54,7 @@ export function journalsOf(loads: readonly LoadDto[]): Journal[] {
         },
       ];
     })
-    .sort(
-      (a, b) =>
-        a.discipline.title.localeCompare(b.discipline.title, 'uk') ||
-        a.group.name.localeCompare(b.group.name, 'uk') ||
-        (a.subgroup?.name ?? '').localeCompare(b.subgroup?.name ?? '', 'uk'),
-    );
+    .sort(compareByCourseDisciplineGroup);
 }
 
 export interface LoadNav {
@@ -88,7 +84,7 @@ export function loadNav(loads: readonly LoadDto[], currentId: string): LoadNav |
     .sort((a, b) => a.title.localeCompare(b.title, 'uk'));
   const sameDiscipline = journals.filter((j) => j.discipline.id === current.discipline.id);
   const groups = [...new Map(sameDiscipline.map((j) => [j.group.id, j.group])).values()].sort(
-    byName,
+    compareGroups,
   );
   const sameGroup = sameDiscipline.filter((j) => j.group.id === current.group.id);
   const subgroups = sameGroup.map((j) => ({
@@ -104,7 +100,7 @@ export function loadNav(loads: readonly LoadDto[], currentId: string): LoadNav |
     forDiscipline: (disciplineId) => {
       const sorted = journals
         .filter((j) => j.discipline.id === disciplineId)
-        .sort((a, b) => byName(a.group, b.group));
+        .sort((a, b) => compareGroups(a.group, b.group));
       const own = sorted.filter((j) => j.group.id === current.group.id);
       const pool = own.length > 0 ? own : sorted.filter((j) => j.group.id === sorted[0]?.group.id);
       return preferWhole(pool)?.primaryId ?? null;

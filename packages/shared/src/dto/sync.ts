@@ -6,13 +6,13 @@ import { AttendanceStatus, GradeKind } from '../enums.js';
 import { bellDtoSchema } from './directory.js';
 import { lessonDetailDtoSchema } from './teaching.js';
 
-const base = {
+const opBase = {
   /** Ідентифікатор операції: повторна відправка не застосовується двічі. */
   opId: uuidSchema,
   /** Момент дії на пристрої (для «останній запис перемагає»). */
   at: z.iso.datetime(),
-  lessonId: uuidSchema,
 };
+const base = { ...opBase, lessonId: uuidSchema };
 
 /** Операції «На парі», що накопичуються в outbox на пристрої, поки немає мережі. */
 export const syncOpSchema = z.discriminatedUnion('type', [
@@ -38,6 +38,21 @@ export const syncOpSchema = z.discriminatedUnion('type', [
     topicText: z.string().trim().max(500).nullable().optional(),
     homework: z.string().trim().max(1000).nullable().optional(),
     note: z.string().trim().max(1000).nullable().optional(),
+  }),
+  // Колонки оцінювання (практичні, модулі): оцінка не прив'язана до заняття
+  z.object({
+    ...opBase,
+    type: z.literal('assessment.grade.set'),
+    assessmentId: uuidSchema,
+    enrollmentId: uuidSchema,
+    value: z.number().int().min(0).max(100),
+    comment: z.string().trim().max(500).nullable(),
+  }),
+  z.object({
+    ...opBase,
+    type: z.literal('assessment.grade.clear'),
+    assessmentId: uuidSchema,
+    enrollmentId: uuidSchema,
   }),
   z.object({ ...base, type: z.literal('lesson.finish') }),
   z.object({ ...base, type: z.literal('lesson.reopen') }),

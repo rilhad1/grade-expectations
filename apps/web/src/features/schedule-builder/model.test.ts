@@ -34,7 +34,7 @@ const load = (id: string, o: Partial<LoadDto> = {}): LoadDto => ({
     missedTest: 'IGNORE',
   },
   discipline: { id: 'd', title: 'Інформатика', shortTitle: 'Інформ.', color: '#000000' },
-  group: { id: 'g1', name: 'ПДт-12' },
+  group: { id: 'g1', name: 'ПДт-12', course: 1 },
   subgroup: null,
   teacher: { id: 't1', fullName: 'Бойчук В.В.' },
   hours: { planned: 32, held: 0, forecast: 0, deficit: 32, extraPairsNeeded: 16 },
@@ -87,7 +87,10 @@ describe('unplacedLoads', () => {
 describe('вигляди', () => {
   const loads = [
     load('a'),
-    load('b', { group: { id: 'g2', name: 'ПДт-13' }, teacher: { id: 't2', fullName: 'Інший' } }),
+    load('b', {
+      group: { id: 'g2', name: 'ПДт-13', course: 1 },
+      teacher: { id: 't2', fullName: 'Інший' },
+    }),
   ];
   const byId = new Map(loads.map((l) => [l.id, l]));
   const slots = [slot('s1', 'a', { roomId: 'r1' }), slot('s2', 'b', { roomId: 'r2' })];

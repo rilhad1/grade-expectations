@@ -1,4 +1,4 @@
-import { SCALE_RANGE } from '@ge/domain';
+import { resolveLww, SCALE_RANGE } from '@ge/domain';
 import {
   gradingRulesSchema,
   defaultGradingRules,
@@ -199,34 +199,81 @@ async function assertInRoster(
   if (!found) throw unprocessable('NOT_IN_ROSTER', 'Студента немає в складі журналу');
 }
 
-/** Виставляє або змінює оцінку студента в колонці (одна оцінка на студента). */
-export async function setAssessmentGrade(
+export type AssessmentGradeOutcome = 'applied' | 'unchanged' | 'superseded';
+
+/**
+ * Єдиний запис оцінки колонки (REST і черга синхронізації): «останній запис перемагає» по клітинці
+ * за часом дії `at`; `value = null` прибирає оцінку. Оцінка студента в колонці одна.
+ */
+export async function writeAssessmentGrade(
   ctx: AuthContext,
   assessmentId: string,
   enrollmentId: string,
-  input: SetAssessmentGradeInput,
-): Promise<AssessmentGradeDto> {
+  change: { value: number; comment: string | null } | null,
+  at: string,
+): Promise<{ outcome: AssessmentGradeOutcome; grade: AssessmentGradeDto | null }> {
   const assessment = await findAssessment(ctx, assessmentId);
   assertOpen(assessment.load.semester.status);
   await assertInRoster(ctx, assessment, enrollmentId);
-  const scale = (
-    gradingRulesSchema.safeParse(assessment.load.gradingRules).data ?? defaultGradingRules
-  ).scale;
-  const { min, max } = SCALE_RANGE[scale];
-  if (input.value < min || input.value > max)
-    throw unprocessable('GRADE_OUT_OF_SCALE', `Оцінка має бути від ${min} до ${max}`);
+  if (change) {
+    const scale = (
+      gradingRulesSchema.safeParse(assessment.load.gradingRules).data ?? defaultGradingRules
+    ).scale;
+    const { min, max } = SCALE_RANGE[scale];
+    if (change.value < min || change.value > max)
+      throw unprocessable('GRADE_OUT_OF_SCALE', `Оцінка має бути від ${min} до ${max}`);
+  }
 
-  const existing = await ctx.db.grade.findFirst({
-    where: { assessmentId, enrollmentId, deletedAt: null },
+  // Остання дія по клітинці (включно з видаленою) визначає, чи не застаріла ця зміна
+  const latest = await ctx.db.grade.findFirst({
+    where: { assessmentId, enrollmentId },
+    orderBy: [{ updatedAt: 'desc' }],
   });
+  if (latest && resolveLww(latest.editedAt?.toISOString() ?? null, at) === 'skip')
+    return { outcome: 'superseded', grade: null };
+
+  if (!change) {
+    if (!latest || latest.deletedAt !== null) return { outcome: 'unchanged', grade: null };
+    await ctx.db.$transaction(async (tx) => {
+      await tx.grade.update({
+        where: { id: latest.id },
+        data: { deletedAt: new Date(), editedAt: new Date(at), version: { increment: 1 } },
+      });
+      await audit(tx, ctx, {
+        entity: 'Grade',
+        entityId: latest.id,
+        op: 'DELETE',
+        before: { value: latest.value, assessmentId },
+      });
+    });
+    return { outcome: 'applied', grade: null };
+  }
+
+  if (
+    latest &&
+    latest.deletedAt === null &&
+    latest.value === change.value &&
+    latest.comment === change.comment
+  )
+    return {
+      outcome: 'unchanged',
+      grade: {
+        id: latest.id,
+        value: latest.value,
+        comment: latest.comment,
+        version: latest.version,
+      },
+    };
+
   const row = await ctx.db.$transaction(async (tx) => {
-    const saved = existing
+    const saved = latest
       ? await tx.grade.update({
-          where: { id: existing.id },
+          where: { id: latest.id },
           data: {
-            value: input.value,
-            comment: input.comment,
-            editedAt: new Date(),
+            value: change.value,
+            comment: change.comment,
+            editedAt: new Date(at),
+            deletedAt: null,
             version: { increment: 1 },
           },
         })
@@ -236,21 +283,43 @@ export async function setAssessmentGrade(
             enrollmentId,
             assessmentId,
             kind: gradeKindOf(assessment.kind),
-            value: input.value,
-            comment: input.comment,
-            editedAt: new Date(),
+            value: change.value,
+            comment: change.comment,
+            editedAt: new Date(at),
           },
         });
     await audit(tx, ctx, {
       entity: 'Grade',
       entityId: saved.id,
       op: 'UPSERT',
-      before: existing ? { value: existing.value } : null,
-      after: { enrollmentId, assessmentId, value: input.value },
+      before: latest && latest.deletedAt === null ? { value: latest.value } : null,
+      after: { enrollmentId, assessmentId, value: change.value },
     });
     return saved;
   });
-  return { id: row.id, value: row.value, comment: row.comment, version: row.version };
+  return {
+    outcome: 'applied',
+    grade: { id: row.id, value: row.value, comment: row.comment, version: row.version },
+  };
+}
+
+/** Виставляє або змінює оцінку студента в колонці (REST: дія «зараз»). */
+export async function setAssessmentGrade(
+  ctx: AuthContext,
+  assessmentId: string,
+  enrollmentId: string,
+  input: SetAssessmentGradeInput,
+): Promise<AssessmentGradeDto> {
+  const { grade } = await writeAssessmentGrade(
+    ctx,
+    assessmentId,
+    enrollmentId,
+    { value: input.value, comment: input.comment },
+    new Date().toISOString(),
+  );
+  /* v8 ignore next -- «зараз» не може програти за часом, а оцінка після запису завжди є */
+  if (!grade) throw conflict('SUPERSEDED', 'Оцінку замінено новішою');
+  return grade;
 }
 
 export async function clearAssessmentGrade(
@@ -258,22 +327,5 @@ export async function clearAssessmentGrade(
   assessmentId: string,
   enrollmentId: string,
 ): Promise<void> {
-  const assessment = await findAssessment(ctx, assessmentId);
-  assertOpen(assessment.load.semester.status);
-  const existing = await ctx.db.grade.findFirst({
-    where: { assessmentId, enrollmentId, deletedAt: null },
-  });
-  if (!existing) return;
-  await ctx.db.$transaction(async (tx) => {
-    await tx.grade.update({
-      where: { id: existing.id },
-      data: { deletedAt: new Date(), version: { increment: 1 } },
-    });
-    await audit(tx, ctx, {
-      entity: 'Grade',
-      entityId: existing.id,
-      op: 'DELETE',
-      before: { value: existing.value, assessmentId },
-    });
-  });
+  await writeAssessmentGrade(ctx, assessmentId, enrollmentId, null, new Date().toISOString());
 }

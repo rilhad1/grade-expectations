@@ -28,7 +28,7 @@ export const loadDtoSchema = z.object({
     shortTitle: z.string(),
     color: z.string(),
   }),
-  group: z.object({ id: uuidSchema, name: z.string() }),
+  group: z.object({ id: uuidSchema, name: z.string(), course: z.number().int() }),
   subgroup: z.object({ id: uuidSchema, name: z.string() }).nullable(),
   teacher: z.object({ id: uuidSchema, fullName: z.string() }),
   /** Вичитка годин: план / факт / прогноз. */

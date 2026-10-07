@@ -21,7 +21,7 @@ const load: LoadDto = {
     missedTest: 'IGNORE',
   },
   discipline: { id: 'd', title: 'Інформатика', shortTitle: 'Інформ.', color: '#3B6EA5' },
-  group: { id: 'g', name: 'ПДт-12' },
+  group: { id: 'g', name: 'ПДт-12', course: 1 },
   subgroup: { id: 'sg', name: '2 підгрупа' },
   teacher: { id: 't', fullName: 'Бойчук В.В.' },
   hours: { planned: 32, held: 0, forecast: 0, deficit: 32, extraPairsNeeded: 16 },

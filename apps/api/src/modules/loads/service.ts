@@ -21,7 +21,7 @@ const loadScope = (organizationId: string) =>
 
 const include = {
   discipline: { select: { id: true, title: true, shortTitle: true, color: true } },
-  group: { select: { id: true, name: true } },
+  group: { select: { id: true, name: true, course: true } },
   subgroup: { select: { id: true, name: true } },
   teacher: { select: { id: true, fullName: true } },
 } satisfies Prisma.TeachingLoadInclude;

@@ -5,6 +5,8 @@ import { createFileRoute } from '@tanstack/react-router';
 import { q } from '../../../api/queries';
 import { useCurrentSemester } from '../../../app/SemesterSwitcher';
 import { uk } from '../../../shared/i18n/uk';
+import { sectionsByCourse } from '../../../shared/sort';
+import { CourseSubheader } from '../../../shared/ui/CourseSubheader';
 import { DisciplineDot } from '../../../shared/ui/DisciplineDot';
 import { ErrorAlert } from '../../../shared/ui/ErrorAlert';
 import { PageHeader } from '../../../shared/ui/PageHeader';
@@ -33,24 +35,29 @@ function AttestationsIndex() {
           </Typography>
           <Paper variant="outlined" sx={{ maxWidth: 640 }}>
             <List disablePadding>
-              {items.map((l) => (
-                <LinkListItem
-                  key={l.id}
-                  to="/attestations/$loadId"
-                  params={{ loadId: l.id }}
-                  sx={{ minHeight: 56 }}
-                >
-                  <ListItemText
-                    primary={
-                      <>
-                        <DisciplineDot color={l.discipline.color} />
-                        {l.discipline.title}
-                      </>
-                    }
-                    secondary={`${l.group.name}${l.subgroup ? ` · ${l.subgroup.name}` : ''} · ${uk.loads.kinds[l.kind]} · ${uk.loads.controlForms[l.controlForm]}`}
-                  />
-                </LinkListItem>
-              ))}
+              {sectionsByCourse(items).flatMap((section, _i, all) => [
+                all.length > 1 && (
+                  <CourseSubheader key={`c${String(section.course)}`} course={section.course} />
+                ),
+                ...section.items.map((l) => (
+                  <LinkListItem
+                    key={l.id}
+                    to="/attestations/$loadId"
+                    params={{ loadId: l.id }}
+                    sx={{ minHeight: 56 }}
+                  >
+                    <ListItemText
+                      primary={
+                        <>
+                          <DisciplineDot color={l.discipline.color} />
+                          {l.discipline.title}
+                        </>
+                      }
+                      secondary={`${l.group.name}${l.subgroup ? ` · ${l.subgroup.name}` : ''} · ${uk.loads.kinds[l.kind]} · ${uk.loads.controlForms[l.controlForm]}`}
+                    />
+                  </LinkListItem>
+                )),
+              ])}
             </List>
           </Paper>
         </>

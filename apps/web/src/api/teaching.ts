@@ -1,6 +1,5 @@
 import {
   assessmentDtoSchema,
-  assessmentGradeDtoSchema,
   gradebookDtoSchema,
   lessonDetailDtoSchema,
   lessonItemDtoSchema,
@@ -68,10 +67,6 @@ export const patchAssessment = (
   body: { title?: string; kind?: string; attestationKind?: string | null },
 ) => patch(`/assessments/${id}`, { ...body, version }, assessmentDtoSchema);
 export const removeAssessment = (id: string) => del(`/assessments/${id}`);
-export const putAssessmentGrade = (assessmentId: string, enrollmentId: string, value: number) =>
-  put(`/assessments/${assessmentId}/grades/${enrollmentId}`, { value }, assessmentGradeDtoSchema);
-export const removeAssessmentGrade = (assessmentId: string, enrollmentId: string) =>
-  del(`/assessments/${assessmentId}/grades/${enrollmentId}`);
 
 export const fetchTopics = (loadId: string) => get(`/loads/${loadId}/topics`, topicPlanDtoSchema);
 export const saveTopics = (

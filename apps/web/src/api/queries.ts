@@ -14,6 +14,7 @@ import { queryOptions } from '@tanstack/react-query';
 import { z } from 'zod';
 
 import { cachedFetch } from '../offline/cache';
+import { compareGroups, compareText, sortByCourseDisciplineGroup } from '../shared/sort';
 
 import { get, getAll } from './http';
 
@@ -32,7 +33,10 @@ export const q = {
   disciplines: () =>
     queryOptions({
       queryKey: ['disciplines'],
-      queryFn: () => getAll('/disciplines', disciplineDtoSchema),
+      queryFn: async () =>
+        (await getAll('/disciplines', disciplineDtoSchema)).sort((a, b) =>
+          compareText(a.title, b.title),
+        ),
     }),
   rooms: () =>
     queryOptions({ queryKey: ['rooms'], queryFn: () => getAll('/rooms', roomDtoSchema) }),
@@ -46,7 +50,8 @@ export const q = {
   groups: (academicYearId?: string) =>
     queryOptions({
       queryKey: ['groups', academicYearId ?? 'all'],
-      queryFn: () => getAll('/groups', groupDtoSchema, { academicYearId }),
+      queryFn: async () =>
+        (await getAll('/groups', groupDtoSchema, { academicYearId })).sort(compareGroups),
     }),
   students: (groupId?: string) =>
     queryOptions({
@@ -58,6 +63,12 @@ export const q = {
   loads: (semesterId: string) =>
     queryOptions({
       queryKey: ['loads', semesterId],
-      queryFn: () => getAll('/loads', loadDtoSchema, { semesterId }),
+      // Скрізь однаковий порядок: курс → предмет → група
+      queryFn: async () =>
+        sortByCourseDisciplineGroup(
+          await cachedFetch(`loads:${semesterId}`, () =>
+            getAll('/loads', loadDtoSchema, { semesterId }),
+          ),
+        ),
     }),
 };

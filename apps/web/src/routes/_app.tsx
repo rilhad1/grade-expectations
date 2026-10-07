@@ -41,6 +41,7 @@ function AppLayout() {
     setOnSynced(() => {
       void queryClient.invalidateQueries({ queryKey: ['lesson'] });
       void queryClient.invalidateQueries({ queryKey: ['today'] });
+      void queryClient.invalidateQueries({ queryKey: ['gradebook'] });
     });
     let stop: (() => void) | undefined;
     let cancelled = false;

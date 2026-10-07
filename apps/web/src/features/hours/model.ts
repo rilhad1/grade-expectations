@@ -1,5 +1,7 @@
 import type { LoadDto } from '@ge/shared';
 
+import { compareByCourseDisciplineGroup, compareText } from '../../shared/sort';
+
 export interface HoursRow {
   loadId: string;
   teacher: string;
@@ -15,7 +17,11 @@ export interface HoursRow {
 
 /** Рядки звіту про вичитку: за викладачем, потім за дисципліною й групою. */
 export function hoursRows(loads: readonly LoadDto[]): HoursRow[] {
-  return loads
+  return [...loads]
+    .sort(
+      (a, b) =>
+        compareText(a.teacher.fullName, b.teacher.fullName) || compareByCourseDisciplineGroup(a, b),
+    )
     .map((l) => ({
       loadId: l.id,
       teacher: l.teacher.fullName,
@@ -27,13 +33,7 @@ export function hoursRows(loads: readonly LoadDto[]): HoursRow[] {
       forecast: l.hours.forecast,
       deficit: l.hours.deficit,
       extraPairs: l.hours.extraPairsNeeded,
-    }))
-    .sort(
-      (a, b) =>
-        a.teacher.localeCompare(b.teacher, 'uk') ||
-        a.discipline.localeCompare(b.discipline, 'uk') ||
-        a.group.localeCompare(b.group, 'uk'),
-    );
+    }));
 }
 
 export function hoursTotals(rows: readonly HoursRow[]) {

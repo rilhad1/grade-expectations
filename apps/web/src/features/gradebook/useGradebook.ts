@@ -3,17 +3,16 @@ import { uuidv7 } from '@ge/shared';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import {
-  fetchGradebook,
   patchAssessment,
   patchGrade,
   postAssessment,
   postGrade,
-  putAssessmentGrade,
   putAttendance,
   removeAssessment,
-  removeAssessmentGrade,
   removeGrade,
 } from '../../api/teaching';
+import { loadGradebook } from '../../offline/gradebookSource';
+import { submitOp } from '../../offline/outbox';
 
 import { removeCellGrade, setAssessmentCell, setCellAttendance, setCellGrade } from './model';
 
@@ -28,7 +27,7 @@ export function useGradebook(loadId: string, range: Range) {
   const key = ['gradebook', loadId, range.from ?? '', range.to ?? ''] as const;
   const query = useQuery({
     queryKey: key,
-    queryFn: () => fetchGradebook(loadId, range),
+    queryFn: () => loadGradebook(loadId, range),
     // Під час зміни фільтра періоду таблиця й перелік періодів не зникають
     placeholderData: keepPreviousData,
   });
@@ -99,13 +98,26 @@ export function useGradebook(loadId: string, range: Range) {
     ...options<AssessmentCell & { value: number }>((d, v) =>
       setAssessmentCell(d, v.enrollmentId, v.assessmentId, v.value),
     ),
-    mutationFn: (v) => putAssessmentGrade(v.assessmentId, v.enrollmentId, v.value),
+    // Через чергу синхронізації: працює й без мережі, на сервері діє «останній запис перемагає»
+    mutationFn: (v) =>
+      submitOp({
+        type: 'assessment.grade.set',
+        assessmentId: v.assessmentId,
+        enrollmentId: v.enrollmentId,
+        value: v.value,
+        comment: null,
+      }),
   });
   const clearAssessmentGrade = useMutation({
     ...options<AssessmentCell>((d, v) =>
       setAssessmentCell(d, v.enrollmentId, v.assessmentId, null),
     ),
-    mutationFn: (v) => removeAssessmentGrade(v.assessmentId, v.enrollmentId),
+    mutationFn: (v) =>
+      submitOp({
+        type: 'assessment.grade.clear',
+        assessmentId: v.assessmentId,
+        enrollmentId: v.enrollmentId,
+      }),
   });
 
   /** Керування самими колонками (не оптимістичне: після відповіді журнал перезапитується). */

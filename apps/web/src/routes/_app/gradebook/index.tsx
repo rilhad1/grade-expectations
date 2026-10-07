@@ -6,6 +6,8 @@ import { q } from '../../../api/queries';
 import { useCurrentSemester } from '../../../app/SemesterSwitcher';
 import { journalsOf } from '../../../features/gradebook/loadNav';
 import { uk } from '../../../shared/i18n/uk';
+import { sectionsByCourse } from '../../../shared/sort';
+import { CourseSubheader } from '../../../shared/ui/CourseSubheader';
 import { DisciplineDot } from '../../../shared/ui/DisciplineDot';
 import { ErrorAlert } from '../../../shared/ui/ErrorAlert';
 import { PageHeader } from '../../../shared/ui/PageHeader';
@@ -19,6 +21,7 @@ function GradebookIndex() {
   const loads = useQuery({ ...q.loads(semester?.id ?? ''), enabled: semester !== null });
   if (!semester) return <Alert severity="info">{uk.gradebook.noSemester}</Alert>;
   const items = journalsOf(loads.data ?? []);
+  const sections = sectionsByCourse(items);
 
   return (
     <>
@@ -34,24 +37,29 @@ function GradebookIndex() {
           </Typography>
           <Paper variant="outlined" sx={{ maxWidth: 640 }}>
             <List disablePadding>
-              {items.map((j) => (
-                <LinkListItem
-                  key={`${j.discipline.id}|${j.group.id}|${j.subgroup?.id ?? ''}`}
-                  to="/gradebook/$loadId"
-                  params={{ loadId: j.primaryId }}
-                  sx={{ minHeight: 56 }}
-                >
-                  <ListItemText
-                    primary={
-                      <>
-                        <DisciplineDot color={j.discipline.color} />
-                        {j.discipline.title}
-                      </>
-                    }
-                    secondary={`${j.group.name}${j.subgroup ? ` · ${j.subgroup.name}` : ''} · ${j.kinds.map((k) => uk.loads.kinds[k]).join(', ')} · ${String(j.held)} ${uk.loads.hoursOf} ${String(j.planned)} год`}
-                  />
-                </LinkListItem>
-              ))}
+              {sections.flatMap((section) => [
+                sections.length > 1 && (
+                  <CourseSubheader key={`c${String(section.course)}`} course={section.course} />
+                ),
+                ...section.items.map((j) => (
+                  <LinkListItem
+                    key={`${j.discipline.id}|${j.group.id}|${j.subgroup?.id ?? ''}`}
+                    to="/gradebook/$loadId"
+                    params={{ loadId: j.primaryId }}
+                    sx={{ minHeight: 56 }}
+                  >
+                    <ListItemText
+                      primary={
+                        <>
+                          <DisciplineDot color={j.discipline.color} />
+                          {j.discipline.title}
+                        </>
+                      }
+                      secondary={`${j.group.name}${j.subgroup ? ` · ${j.subgroup.name}` : ''} · ${j.kinds.map((k) => uk.loads.kinds[k]).join(', ')} · ${String(j.held)} ${uk.loads.hoursOf} ${String(j.planned)} год`}
+                    />
+                  </LinkListItem>
+                )),
+              ])}
             </List>
           </Paper>
         </>

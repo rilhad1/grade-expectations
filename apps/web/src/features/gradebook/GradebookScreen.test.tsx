@@ -2,6 +2,7 @@ import type { GradebookDto } from '@ge/shared';
 import { fireEvent, screen, waitFor, within } from '@testing-library/react';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { clearOfflineData, db } from '../../offline/db';
 import { uk } from '../../shared/i18n/uk';
 import { renderWithClient } from '../../test/renderWithProviders';
 
@@ -14,8 +15,6 @@ const api = vi.hoisted(() => ({
   postAssessment: vi.fn(),
   patchAssessment: vi.fn(),
   removeAssessment: vi.fn(),
-  putAssessmentGrade: vi.fn(),
-  removeAssessmentGrade: vi.fn(),
 }));
 vi.mock('../../api/teaching', () => api);
 
@@ -120,7 +119,8 @@ beforeAll(() => {
   });
 });
 
-beforeEach(() => {
+beforeEach(async () => {
+  await clearOfflineData();
   Object.values(api).forEach((m) => m.mockReset());
   api.fetchGradebook.mockResolvedValue(book());
   api.postGrade.mockResolvedValue({});
@@ -193,28 +193,45 @@ describe('GradebookScreen', () => {
     return data;
   };
 
-  it('цифра в клітинці колонки оцінювання виставляє оцінку', async () => {
+  it('цифра в клітинці колонки оцінювання виставляє оцінку через чергу синхронізації', async () => {
     withColumns();
-    api.putAssessmentGrade.mockReturnValue(new Promise(() => undefined)); // лишається оптимістичний стан
     renderWithClient(<GradebookScreen loadId="load1" />);
     await screen.findByRole('grid');
     fireEvent.click(screen.getByTestId('assessment-1-a1'));
     fireEvent.keyDown(grid(), { key: '9' });
-    await waitFor(() => {
-      expect(api.putAssessmentGrade).toHaveBeenCalledWith('a1', 'e2', 9);
+    await waitFor(async () => {
+      expect((await db.outbox.toArray()).map((r) => r.op)).toEqual([
+        expect.objectContaining({
+          type: 'assessment.grade.set',
+          assessmentId: 'a1',
+          enrollmentId: 'e2',
+          value: 9,
+        }),
+      ]);
     });
-    expect(screen.getByTestId('assessment-1-a1')).toHaveTextContent('9');
+    // Зміна видна одразу, ще до відповіді сервера (рефетч не має її затирати)
+    await waitFor(() => {
+      expect(screen.getByTestId('assessment-1-a1')).toHaveTextContent('9');
+    });
   });
 
-  it('Delete у клітинці колонки оцінювання прибирає оцінку', async () => {
+  it('Delete у клітинці колонки оцінювання ставить «очищення» в чергу', async () => {
     withColumns();
-    api.removeAssessmentGrade.mockResolvedValue(undefined);
     renderWithClient(<GradebookScreen loadId="load1" />);
     await screen.findByRole('grid');
     fireEvent.click(screen.getByTestId('assessment-0-a1'));
     fireEvent.keyDown(grid(), { key: 'Delete' });
+    await waitFor(async () => {
+      expect((await db.outbox.toArray()).map((r) => r.op)).toEqual([
+        expect.objectContaining({
+          type: 'assessment.grade.clear',
+          assessmentId: 'a1',
+          enrollmentId: 'e1',
+        }),
+      ]);
+    });
     await waitFor(() => {
-      expect(api.removeAssessmentGrade).toHaveBeenCalledWith('a1', 'e1');
+      expect(screen.getByTestId('assessment-0-a1')).toHaveTextContent('');
     });
   });
 

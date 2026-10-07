@@ -53,4 +53,50 @@ test.describe('офлайн «На парі»: зміни без мережі с
     await expect(page.getByText('Присутні 24 з 25')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Усна 9' })).toBeVisible();
   });
+
+  test('колонка оцінювання: оцінка без інтернету потрапляє в чергу й синхронізується', async ({
+    page,
+    context,
+  }) => {
+    await login(page, users.teacher);
+    await page.getByRole('link', { name: 'Журнал', exact: true }).click();
+    await expect(page).toHaveURL(/\/gradebook$/);
+    await page
+      .getByText(/Метрологія/)
+      .first()
+      .click();
+    await expect(page.getByRole('grid')).toBeVisible();
+
+    await page.getByRole('button', { name: '+ Колонка' }).click();
+    await page.getByRole('dialog').getByLabel('Назва').fill('Офлайн 1');
+    await page.getByRole('dialog').getByRole('button', { name: 'Зберегти' }).click();
+    await expect(page.getByRole('button', { name: 'Колонка: Офлайн 1' })).toBeVisible();
+
+    await context.setOffline(true);
+    await expect(page.getByRole('banner').getByRole('status')).toContainText('Офлайн');
+    const cell = page.getByTestId(/^assessment-0-/);
+    await cell.click();
+    await page.keyboard.press('7');
+    await expect(cell).toContainText('7');
+    await expect(page.getByRole('banner').getByRole('status')).toContainText(
+      'Офлайн · 1 змін на пристрої',
+    );
+
+    await context.setOffline(false);
+    await expect(page.getByRole('banner').getByRole('status')).toContainText('Синхронізовано', {
+      timeout: 30_000,
+    });
+    await page.reload();
+    await expect(page.getByTestId(/^assessment-0-/)).toContainText('7');
+
+    // прибираємо за собою
+    await page.getByRole('button', { name: 'Колонка: Офлайн 1' }).click();
+    await page.getByRole('dialog').getByRole('button', { name: 'Видалити' }).click();
+    await page
+      .getByRole('dialog')
+      .filter({ hasText: 'Видалити колонку' })
+      .getByRole('button', { name: 'Видалити' })
+      .click();
+    await expect(page.getByRole('button', { name: 'Колонка: Офлайн 1' })).toHaveCount(0);
+  });
 });

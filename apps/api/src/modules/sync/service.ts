@@ -6,6 +6,7 @@ import { AppError, forbidden, unprocessable } from '../../errors.js';
 import { audit } from '../../lib/audit.js';
 import { addDaysIso, dateOf, definedOnly } from '../../lib/db.js';
 import type { AuthContext } from '../../plugins/session.js';
+import { assessmentOwner, writeAssessmentGrade } from '../journal/assessments.js';
 import {
   assertSemesterOpen,
   assertValueInScale,
@@ -174,6 +175,21 @@ async function applyGradeDelete(
   return applied();
 }
 
+async function applyAssessmentGrade(
+  ctx: AuthContext,
+  op: Extract<SyncOp, { type: 'assessment.grade.set' | 'assessment.grade.clear' }>,
+  at: string,
+): Promise<Outcome> {
+  authorize(ctx, 'grade:write', await assessmentOwner(ctx, op.assessmentId));
+  const change =
+    op.type === 'assessment.grade.set' ? { value: op.value, comment: op.comment } : null;
+  const { outcome } = await writeAssessmentGrade(ctx, op.assessmentId, op.enrollmentId, change, at);
+  if (outcome === 'superseded')
+    return skipped('SUPERSEDED', 'Оцінку замінено новішою з іншого пристрою');
+  if (outcome === 'unchanged') return skipped('UNCHANGED', 'Оцінка вже збережена');
+  return applied();
+}
+
 async function applyLessonInfo(
   ctx: AuthContext,
   op: Extract<SyncOp, { type: 'lesson.info' }>,
@@ -227,6 +243,9 @@ async function applyOp(ctx: AuthContext, op: SyncOp, now: string): Promise<Outco
       return applyGradeSet(ctx, op, at);
     case 'grade.delete':
       return applyGradeDelete(ctx, op, at);
+    case 'assessment.grade.set':
+    case 'assessment.grade.clear':
+      return applyAssessmentGrade(ctx, op, at);
     case 'lesson.info':
       return applyLessonInfo(ctx, op);
     case 'lesson.finish':

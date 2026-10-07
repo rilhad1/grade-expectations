@@ -299,6 +299,89 @@ describe('sync/push', () => {
   });
 });
 
+describe('sync/push: колонки оцінювання', () => {
+  let assessmentId = '';
+  const aSet = (at: string, enrollmentId: string, value: number): SyncOp => ({
+    opId: uuidv7(),
+    at,
+    type: 'assessment.grade.set',
+    assessmentId,
+    enrollmentId,
+    value,
+    comment: null,
+  });
+  const aClear = (at: string, enrollmentId: string): SyncOp => ({
+    opId: uuidv7(),
+    at,
+    type: 'assessment.grade.clear',
+    assessmentId,
+    enrollmentId,
+  });
+  const cell = async (enrollmentId: string) =>
+    prisma.grade.findFirst({
+      where: { assessmentId, enrollmentId, deletedAt: null },
+    });
+
+  it('створюється колонка (онлайн), оцінка з черги застосовується один раз', async () => {
+    const created = await teacher<{ id: string }>('POST', `/loads/${ids.loadId}/assessments`, {
+      title: 'Практична 1',
+      kind: 'LAB',
+      attestationKind: 'INTERIM',
+    });
+    expect(created.status).toBe(201);
+    assessmentId = created.body.id;
+
+    const [a] = ids.enrollments;
+    const op = aSet(t(10), a ?? '', 11);
+    const first = await push([op]);
+    expect(first.body.results[0]).toMatchObject({ status: 'applied' });
+    expect((await cell(a ?? ''))?.value).toBe(11);
+    // Повтор того самого opId — той самий результат, без другої оцінки
+    const again = await push([op]);
+    expect(again.body.results[0]).toMatchObject({ status: 'applied' });
+    expect(await prisma.grade.count({ where: { assessmentId, enrollmentId: a ?? '' } })).toBe(1);
+  });
+
+  it('LWW по клітинці: старіша зміна програє, новіша виграє, очищення теж', async () => {
+    const [, b] = ids.enrollments;
+    expect((await push([aSet(t(30), b ?? '', 9)])).body.results[0]?.status).toBe('applied');
+    const older = await push([aSet(t(20), b ?? '', 5)]);
+    expect(older.body.results[0]).toMatchObject({ status: 'skipped', code: 'SUPERSEDED' });
+    expect((await cell(b ?? ''))?.value).toBe(9);
+    const newer = await push([aSet(t(40), b ?? '', 12)]);
+    expect(newer.body.results[0]?.status).toBe('applied');
+    expect((await cell(b ?? ''))?.value).toBe(12);
+
+    // Очищення новіше за встановлення; пізніша «стара» постановка не воскрешає оцінку
+    expect((await push([aClear(t(50), b ?? '')])).body.results[0]?.status).toBe('applied');
+    expect(await cell(b ?? '')).toBeNull();
+    const stale = await push([aSet(t(45), b ?? '', 7)]);
+    expect(stale.body.results[0]).toMatchObject({ status: 'skipped', code: 'SUPERSEDED' });
+    expect(await cell(b ?? '')).toBeNull();
+    // Після очищення нова оцінка відновлює клітинку тією ж записом
+    expect((await push([aSet(t(60), b ?? '', 8)])).body.results[0]?.status).toBe('applied');
+    expect((await cell(b ?? ''))?.value).toBe(8);
+  });
+
+  it('відмови: поза шкалою, чужий викладач, деканат без прав, чужий студент', async () => {
+    const [a] = ids.enrollments;
+    const out = await push([aSet(t(70), a ?? '', 13)]);
+    expect(out.body.results[0]).toMatchObject({ status: 'rejected', code: 'GRADE_OUT_OF_SCALE' });
+    const foreign = await push([aSet(t(70), a ?? '', 9)], teacher2);
+    expect(foreign.body.results[0]?.status).toBe('rejected');
+    const byMod = await push([aSet(t(70), a ?? '', 9)], mod);
+    expect(byMod.body.results[0]).toMatchObject({ status: 'rejected', code: 'FORBIDDEN' });
+    const stranger = await push([aSet(t(70), uuidv7(), 9)]);
+    expect(stranger.body.results[0]).toMatchObject({ status: 'rejected', code: 'NOT_IN_ROSTER' });
+  });
+
+  it('те саме значення — «без змін»', async () => {
+    const [a] = ids.enrollments;
+    const same = await push([aSet(t(80), a ?? '', 11)]);
+    expect(same.body.results[0]).toMatchObject({ status: 'skipped', code: 'UNCHANGED' });
+  });
+});
+
 describe('sync/pull', () => {
   it('знімок: заняття викладача у вікні, дзвінки; чужих занять немає', async () => {
     const res = await teacher<PullResponse>('GET', '/sync/pull');
