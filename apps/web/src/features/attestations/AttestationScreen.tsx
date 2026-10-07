@@ -106,6 +106,7 @@ export function AttestationScreen({ loadId }: { loadId: string }) {
                   {m.kind === 'AVERAGE'
                     ? t.wholeSemester
                     : `${formatShortDate(m.dateFrom)} – ${formatShortDate(m.dateTo)}`}
+                  {m.course > 0 && ` · ${uk.semesters.courseN(m.course)}`}
                 </Box>
               </Box>
             }

@@ -2,7 +2,7 @@ import type { GradebookDto } from '@ge/shared';
 import { Box, Tooltip } from '@mui/material';
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useMemo, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 
 import { formatShortDate } from '../../shared/format';
 import { uk } from '../../shared/i18n/uk';
@@ -90,6 +90,22 @@ export function GradebookGrid({
   });
 
   const lessonCount = data.lessons.length;
+  // Вибрана клітинка завжди в полі зору: сітка широка, а колонок бувають десятки
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el || typeof el.scrollTo !== 'function') return;
+    const frozen = INDEX_W + NAME_W;
+    const cellW = selection.col < lessonCount ? CELL_W : ASSESS_W;
+    const left =
+      selection.col < lessonCount
+        ? selection.col * CELL_W
+        : lessonCount * CELL_W + (selection.col - lessonCount) * ASSESS_W;
+    const visibleFrom = el.scrollLeft;
+    const visibleTo = el.scrollLeft + el.clientWidth - frozen;
+    if (left < visibleFrom) el.scrollTo({ left: Math.max(0, left - CELL_W) });
+    else if (left + cellW > visibleTo)
+      el.scrollTo({ left: left + cellW - el.clientWidth + frozen + CELL_W });
+  }, [selection.col, lessonCount]);
   const assessmentCount = data.assessments.length;
   const template = `${INDEX_W}px ${NAME_W}px repeat(${lessonCount}, ${CELL_W}px) ${assessmentCount > 0 ? `repeat(${assessmentCount}, ${ASSESS_W}px) ` : ''}${SUMMARY_W}px ${SUMMARY_W + 28}px ${SUMMARY_W + 28}px`;
   const totalWidth =

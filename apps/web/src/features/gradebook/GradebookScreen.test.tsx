@@ -143,6 +143,26 @@ describe('GradebookScreen', () => {
     expect(screen.getAllByText('н/а').length).toBeGreaterThan(0);
   });
 
+  it('майбутні заняття за замовчуванням сховані: сітка закінчується сьогоднішнім днем', async () => {
+    const data = book();
+    data.lessons = [
+      ...data.lessons.slice(0, 2),
+      {
+        id: 'lf',
+        date: '2099-01-01',
+        pairNumber: 2,
+        kind: 'LECTURE',
+        status: 'PLANNED',
+        topic: null,
+      },
+    ];
+    api.fetchGradebook.mockResolvedValue(data);
+    renderWithClient(<GradebookScreen loadId="load1" />);
+    await screen.findByRole('grid');
+    expect(screen.getByTestId('cell-0-1')).toBeInTheDocument();
+    expect(screen.queryByTestId('cell-0-2')).toBeNull();
+  });
+
   it('колонки оцінювання (практичні, модуль) показують оцінки окремо від занять', async () => {
     const data = book();
     data.assessments = [

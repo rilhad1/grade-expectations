@@ -1,6 +1,6 @@
 import type { LessonKind, LoadDto } from '@ge/shared';
 import ExpandMore from '@mui/icons-material/ExpandMore';
-import { Box, MenuItem, Select, Stack, Typography } from '@mui/material';
+import { Box, FormControlLabel, MenuItem, Select, Stack, Switch, Typography } from '@mui/material';
 
 import { uk } from '../../shared/i18n/uk';
 import { DisciplineDot } from '../../shared/ui/DisciplineDot';
@@ -25,6 +25,9 @@ export function GradebookToolbar({
   kinds,
   kindFilter,
   onKindFilter,
+  hasFuture = false,
+  showFuture = false,
+  onShowFuture,
 }: {
   loads: readonly LoadDto[];
   currentId: string;
@@ -34,6 +37,10 @@ export function GradebookToolbar({
   kinds: readonly LessonKind[];
   kindFilter: 'ALL' | LessonKind;
   onKindFilter: (kind: 'ALL' | LessonKind) => void;
+  /** Є заняття після сьогодні: показуємо перемикач «Майбутні». */
+  hasFuture?: boolean;
+  showFuture?: boolean;
+  onShowFuture?: (show: boolean) => void;
 }) {
   const nav = loadNav(loads, currentId);
   if (!nav) return <Box sx={{ mb: 2 }}>{period}</Box>;
@@ -105,6 +112,22 @@ export function GradebookToolbar({
               { value: 'ALL' as const, label: uk.gradebook.kindFilter.ALL },
               ...kinds.map((k) => ({ value: k, label: uk.gradebook.kindFilter[k] })),
             ]}
+          />
+        )}
+
+        {hasFuture && onShowFuture && (
+          <FormControlLabel
+            sx={{ m: 0 }}
+            control={
+              <Switch
+                size="small"
+                checked={showFuture}
+                onChange={(e) => {
+                  onShowFuture(e.target.checked);
+                }}
+              />
+            }
+            label={uk.gradebook.showFuture}
           />
         )}
 

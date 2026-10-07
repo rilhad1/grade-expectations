@@ -689,6 +689,7 @@ export const uk = {
       back: 'Закрити',
       editColumn: 'Налаштування колонки',
     },
+    showFuture: 'Майбутні заняття',
     subgroup: 'Підгрупа',
     wholeGroup: 'Уся група',
     noLessonsOfKind: 'Занять цього виду ще немає',

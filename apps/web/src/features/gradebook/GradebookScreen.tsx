@@ -14,6 +14,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { q } from '../../api/queries';
 import { useCurrentSemester } from '../../app/SemesterSwitcher';
+import { todayKyiv } from '../../app/today';
 import { uk } from '../../shared/i18n/uk';
 import { ConfirmDialog } from '../../shared/ui/Dialogs';
 import { DisciplineDot } from '../../shared/ui/DisciplineDot';
@@ -80,12 +81,25 @@ export function GradebookScreen({
     [full],
   );
   const activeFilter = kindFilter === 'ALL' || kinds.includes(kindFilter) ? kindFilter : 'ALL';
+  // Майбутні заняття за замовчуванням сховано: сітка закінчується сьогоднішнім днем
+  const today = todayKyiv();
+  const [showFuture, setShowFuture] = useState(false);
+  const hasPast = full?.lessons.some((l) => l.date <= today) ?? false;
+  const hasFuture = full?.lessons.some((l) => l.date > today) ?? false;
+  const hideFuture = !showFuture && hasPast;
   const data = useMemo(
     () =>
-      full && activeFilter !== 'ALL'
-        ? { ...full, lessons: full.lessons.filter((l) => l.kind === activeFilter) }
+      full && (activeFilter !== 'ALL' || hideFuture)
+        ? {
+            ...full,
+            lessons: full.lessons.filter(
+              (l) =>
+                (activeFilter === 'ALL' || l.kind === activeFilter) &&
+                !(hideFuture && l.date > today),
+            ),
+          }
         : full,
-    [full, activeFilter],
+    [full, activeFilter, hideFuture, today],
   );
 
   const [selection, setSelection] = useState<GridSelection>({ row: 0, col: 0 });
@@ -102,11 +116,12 @@ export function GradebookScreen({
   // Курсор стартує на найближчому до сьогодні занятті; після зміни фільтра — теж
   const startedFor = useRef<string | null>(null);
   useEffect(() => {
-    if (!data || data.lessons.length === 0 || startedFor.current === activeFilter) return;
-    startedFor.current = activeFilter;
-    const held = data.lessons.filter((l) => l.status === 'HELD').length;
-    setSelection({ row: 0, col: Math.max(0, Math.min(held, data.lessons.length - 1)) });
-  }, [data, activeFilter]);
+    const key = `${activeFilter}|${String(hideFuture)}`;
+    if (!data || data.lessons.length === 0 || startedFor.current === key) return;
+    startedFor.current = key;
+    const next = data.lessons.findIndex((l) => l.date >= today);
+    setSelection({ row: 0, col: next === -1 ? data.lessons.length - 1 : next });
+  }, [data, activeFilter, hideFuture, today]);
 
   if (book.query.isPending) return <TableSkeleton rows={8} cols={7} label={uk.common.loading} />;
   if (!data) return <ErrorAlert error={book.query.error} />;
@@ -290,6 +305,9 @@ export function GradebookScreen({
           kinds={kinds}
           kindFilter={activeFilter}
           onKindFilter={setKindFilter}
+          hasFuture={hasFuture}
+          showFuture={showFuture}
+          onShowFuture={setShowFuture}
         />
       )}
       {!onPickLoad && periodSelect}

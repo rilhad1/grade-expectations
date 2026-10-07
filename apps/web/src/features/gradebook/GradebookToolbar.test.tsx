@@ -52,4 +52,24 @@ describe('GradebookToolbar', () => {
     );
     expect(screen.queryByRole('group', { name: uk.gradebook.kind })).toBeNull();
   });
+
+  it('перемикач «Майбутні заняття» з’являється лише коли вони є', () => {
+    const onShowFuture = vi.fn();
+    const props = {
+      loads: [load('prac', 'ПДт-12', 'PRACTICE')],
+      currentId: 'prac',
+      onPick: vi.fn(),
+      kinds: ['PRACTICE'] as LoadDto['kind'][],
+      kindFilter: 'ALL' as const,
+      onKindFilter: vi.fn(),
+      onShowFuture,
+    };
+    const first = renderWithClient(<GradebookToolbar {...props} />);
+    expect(screen.queryByLabelText(uk.gradebook.showFuture)).toBeNull();
+    first.unmount();
+
+    renderWithClient(<GradebookToolbar {...props} hasFuture />);
+    fireEvent.click(screen.getByLabelText(uk.gradebook.showFuture));
+    expect(onShowFuture).toHaveBeenCalledWith(true);
+  });
 });
