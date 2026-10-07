@@ -18,6 +18,7 @@ const CELL_W = 46;
 const SUMMARY_W = 64;
 const ROW_H = 30;
 const BAND_H = 18;
+const ASSESS_W = 64;
 const HEAD_H = 44;
 
 export interface GridSelection {
@@ -29,6 +30,10 @@ const helper = createColumnHelper<Student>();
 
 const TONE = { low: 'ge.grade.low', high: 'ge.grade.high', none: 'transparent' } as const;
 const ATT = { ABSENT: 'absent', EXCUSED: 'excused', LATE: 'late' } as const;
+
+/** Скорочений підпис колонки оцінювання: «Практична 1» → «Пр. 1», «Модуль 1» → «Мод. 1». */
+const shortAssessment = (title: string): string =>
+  title.replace(/^практична\s*/i, 'Пр. ').replace(/^модуль\s*/i, 'Мод. ');
 
 /**
  * Журнал «студенти × заняття», як паперовий: закріплені № і ПІБ ліворуч, підсумки праворуч,
@@ -58,11 +63,14 @@ export function GradebookGrid({
         header: uk.gradebook.student,
       }),
       ...data.lessons.map((l) => helper.display({ id: l.id, header: formatShortDate(l.date) })),
+      ...data.assessments.map((a) =>
+        helper.display({ id: `a:${a.id}`, header: shortAssessment(a.title) }),
+      ),
       helper.display({ id: 'average', header: uk.gradebook.average }),
       helper.display({ id: 'absences', header: uk.gradebook.absences }),
       helper.display({ id: 'forecast', header: uk.gradebook.forecast }),
     ],
-    [data.lessons],
+    [data.lessons, data.assessments],
   );
   // TanStack Table повертає немемоізовані функції (відоме обмеження React Compiler); тут це безпечно:
   // таблиця використовується лише для моделі колонок і рядків.
@@ -79,8 +87,10 @@ export function GradebookGrid({
   });
 
   const lessonCount = data.lessons.length;
-  const template = `${INDEX_W}px ${NAME_W}px repeat(${lessonCount}, ${CELL_W}px) ${SUMMARY_W}px ${SUMMARY_W + 28}px ${SUMMARY_W + 28}px`;
-  const totalWidth = INDEX_W + NAME_W + lessonCount * CELL_W + SUMMARY_W * 3 + 56;
+  const assessmentCount = data.assessments.length;
+  const template = `${INDEX_W}px ${NAME_W}px repeat(${lessonCount}, ${CELL_W}px) ${assessmentCount > 0 ? `repeat(${assessmentCount}, ${ASSESS_W}px) ` : ''}${SUMMARY_W}px ${SUMMARY_W + 28}px ${SUMMARY_W + 28}px`;
+  const totalWidth =
+    INDEX_W + NAME_W + lessonCount * CELL_W + assessmentCount * ASSESS_W + SUMMARY_W * 3 + 56;
   const periodOf = (date: string) =>
     data.periods.find((p) => date >= p.startDate && date <= p.endDate);
 
@@ -174,6 +184,7 @@ export function GradebookGrid({
           >
             {table.getHeaderGroups()[0]?.headers.map((header, i) => {
               const lesson = data.lessons.find((l) => l.id === header.column.id);
+              const assessment = data.assessments.find((a) => `a:${a.id}` === header.column.id);
               const period = lesson ? periodOf(lesson.date) : undefined;
               const left = i === 0 ? 0 : i === 1 ? INDEX_W : undefined;
               const content = (
@@ -189,7 +200,7 @@ export function GradebookGrid({
                     borderColor: 'divider',
                     bgcolor: period
                       ? 'ge.accentSoft'
-                      : i > 1 + lessonCount
+                      : i > 1 + lessonCount + assessmentCount || assessment
                         ? 'ge.surface2'
                         : 'background.paper',
                     color: period ? 'primary.main' : undefined,
@@ -200,8 +211,15 @@ export function GradebookGrid({
                 >
                   <strong>{String(header.column.columnDef.header)}</strong>
                   {lesson && <span>{uk.loads.kindsShort[lesson.kind]}</span>}
+                  {assessment && <span>{assessment.maxScore}</span>}
                 </Box>
               );
+              if (assessment)
+                return (
+                  <Tooltip key={header.id} title={assessment.title} placement="top">
+                    {content}
+                  </Tooltip>
+                );
               return lesson?.topic ? (
                 <Tooltip key={header.id} title={lesson.topic} placement="top">
                   {content}
@@ -364,6 +382,28 @@ export function GradebookGrid({
                     >
                       {cellBox}
                     </Tooltip>
+                  );
+                })}
+                {data.assessments.map((a) => {
+                  const g = student.assessmentGrades[a.id];
+                  return (
+                    <Box
+                      key={a.id}
+                      data-testid={`assessment-${String(item.index)}-${a.id}`}
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderLeft: 1,
+                        borderColor: 'divider',
+                        bgcolor: g ? TONE[gradeTone(scale, g.value)] : 'ge.surface2',
+                        fontVariantNumeric: 'tabular-nums',
+                        fontSize: 13,
+                        fontWeight: g ? 600 : 400,
+                      }}
+                    >
+                      {g ? g.value : ''}
+                    </Box>
                   );
                 })}
                 <Box

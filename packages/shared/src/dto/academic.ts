@@ -35,6 +35,8 @@ export const periodInputSchema = z
     startDate: isoDateSchema,
     endDate: isoDateSchema,
     title: z.string().trim().max(100).nullable().default(null),
+    /** Курс, для якого діє період; null — для всіх курсів. */
+    course: z.int().min(1).max(6).nullable().default(null),
   })
   .refine(endAfterStart, rangeMessage);
 export type PeriodInput = z.infer<typeof periodInputSchema>;
@@ -45,6 +47,7 @@ export const periodDtoSchema = z.object({
   startDate: isoDateSchema,
   endDate: isoDateSchema,
   title: z.string().nullable(),
+  course: z.int().nullable(),
 });
 
 // ── Семестр ──────────────────────────────────────────

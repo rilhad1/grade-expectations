@@ -139,9 +139,33 @@ export const gradebookDtoSchema = z.object({
       middleName: z.string().nullable(),
       enrollmentStatus: EnrollmentStatus.schema,
       cells: z.record(uuidSchema, gradebookCellSchema),
+      /** Оцінки колонок оцінювання (практичні, модулі): assessmentId → оцінка. */
+      assessmentGrades: z
+        .record(
+          uuidSchema,
+          z.object({
+            id: uuidSchema,
+            value: z.int(),
+            comment: z.string().nullable(),
+            version: z.int(),
+          }),
+        )
+        .default({}),
       summary: studentSummarySchema,
     }),
   ),
+  /** Колонки оцінювання навантаження: окремі від занять (без прив'язки до дат). */
+  assessments: z
+    .array(
+      z.object({
+        id: uuidSchema,
+        title: z.string(),
+        kind: z.enum(['TEST', 'LAB', 'SELF_STUDY', 'DIRECTOR_TEST']),
+        maxScore: z.int(),
+        attestationKind: z.enum(['INTERIM', 'DIRECTOR_TEST', 'AVERAGE', 'EXAM']).nullable(),
+      }),
+    )
+    .default([]),
   /** Періоди атестацій і сесії (межі в журналі). */
   periods: z.array(
     z.object({ kind: PeriodKind.schema, startDate: isoDateSchema, endDate: isoDateSchema }),

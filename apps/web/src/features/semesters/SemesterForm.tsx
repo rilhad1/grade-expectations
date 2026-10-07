@@ -47,6 +47,7 @@ export const valuesFromSemester = (s: SemesterFullDto): SemesterFormValues => ({
     startDate: p.startDate,
     endDate: p.endDate,
     title: p.title,
+    course: p.course,
   })),
 });
 

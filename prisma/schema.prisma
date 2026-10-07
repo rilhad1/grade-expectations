@@ -327,6 +327,8 @@ model SemesterPeriod {
   startDate  DateTime   @db.Date
   endDate    DateTime   @db.Date
   title      String?
+  /// Курс, для якого діє період; null — для всіх курсів (канікули, вихідні)
+  course     Int?
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
   version    Int        @default(0)
@@ -650,18 +652,20 @@ model Attendance {
 }
 
 model Assessment {
-  id        String         @id @db.Uuid
-  loadId    String         @db.Uuid
-  lessonId  String?        @db.Uuid
-  kind      AssessmentKind
-  title     String
-  maxScore  Int
-  weight    Decimal        @default(1)
-  variants  Json?
-  createdAt DateTime       @default(now())
-  updatedAt DateTime       @updatedAt
-  version   Int            @default(0)
-  deletedAt DateTime?
+  id              String           @id @db.Uuid
+  loadId          String           @db.Uuid
+  lessonId        String?          @db.Uuid
+  kind            AssessmentKind
+  title           String
+  maxScore        Int
+  weight          Decimal          @default(1)
+  /// До якої атестації належить колонка (враховується в модулях від неї й далі); null — без прив'язки
+  attestationKind AttestationKind?
+  variants        Json?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  version         Int              @default(0)
+  deletedAt       DateTime?
 
   load   TeachingLoad @relation(fields: [loadId], references: [id])
   lesson Lesson?      @relation(fields: [lessonId], references: [id])
@@ -699,6 +703,8 @@ model Attestation {
   id         String          @id @db.Uuid
   semesterId String          @db.Uuid
   kind       AttestationKind
+  /// Курс, для якого діють дати; 0 — спільні для всіх курсів
+  course     Int             @default(0)
   dateFrom   DateTime        @db.Date
   dateTo     DateTime        @db.Date
   createdAt  DateTime        @default(now())
@@ -709,7 +715,7 @@ model Attestation {
   semester Semester            @relation(fields: [semesterId], references: [id])
   results  AttestationResult[]
 
-  @@unique([semesterId, kind])
+  @@unique([semesterId, kind, course])
 }
 
 model AttestationResult {

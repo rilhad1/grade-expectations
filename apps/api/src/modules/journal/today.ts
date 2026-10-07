@@ -3,6 +3,7 @@ import type { TodayDto } from '@ge/shared';
 
 import { isoOf } from '../../lib/db.js';
 import type { AuthContext } from '../../plugins/session.js';
+import { pickAttestation } from '../attestations/pick.js';
 import { listLoads } from '../loads/service.js';
 import { listLessons } from '../schedules/service.js';
 import { semesterScope } from '../semesters/repo.js';
@@ -69,6 +70,14 @@ export async function getToday(ctx: AuthContext): Promise<TodayDto> {
     },
     orderBy: { dateFrom: 'asc' },
   });
+  const courseOfGroup = new Map(
+    (
+      await ctx.db.group.findMany({
+        where: { id: { in: [...new Set(hours.map((h) => h.group.id))] } },
+        select: { id: true, course: true },
+      })
+    ).map((g) => [g.id, g.course]),
+  );
   const attestations = attestationRows.flatMap((a) => {
     const from = isoOf(a.dateFrom);
     const to = isoOf(a.dateTo);
@@ -76,7 +85,14 @@ export async function getToday(ctx: AuthContext): Promise<TodayDto> {
     if (to < date || daysUntil > ATTESTATION_HORIZON_DAYS) return [];
     const groups = [
       ...new Set(
-        hours.filter((h) => a.kind !== 'EXAM' || h.controlForm === 'EXAM').map((h) => h.group.name),
+        hours
+          .filter((h) => a.kind !== 'EXAM' || h.controlForm === 'EXAM')
+          // Дати курсу стосуються лише його груп; спільні (0) — лише тих груп, де нема своїх дат
+          .filter((h) => {
+            const course = courseOfGroup.get(h.group.id) ?? 0;
+            return pickAttestation(attestationRows, a.kind, course)?.id === a.id;
+          })
+          .map((h) => h.group.name),
       ),
     ];
     return groups.length === 0
@@ -91,15 +107,25 @@ export async function getToday(ctx: AuthContext): Promise<TodayDto> {
     const range = { from: isoOf(load.semester.startDate), to: isoOf(load.semester.endDate) };
     const data = await loadGradebookData(ctx, load);
     const dateOfLesson = new Map(data.lessons.map((l) => [l.id, isoOf(l.date)]));
+    const dateOfAssessment = new Map(data.assessments.map((a) => [a.id, a.date]));
     for (const e of data.enrollments.filter((x) => x.status === 'ACTIVE')) {
       const own = {
-        grades: data.grades
-          .filter((g) => g.enrollmentId === e.id && g.lessonId !== null)
-          .map((g) => ({
-            kind: g.kind,
-            value: g.value,
-            date: dateOfLesson.get(g.lessonId ?? '') ?? range.from,
-          })),
+        grades: [
+          ...data.grades
+            .filter((g) => g.enrollmentId === e.id && g.lessonId !== null)
+            .map((g) => ({
+              kind: g.kind,
+              value: g.value,
+              date: dateOfLesson.get(g.lessonId ?? '') ?? range.from,
+            })),
+          ...data.assessmentGrades
+            .filter((g) => g.enrollmentId === e.id)
+            .map((g) => ({
+              kind: g.kind,
+              value: g.value,
+              date: dateOfAssessment.get(g.assessmentId ?? '') ?? range.from,
+            })),
+        ],
         attendance: data.attendance
           .filter((a) => a.enrollmentId === e.id)
           .map((a) => ({ status: a.status, date: dateOfLesson.get(a.lessonId) ?? range.from })),

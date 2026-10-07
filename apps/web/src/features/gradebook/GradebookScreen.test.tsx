@@ -42,6 +42,7 @@ const student = (i: number, last: string, cells = {}, over = {}) => ({
   middleName: null,
   enrollmentStatus: 'ACTIVE' as const,
   cells,
+  assessmentGrades: {},
   summary: summary(over),
 });
 const book = (): GradebookDto => ({
@@ -93,6 +94,7 @@ const book = (): GradebookDto => ({
       { risk: ['ABSENCES'], absences: { unexcused: 1, excused: 0, late: 0 } },
     ),
   ],
+  assessments: [],
   periods: [],
 });
 
@@ -134,6 +136,24 @@ describe('GradebookScreen', () => {
     expect(cell(1, 0)).toHaveTextContent(uk.lesson.attendanceShort.ABSENT);
     expect(screen.getByText('9,0')).toBeInTheDocument();
     expect(screen.getAllByText('н/а').length).toBeGreaterThan(0);
+  });
+
+  it('колонки оцінювання (практичні, модуль) показують оцінки окремо від занять', async () => {
+    const data = book();
+    data.assessments = [
+      { id: 'a1', title: 'Практична 1', kind: 'LAB', maxScore: 12, attestationKind: 'INTERIM' },
+      { id: 'a2', title: 'Модуль 1', kind: 'TEST', maxScore: 12, attestationKind: 'INTERIM' },
+    ];
+    const first = data.students[0];
+    if (first) first.assessmentGrades = { a1: { id: 'ga1', value: 11, comment: null, version: 0 } };
+    api.fetchGradebook.mockResolvedValue(data);
+    renderWithClient(<GradebookScreen loadId="load1" />);
+    await screen.findByRole('grid');
+    expect(screen.getByText('Пр. 1')).toBeInTheDocument();
+    expect(screen.getByText('Мод. 1')).toBeInTheDocument();
+    expect(screen.getByTestId('assessment-0-a1')).toHaveTextContent('11');
+    expect(screen.getByTestId('assessment-0-a2')).toHaveTextContent('');
+    expect(screen.getByTestId('assessment-1-a1')).toHaveTextContent('');
   });
 
   it('цифра у вибраній клітинці виставляє оцінку (9 — одразу), тип за видом заняття', async () => {

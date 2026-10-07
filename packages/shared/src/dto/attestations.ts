@@ -9,6 +9,8 @@ export const attestationDtoSchema = z.object({
   id: uuidSchema,
   semesterId: uuidSchema,
   kind: AttestationKind.schema,
+  /** Курс, для якого діють дати; 0 — спільні. */
+  course: z.number().int(),
   dateFrom: isoDateSchema,
   dateTo: isoDateSchema,
 });

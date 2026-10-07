@@ -42,6 +42,23 @@ export function PeriodsEditor({
             ))}
           </TextField>
           <TextField
+            select
+            size="small"
+            label={uk.semesters.periodCourse}
+            value={period.course === null ? '' : String(period.course)}
+            onChange={(e) => {
+              update(index, { course: e.target.value === '' ? null : Number(e.target.value) });
+            }}
+            sx={{ minWidth: 130 }}
+          >
+            <MenuItem value="">{uk.semesters.allCourses}</MenuItem>
+            {[1, 2, 3, 4].map((c) => (
+              <MenuItem key={c} value={String(c)}>
+                {uk.semesters.courseN(c)}
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
             size="small"
             type="date"
             label={uk.semesters.startDate}
@@ -75,7 +92,10 @@ export function PeriodsEditor({
         <Button
           size="small"
           onClick={() => {
-            onChange([...value, { kind: 'HOLIDAY', startDate: '', endDate: '', title: null }]);
+            onChange([
+              ...value,
+              { kind: 'HOLIDAY', startDate: '', endDate: '', title: null, course: null },
+            ]);
           }}
         >
           {uk.semesters.addPeriod}

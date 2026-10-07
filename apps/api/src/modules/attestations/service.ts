@@ -24,10 +24,13 @@ import type { AuthContext } from '../../plugins/session.js';
 import {
   findJournalLoad,
   loadGradebookData,
+  periodsFor,
   rulesOf,
   type JournalLoad,
 } from '../journal/gradebook.js';
 import { getLoad } from '../loads/service.js';
+
+import { pickAttestation } from './pick.js';
 
 type Kind = (typeof AttestationKind.values)[number];
 
@@ -38,7 +41,7 @@ function periodOf(load: JournalLoad, kind: Kind): { from: string; to: string } {
   const periodKind =
     kind === 'INTERIM' ? 'INTERIM_ATTESTATION' : kind === 'EXAM' ? 'EXAM_SESSION' : kind;
   const period =
-    kind === 'AVERAGE' ? undefined : load.semester.periods.find((p) => p.kind === periodKind);
+    kind === 'AVERAGE' ? undefined : periodsFor(load).find((p) => p.kind === periodKind);
   return period
     ? { from: isoOf(period.startDate), to: isoOf(period.endDate) }
     : { from: semesterFrom, to: semesterTo };
@@ -48,22 +51,25 @@ const toAttestationDto = (row: {
   id: string;
   semesterId: string;
   kind: Kind;
+  course: number;
   dateFrom: Date;
   dateTo: Date;
 }): AttestationDto => ({
   id: row.id,
   semesterId: row.semesterId,
   kind: row.kind,
+  course: row.course,
   dateFrom: isoOf(row.dateFrom),
   dateTo: isoOf(row.dateTo),
 });
 
-/** Модулі семестру створюються при першому зверненні за датами періодів семестру. */
+/** Модулі семестру для курсу групи створюються при першому зверненні за датами періодів цього курсу. */
 async function ensureAttestations(ctx: AuthContext, load: JournalLoad) {
-  const existing = await ctx.db.attestation.findMany({
-    where: { semesterId: load.semesterId, deletedAt: null },
-  });
-  const missing = AttestationKind.values.filter((k) => !existing.some((a) => a.kind === k));
+  const course = load.group.course;
+  // Свої дати курсу й спільні (course = 0): спільні лишаються запасним варіантом
+  const where = { semesterId: load.semesterId, course: { in: [course, 0] }, deletedAt: null };
+  const existing = await ctx.db.attestation.findMany({ where });
+  const missing = AttestationKind.values.filter((k) => !pickAttestation(existing, k, course));
   if (missing.length > 0) {
     await ctx.db.attestation.createMany({
       data: missing.map((kind) => {
@@ -72,15 +78,14 @@ async function ensureAttestations(ctx: AuthContext, load: JournalLoad) {
           id: uuidv7(),
           semesterId: load.semesterId,
           kind,
+          course,
           dateFrom: dateOf(range.from),
           dateTo: dateOf(range.to),
         };
       }),
       skipDuplicates: true,
     });
-    return ctx.db.attestation.findMany({
-      where: { semesterId: load.semesterId, deletedAt: null },
-    });
+    return ctx.db.attestation.findMany({ where });
   }
   return existing;
 }
@@ -95,7 +100,7 @@ function proposedOf(text: string): number | null {
 async function requireModule(ctx: AuthContext, load: JournalLoad, kind: Kind) {
   if (!requiredModules(load.controlForm).includes(kind))
     throw unprocessable('MODULE_NOT_REQUIRED', 'Цей модуль не передбачений формою контролю');
-  const attestation = (await ensureAttestations(ctx, load)).find((a) => a.kind === kind);
+  const attestation = pickAttestation(await ensureAttestations(ctx, load), kind, load.group.course);
   /* v8 ignore next -- ensureAttestations створює всі види */
   if (!attestation) throw unprocessable('MODULE_NOT_FOUND', 'Модуль не знайдено');
   return attestation;
@@ -123,7 +128,7 @@ export async function listLoadAttestations(
     _count: { _all: true },
   });
   const modules = requiredModules(load.controlForm).flatMap((kind) => {
-    const attestation = attestations.find((a) => a.kind === kind);
+    const attestation = pickAttestation(attestations, kind, load.group.course);
     if (!attestation) return [];
     return [
       {
@@ -148,21 +153,32 @@ export async function getSheet(
   const semesterFrom = isoOf(load.semester.startDate);
   const range = { from: semesterFrom, to: isoOf(attestation.dateTo) };
 
-  const { lessons, enrollments, attendance, grades } = await loadGradebookData(ctx, load, range);
+  const { lessons, enrollments, attendance, grades, assessments, assessmentGrades } =
+    await loadGradebookData(ctx, load, range);
   const dateOfLesson = new Map(lessons.map((l) => [l.id, isoOf(l.date)]));
+  const dateOfAssessment = new Map(assessments.map((a) => [a.id, a.date]));
   const results = await ctx.db.attestationResult.findMany({
     where: { attestationId: attestation.id, loadId, deletedAt: null },
   });
 
   const students = enrollments.map((e) => {
     const own = {
-      grades: grades
-        .filter((g) => g.enrollmentId === e.id)
-        .map((g) => ({
-          kind: g.kind,
-          value: g.value,
-          date: dateOfLesson.get(g.lessonId ?? '') ?? semesterFrom,
-        })),
+      grades: [
+        ...grades
+          .filter((g) => g.enrollmentId === e.id)
+          .map((g) => ({
+            kind: g.kind,
+            value: g.value,
+            date: dateOfLesson.get(g.lessonId ?? '') ?? semesterFrom,
+          })),
+        ...assessmentGrades
+          .filter((g) => g.enrollmentId === e.id)
+          .map((g) => ({
+            kind: g.kind,
+            value: g.value,
+            date: dateOfAssessment.get(g.assessmentId ?? '') ?? semesterFrom,
+          })),
+      ],
       attendance: attendance
         .filter((a) => a.enrollmentId === e.id)
         .map((a) => ({

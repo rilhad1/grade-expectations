@@ -1,9 +1,11 @@
+import { randomUUID } from 'node:crypto';
 import { createServer, type Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
 
 import {
   type AttestationSheetDto,
   type DocumentDto,
+  type GradebookDto,
   type LoadAttestationsDto,
   type LoadDto,
 } from '@ge/shared';
@@ -519,5 +521,113 @@ describe('ICS-підписка', () => {
 
   it('вимагає входу для керування посиланням', async () => {
     expect((await app.inject({ method: 'GET', url: '/api/v1/me/calendar' })).statusCode).toBe(401);
+  });
+});
+
+describe('курси та колонки оцінювання', () => {
+  it('дати атестації беруться з періодів курсу групи; спільні періоди діють для всіх', async () => {
+    const year = await prisma.academicYear.findFirstOrThrow({ where: { organizationId: orgId } });
+    const cohort = await prisma.cohort.findFirstOrThrow({ where: { organizationId: orgId } });
+    const group2 = await mod<{ id: string }>('POST', '/groups', {
+      cohortId: cohort.id,
+      academicYearId: year.id,
+      name: 'ПДт-22',
+      course: 2,
+    });
+    const discipline = await prisma.discipline.findFirstOrThrow({
+      where: { organizationId: orgId },
+    });
+    const load2 = await mod<LoadDto>('POST', '/loads', {
+      semesterId: ids.semesterId,
+      disciplineId: discipline.id,
+      groupId: group2.body.id,
+      teacherId: ids.teacher,
+      kind: 'PRACTICE',
+      plannedHours: 20,
+      controlForm: 'CREDIT',
+    });
+    await prisma.semesterPeriod.create({
+      data: {
+        id: randomUUID(),
+        semesterId: ids.semesterId,
+        kind: 'INTERIM_ATTESTATION',
+        course: 2,
+        startDate: new Date('2026-09-28'),
+        endDate: new Date('2026-10-09'),
+      },
+    });
+
+    const second = await teacher<LoadAttestationsDto>(
+      'GET',
+      `/loads/${load2.body.id}/attestations`,
+    );
+    expect(second.body.modules[0]).toMatchObject({
+      kind: 'INTERIM',
+      course: 2,
+      dateFrom: '2026-09-28',
+      dateTo: '2026-10-09',
+    });
+    // Перший курс лишається зі спільним періодом (без курсу)
+    const first = await teacher<LoadAttestationsDto>('GET', `/loads/${ids.examLoad}/attestations`);
+    expect(first.body.modules[0]).toMatchObject({
+      course: 1,
+      dateFrom: '2026-10-12',
+      dateTo: '2026-10-16',
+    });
+    // Смуга періодів у журналі теж за курсом групи: свій період заміщає спільний того ж виду
+    const book = await teacher<GradebookDto>('GET', `/loads/${load2.body.id}/gradebook`);
+    expect(book.body.periods).toEqual([
+      { kind: 'INTERIM_ATTESTATION', startDate: '2026-09-28', endDate: '2026-10-09' },
+      { kind: 'EXAM_SESSION', startDate: '2026-12-15', endDate: '2026-12-28' },
+    ]);
+  });
+
+  it('оцінки колонок (без дат занять) потрапляють у журнал, середнє й модулі своєї атестації', async () => {
+    const b = ids.enrollments[1] ?? '';
+    const columns = [
+      { title: 'Практична 1', attestationKind: 'INTERIM' as const, value: 9, ms: 1 },
+      { title: 'Модуль 1', attestationKind: 'INTERIM' as const, value: 10, ms: 2 },
+      { title: 'Практична 2', attestationKind: 'EXAM' as const, value: 1, ms: 3 },
+    ];
+    for (const c of columns) {
+      const assessmentId = randomUUID();
+      await prisma.assessment.create({
+        data: {
+          id: assessmentId,
+          loadId: ids.examLoad,
+          kind: 'LAB',
+          title: c.title,
+          maxScore: 12,
+          attestationKind: c.attestationKind,
+          createdAt: new Date(Date.UTC(2026, 8, 1, 0, 0, 0, c.ms)),
+        },
+      });
+      await prisma.grade.create({
+        data: { id: randomUUID(), enrollmentId: b, assessmentId, kind: 'PRACTICE', value: c.value },
+      });
+    }
+
+    const book = await teacher<GradebookDto>('GET', `/loads/${ids.examLoad}/gradebook`);
+    expect(book.body.assessments.map((a) => a.title)).toEqual([
+      'Практична 1',
+      'Модуль 1',
+      'Практична 2',
+    ]);
+    const row = book.body.students.find((s) => s.enrollmentId === b);
+    expect(Object.values(row?.assessmentGrades ?? {}).map((g) => g.value)).toEqual(
+      expect.arrayContaining([9, 10, 1]),
+    );
+    // Разом із оцінкою за заняття (8): (8 + 9 + 10 + 1) / 4 = 7
+    expect(row?.summary.gradesCount).toBe(4);
+    expect(row?.summary.average).toBe(7);
+
+    // Проміжна атестація: колонка з EXAM-атестації ще не потрапляє (її період пізніше)
+    const interim = await sheet('INTERIM');
+    const inInterim = interim.students.find((s) => s.enrollmentId === b);
+    expect(inInterim?.gradesCount).toBe(3);
+    expect(inInterim?.proposal.text).toBe('9');
+    // Середній бал за семестр бачить усі
+    const average = await sheet('AVERAGE');
+    expect(average.students.find((s) => s.enrollmentId === b)?.gradesCount).toBe(4);
   });
 });

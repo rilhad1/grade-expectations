@@ -44,6 +44,7 @@ export function semesterDto(s: repo.SemesterRow): SemesterFullDto {
       startDate: isoOf(p.startDate),
       endDate: isoOf(p.endDate),
       title: p.title,
+      course: p.course,
     })),
     version: s.version,
   };
@@ -120,6 +121,7 @@ export async function createSemester(ctx: AuthContext, input: CreateSemester) {
           startDate: dateOf(p.startDate),
           endDate: dateOf(p.endDate),
           title: p.title,
+          course: p.course,
         })),
       },
     },
@@ -147,6 +149,7 @@ export async function updateSemester(ctx: AuthContext, id: string, input: Update
         startDate: isoOf(p.startDate),
         endDate: isoOf(p.endDate),
         title: p.title,
+        course: p.course,
       })),
   );
 
@@ -178,6 +181,7 @@ export async function updateSemester(ctx: AuthContext, id: string, input: Update
           startDate: dateOf(p.startDate),
           endDate: dateOf(p.endDate),
           title: p.title,
+          course: p.course,
         })),
       });
     }

@@ -150,6 +150,9 @@ export const uk = {
     restart: 'Починається спочатку',
     addPeriod: 'Додати період',
     periodKind: 'Вид',
+    periodCourse: 'Курс',
+    allCourses: 'Усі курси',
+    courseN: (n: number) => `${String(n)} курс`,
     periodKinds: {
       HOLIDAY: 'Канікули / свято',
       DAY_OFF: 'Вихідний',

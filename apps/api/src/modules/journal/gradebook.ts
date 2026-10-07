@@ -47,6 +47,36 @@ export async function loadOwner(ctx: AuthContext, loadId: string): Promise<strin
   return load.teacherId;
 }
 
+/** Періоди семестру для курсу групи навантаження: свого курсу, а також спільні (без курсу). */
+export function periodsFor(load: JournalLoad) {
+  const own = load.semester.periods.filter((p) => p.course === load.group.course);
+  const ownKinds = new Set(own.map((p) => p.kind));
+  // Період свого курсу заміщає спільний (без курсу) того ж виду
+  const common = load.semester.periods.filter((p) => p.course === null && !ownKinds.has(p.kind));
+  return [...common, ...own].sort((a, b) => a.startDate.getTime() - b.startDate.getTime());
+}
+
+const ASSESSMENT_PERIOD = {
+  INTERIM: 'INTERIM_ATTESTATION',
+  DIRECTOR_TEST: 'DIRECTOR_TEST',
+  EXAM: 'EXAM_SESSION',
+  AVERAGE: null,
+} as const;
+
+/**
+ * Умовна дата оцінки колонки: початок періоду її атестації (для курсу групи). Так колонка потрапляє
+ * в модуль своєї атестації й наступні (OQ-23), але не в попередні; без прив'язки — початок семестру.
+ */
+export function assessmentDate(
+  load: JournalLoad,
+  attestationKind: keyof typeof ASSESSMENT_PERIOD | null,
+): string {
+  const semesterFrom = isoOf(load.semester.startDate);
+  const periodKind = attestationKind === null ? null : ASSESSMENT_PERIOD[attestationKind];
+  const period = periodKind ? periodsFor(load).find((p) => p.kind === periodKind) : undefined;
+  return period ? isoOf(period.startDate) : semesterFrom;
+}
+
 export const rulesOf = (load: { gradingRules: unknown }): GradingRules =>
   gradingRulesSchema.safeParse(load.gradingRules).data ?? defaultGradingRules;
 
@@ -112,14 +142,30 @@ export async function loadGradebookData(
     orderBy: [{ student: { lastName: 'asc' } }, { student: { firstName: 'asc' } }],
   });
   const lessonIds = lessons.map((l) => l.id);
-  const [attendance, grades] = await Promise.all([
+  const [attendance, grades, assessmentRows] = await Promise.all([
     ctx.db.attendance.findMany({ where: { lessonId: { in: lessonIds }, deletedAt: null } }),
     ctx.db.grade.findMany({
       where: { lessonId: { in: lessonIds }, deletedAt: null },
       orderBy: { id: 'asc' },
     }),
+    ctx.db.assessment.findMany({
+      where: { loadId: load.id, deletedAt: null },
+      orderBy: [{ createdAt: 'asc' }, { title: 'asc' }],
+    }),
   ]);
-  return { lessons, enrollments, attendance, grades };
+  // Колонки з умовною датою в межах запитаного діапазону (для модулів атестації)
+  const assessments = assessmentRows
+    .map((a) => ({ ...a, date: assessmentDate(load, a.attestationKind) }))
+    .filter(
+      (a) =>
+        (range.from === undefined || a.date >= range.from) &&
+        (range.to === undefined || a.date <= range.to),
+    );
+  const assessmentGrades = await ctx.db.grade.findMany({
+    where: { assessmentId: { in: assessments.map((a) => a.id) }, deletedAt: null },
+    orderBy: { id: 'asc' },
+  });
+  return { lessons, enrollments, attendance, grades, assessments, assessmentGrades };
 }
 
 export async function getGradebook(
@@ -129,8 +175,10 @@ export async function getGradebook(
 ): Promise<GradebookDto> {
   const load = await findJournalLoad(ctx, loadId);
   const rules = rulesOf(load);
-  const { lessons, enrollments, attendance, grades } = await loadGradebookData(ctx, load, range);
+  const { lessons, enrollments, attendance, grades, assessments, assessmentGrades } =
+    await loadGradebookData(ctx, load, range);
   const dateOfLesson = new Map(lessons.map((l) => [l.id, isoOf(l.date)]));
+  const assessmentById = new Map(assessments.map((a) => [a.id, a]));
   const semester = { from: isoOf(load.semester.startDate), to: isoOf(load.semester.endDate) };
 
   const students = enrollments.map((e) => {
@@ -163,6 +211,16 @@ export async function getGradebook(
         date: dateOfLesson.get(lessonId) ?? semester.from,
       });
     }
+    const assessmentCells: Record<
+      string,
+      { id: string; value: number; comment: string | null; version: number }
+    > = {};
+    for (const g of assessmentGrades.filter((x) => x.enrollmentId === e.id)) {
+      const a = assessmentById.get(g.assessmentId ?? '');
+      if (!a) continue;
+      assessmentCells[a.id] = { id: g.id, value: g.value, comment: g.comment, version: g.version };
+      own.grades.push({ kind: g.kind, value: g.value, date: a.date });
+    }
     return {
       enrollmentId: e.id,
       studentId: e.studentId,
@@ -171,6 +229,7 @@ export async function getGradebook(
       middleName: e.student.middleName,
       enrollmentStatus: e.status,
       cells,
+      assessmentGrades: assessmentCells,
       summary: summarize(own, rules, semester),
     };
   });
@@ -200,7 +259,14 @@ export async function getGradebook(
       topic: l.topicText ?? l.topic?.title ?? null,
     })),
     students,
-    periods: load.semester.periods
+    assessments: assessments.map((a) => ({
+      id: a.id,
+      title: a.title,
+      kind: a.kind,
+      maxScore: a.maxScore,
+      attestationKind: a.attestationKind,
+    })),
+    periods: periodsFor(load)
       .filter((p) => ['INTERIM_ATTESTATION', 'DIRECTOR_TEST', 'EXAM_SESSION'].includes(p.kind))
       .map((p) => ({ kind: p.kind, startDate: isoOf(p.startDate), endDate: isoOf(p.endDate) })),
   };

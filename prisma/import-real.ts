@@ -274,7 +274,15 @@ const grades: GradeRow[] = [];
 const results: ResultRow[] = [];
 const assessments = new Map<
   string,
-  { id: string; loadId: string; kind: 'LAB' | 'TEST'; title: string; maxScore: number }
+  {
+    id: string;
+    loadId: string;
+    kind: 'LAB' | 'TEST';
+    title: string;
+    maxScore: number;
+    attestationKind: 'INTERIM' | 'DIRECTOR_TEST';
+    order: number;
+  }
 >();
 const heldLessons = new Set<string>();
 const extraLessons: string[] = [];
@@ -328,6 +336,9 @@ for (const sh of sheets) {
     return row;
   };
 
+  // Колонки оцінювання до «Модуль 1» (і він сам) належать до 1-ї рубіжної атестації, решта — до наступної
+  const moduleAt = sh.columns.find((c) => c.kind === 'module')?.col ?? Infinity;
+
   const lessonByCol = new Map<number, LessonRow>();
   for (const col of sh.columns) {
     if (col.kind !== 'date') continue;
@@ -353,9 +364,19 @@ for (const sh of sheets) {
           kind: col.kind === 'module' ? 'TEST' : 'LAB',
           title: col.title ?? '',
           maxScore: maxOf(group),
+          attestationKind: col.col <= moduleAt ? ('INTERIM' as const) : ('DIRECTOR_TEST' as const),
+          order: col.col,
         });
     }
   }
+
+  // Колонка, де нікого немає, — заняття було, але відвідуваність не вносилась: відміток не створюємо
+  const columnHasPresent = new Map<number, boolean>();
+  for (const col of sh.columns)
+    columnHasPresent.set(
+      col.col,
+      sh.students.some((r) => r.cells[String(col.col)] === true),
+    );
 
   for (const r of sh.students) {
     const n = parseName(r.name);
@@ -366,7 +387,7 @@ for (const sh of sheets) {
       if (v === undefined) continue;
       if (col.kind === 'date') {
         const lesson = lessonByCol.get(col.col);
-        if (!lesson || typeof v !== 'boolean') continue;
+        if (!lesson || typeof v !== 'boolean' || !columnHasPresent.get(col.col)) continue;
         attendance.push({
           lessonId: lesson.id,
           enrollmentId: enr,
@@ -453,11 +474,11 @@ if (args.has('--wipe')) {
 
 const insert = { skipDuplicates: true } as const;
 await prisma.organization.createMany({
-  data: [{ id: ORG, title: 'Коледж', timezone: 'Europe/Kyiv' }],
+  data: [{ id: ORG, title: 'ФКЕПІТ', timezone: 'Europe/Kyiv' }],
   ...insert,
 });
 await prisma.user.createMany({
-  data: [{ id: USER, email, fullName: 'Бойчук В.В.', emailVerified: true }],
+  data: [{ id: USER, email, fullName: 'Бойчук Володимир Васильович', emailVerified: true }],
   ...insert,
 });
 await prisma.account.createMany({
@@ -519,35 +540,69 @@ await prisma.semester.createMany({
   ],
   ...insert,
 });
-// Періоди й атестації — орієнтовно за графіком для 2–4 курсів; викладач уточнить сам
-const periodDefs = [
-  { kind: 'INTERIM_ATTESTATION', from: '2026-09-28', to: '2026-10-09' },
-  { kind: 'DIRECTOR_TEST', from: '2026-11-16', to: '2026-11-27' },
-  { kind: 'EXAM_SESSION', from: '2026-12-14', to: '2026-12-23' },
-] as const;
+// Графік атестацій за курсами (з графіка навчання на I семестр 2026/2027)
+const SCHEDULE_BY_COURSE: Record<
+  number,
+  {
+    interim: [string, string];
+    director: [string, string];
+    average: [string, string];
+    exam: [string, string] | null;
+  }
+> = {
+  1: {
+    interim: ['2026-10-05', '2026-10-16'],
+    director: ['2026-11-23', '2026-12-04'],
+    average: ['2026-12-14', '2026-12-23'],
+    exam: null,
+  },
+  2: {
+    interim: ['2026-09-28', '2026-10-09'],
+    director: ['2026-11-16', '2026-11-27'],
+    average: ['2026-11-30', '2026-12-11'],
+    exam: ['2026-12-14', '2026-12-23'],
+  },
+};
+SCHEDULE_BY_COURSE[3] = SCHEDULE_BY_COURSE[2] as (typeof SCHEDULE_BY_COURSE)[number];
+const courses = [...new Set(groups.map(courseOf))].sort();
+const periodRows = courses.flatMap((course) => {
+  const sc = SCHEDULE_BY_COURSE[course];
+  if (!sc) return [];
+  return [
+    { kind: 'INTERIM_ATTESTATION' as const, course, range: sc.interim },
+    { kind: 'DIRECTOR_TEST' as const, course, range: sc.director },
+    ...(sc.exam ? [{ kind: 'EXAM_SESSION' as const, course, range: sc.exam }] : []),
+  ];
+});
 await prisma.semesterPeriod.createMany({
-  data: periodDefs.map((p, i) => ({
-    id: id(`period:${String(i)}`),
+  data: periodRows.map((p) => ({
+    id: id(`period:${p.kind}:${String(p.course)}`),
     semesterId: SEMESTER,
     kind: p.kind,
-    startDate: d(p.from),
-    endDate: d(p.to),
+    course: p.course,
+    startDate: d(p.range[0]),
+    endDate: d(p.range[1]),
   })),
   ...insert,
 });
-const attestationDefs = [
-  { kind: 'INTERIM', from: '2026-09-28', to: '2026-10-09' },
-  { kind: 'DIRECTOR_TEST', from: '2026-11-16', to: '2026-11-27' },
-  { kind: 'AVERAGE', from: '2026-11-30', to: '2026-12-11' },
-  { kind: 'EXAM', from: '2026-12-14', to: '2026-12-23' },
-] as const;
+const attestationRows = courses.flatMap((course) => {
+  const sc = SCHEDULE_BY_COURSE[course];
+  if (!sc) return [];
+  return [
+    { kind: 'INTERIM' as const, course, range: sc.interim },
+    { kind: 'DIRECTOR_TEST' as const, course, range: sc.director },
+    { kind: 'AVERAGE' as const, course, range: sc.average },
+    ...(sc.exam ? [{ kind: 'EXAM' as const, course, range: sc.exam }] : []),
+  ];
+});
 await prisma.attestation.createMany({
-  data: attestationDefs.map((a) => ({
-    id: id(`attestation:${a.kind}`),
+  data: attestationRows.map((a) => ({
+    id: id(`attestation:${a.kind}:${String(a.course)}`),
     semesterId: SEMESTER,
     kind: a.kind,
-    dateFrom: d(a.from),
-    dateTo: d(a.to),
+    course: a.course,
+    dateFrom: d(a.range[0]),
+    dateTo: d(a.range[1]),
   })),
   ...insert,
 });
@@ -664,7 +719,8 @@ await prisma.lesson.createMany({
     pairNumber: l.pairNumber,
     roomId: l.roomId,
     hours: 2,
-    status: heldLessons.has(l.id) && l.date <= TODAY ? 'HELD' : 'PLANNED',
+    // Усі минулі заняття за календарем проведені (відмітки могли не вноситись); сьогоднішні ще попереду
+    status: l.date < TODAY || heldLessons.has(l.id) ? 'HELD' : 'PLANNED',
     manuallyEdited: l.slotId === null,
   })),
   ...insert,
@@ -684,6 +740,9 @@ await prisma.assessment.createMany({
     kind: a.kind,
     title: a.title,
     maxScore: a.maxScore,
+    attestationKind: a.attestationKind,
+    // Порядок колонок як у таблиці: сортування журналу йде за createdAt
+    createdAt: new Date(Date.UTC(2026, 8, 1, 0, 0, 0, a.order)),
   })),
   ...insert,
 });
@@ -697,12 +756,12 @@ await prisma.grade.createMany({
   })),
   ...insert,
 });
-const interim = id('attestation:INTERIM');
+const courseOfLoad = (lid: string): number => courseOf(loadsUsed.get(lid)?.group ?? '');
 await prisma.attestationResult.createMany({
   data: [...new Map(results.map((r) => [`${r.loadId}|${r.enrollmentId}`, r])).values()].map(
     (r) => ({
       id: id(`result:${r.loadId}:${r.enrollmentId}`),
-      attestationId: interim,
+      attestationId: id(`attestation:INTERIM:${String(courseOfLoad(r.loadId))}`),
       loadId: r.loadId,
       enrollmentId: r.enrollmentId,
       final: r.final,
