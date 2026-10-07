@@ -631,3 +631,50 @@ describe('курси та колонки оцінювання', () => {
     expect(average.students.find((s) => s.enrollmentId === b)?.gradesCount).toBe(4);
   });
 });
+
+describe('зведений журнал: усі види занять дисципліни й групи', () => {
+  it('лекція й практична в одному журналі; чужі навантаження не підмішуються', async () => {
+    const base = await prisma.teachingLoad.findFirstOrThrow({ where: { id: ids.creditLoad } });
+    const teacher2Id = (
+      await prisma.membership.findMany({
+        where: { organizationId: orgId, roles: { has: 'TEACHER' }, userId: { not: ids.teacher } },
+      })
+    )[0]?.userId;
+    const foreign = await mod<LoadDto>('POST', '/loads', {
+      semesterId: ids.semesterId,
+      disciplineId: base.disciplineId,
+      groupId: base.groupId,
+      teacherId: teacher2Id,
+      kind: 'LAB',
+      plannedHours: 10,
+      controlForm: 'CREDIT',
+    });
+    const mkLesson = (loadId: string, teacherId: string, date: string, pairNumber: number) =>
+      prisma.lesson.create({
+        data: {
+          id: randomUUID(),
+          loadId,
+          teacherId,
+          date: new Date(date),
+          pairNumber,
+          status: 'HELD',
+        },
+      });
+    const practical = await mkLesson(ids.creditLoad, ids.teacher, '2026-09-09', 2);
+    const alien = await mkLesson(foreign.body.id, teacher2Id ?? '', '2026-09-09', 1); // чужого викладача
+
+    const byLecture = await teacher<GradebookDto>('GET', `/loads/${ids.examLoad}/gradebook`);
+    const byPractice = await teacher<GradebookDto>('GET', `/loads/${ids.creditLoad}/gradebook`);
+    const lessonIds = (b: GradebookDto) => b.lessons.map((l) => l.id);
+    expect(lessonIds(byLecture.body)).toContain(practical.id);
+    expect(lessonIds(byLecture.body)).toEqual(lessonIds(byPractice.body));
+    expect(byLecture.body.lessons.find((l) => l.id === practical.id)?.kind).toBe('PRACTICE');
+    expect(new Set(byLecture.body.lessons.map((l) => l.kind))).toEqual(
+      new Set(['LECTURE', 'PRACTICE']),
+    );
+    // Чуже навантаження (інший викладач) у журнал не потрапляє
+    expect(lessonIds(byLecture.body)).not.toContain(alien.id);
+    // Правила оцінювання — основного навантаження (практична, залік)
+    expect(byLecture.body.load.gradingRules.scale).toBe(byPractice.body.load.gradingRules.scale);
+  });
+});

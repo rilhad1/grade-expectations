@@ -1,4 +1,4 @@
-import type { GradebookDto } from '@ge/shared';
+import type { GradebookDto, LessonKind } from '@ge/shared';
 import {
   Alert,
   Box,
@@ -12,7 +12,7 @@ import {
   useTheme,
 } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { q } from '../../api/queries';
 import { useCurrentSemester } from '../../app/SemesterSwitcher';
@@ -26,6 +26,7 @@ import { defaultGradeKind, gradeTone, isValidGrade, scaleRange } from '../lesson
 import { GradebookGrid, type GridSelection } from './GradebookGrid';
 import { GradebookToolbar } from './GradebookToolbar';
 import { StudentPanel } from './StudentPanel';
+import { KIND_ORDER } from './loadNav';
 import { bufferIsFinal, interpretKey, moveSelection } from './model';
 import { useGradebook, type Range } from './useGradebook';
 
@@ -68,8 +69,22 @@ export function GradebookScreen({
     range: {},
   });
   const book = useGradebook(loadId, period.range);
-  const data = book.query.data;
-  const options = periodOptions(data);
+  const full = book.query.data;
+  const options = periodOptions(full);
+  // Фільтр виду занять: журнал один, фільтр лише ховає колонки інших видів
+  const [kindFilter, setKindFilter] = useState<'ALL' | LessonKind>('ALL');
+  const kinds = useMemo(
+    () => KIND_ORDER.filter((k) => full?.lessons.some((l) => l.kind === k)),
+    [full],
+  );
+  const activeFilter = kindFilter === 'ALL' || kinds.includes(kindFilter) ? kindFilter : 'ALL';
+  const data = useMemo(
+    () =>
+      full && activeFilter !== 'ALL'
+        ? { ...full, lessons: full.lessons.filter((l) => l.kind === activeFilter) }
+        : full,
+    [full, activeFilter],
+  );
 
   const [selection, setSelection] = useState<GridSelection>({ row: 0, col: 0 });
   const [sheet, setSheet] = useState<{ student: Student; lessonId: string } | null>(null);
@@ -77,14 +92,14 @@ export function GradebookScreen({
   const buffer = useRef('');
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Лишаємося на останньому занятті проведеного: курсор стартує на найближчому до сьогодні
-  const startCol = useRef(false);
+  // Курсор стартує на найближчому до сьогодні занятті; після зміни фільтра — теж
+  const startedFor = useRef<string | null>(null);
   useEffect(() => {
-    if (!data || startCol.current || data.lessons.length === 0) return;
-    startCol.current = true;
+    if (!data || data.lessons.length === 0 || startedFor.current === activeFilter) return;
+    startedFor.current = activeFilter;
     const held = data.lessons.filter((l) => l.status === 'HELD').length;
     setSelection({ row: 0, col: Math.max(0, Math.min(held, data.lessons.length - 1)) });
-  }, [data]);
+  }, [data, activeFilter]);
 
   if (book.query.isPending) return <TableSkeleton rows={8} cols={7} label={uk.common.loading} />;
   if (!data) return <ErrorAlert error={book.query.error} />;
@@ -106,7 +121,7 @@ export function GradebookScreen({
     book.upsertGrade.mutate({
       lessonId: c.lesson.id,
       enrollmentId: c.student.enrollmentId,
-      kind: last?.kind ?? defaultGradeKind(data.load.kind),
+      kind: last?.kind ?? defaultGradeKind(c.lesson.kind),
       value,
       newId: book.newId(),
       ...(last && { gradeId: last.id, version: last.version }),
@@ -201,8 +216,7 @@ export function GradebookScreen({
       >
         <DisciplineDot color={data.load.discipline.color} size={12} gap={1.25} />
         {uk.gradebook.title}: {data.load.discipline.shortTitle} · {data.load.group.name}
-        {data.load.subgroup ? ` · ${data.load.subgroup.name}` : ''} ·{' '}
-        {uk.loads.kindsShort[data.load.kind]}
+        {data.load.subgroup ? ` · ${data.load.subgroup.name}` : ''}
       </Typography>
       {onPickLoad && (
         <GradebookToolbar
@@ -210,6 +224,9 @@ export function GradebookScreen({
           currentId={loadId}
           onPick={onPickLoad}
           period={periodSelect}
+          kinds={kinds}
+          kindFilter={activeFilter}
+          onKindFilter={setKindFilter}
         />
       )}
       {!onPickLoad && periodSelect}
@@ -217,7 +234,9 @@ export function GradebookScreen({
       <ErrorAlert error={mutationError} />
       {data.students.length === 0 && <Alert severity="info">{uk.gradebook.emptyStudents}</Alert>}
       {data.students.length > 0 && data.lessons.length === 0 && (
-        <Alert severity="info">{uk.gradebook.noLessons}</Alert>
+        <Alert severity="info">
+          {activeFilter === 'ALL' ? uk.gradebook.noLessons : uk.gradebook.noLessonsOfKind}
+        </Alert>
       )}
 
       {desktop && data.students.length > 0 && data.lessons.length > 0 && (
@@ -305,7 +324,7 @@ export function GradebookScreen({
       {panel && (
         <StudentPanel
           student={data.students.find((s) => s.enrollmentId === panel.enrollmentId) ?? panel}
-          data={data}
+          data={full ?? data}
           onClose={() => {
             setPanel(null);
           }}
@@ -324,7 +343,9 @@ export function GradebookScreen({
             grades: [],
           }}
           scale={scale}
-          defaultKind={defaultGradeKind(data.load.kind)}
+          defaultKind={defaultGradeKind(
+            data.lessons.find((l) => l.id === sheet.lessonId)?.kind ?? data.load.kind,
+          )}
           {...(sheetGrade && { grade: sheetGrade })}
           onClose={() => {
             setSheet(null);

@@ -4,6 +4,7 @@ import { createFileRoute } from '@tanstack/react-router';
 
 import { q } from '../../../api/queries';
 import { useCurrentSemester } from '../../../app/SemesterSwitcher';
+import { journalsOf } from '../../../features/gradebook/loadNav';
 import { uk } from '../../../shared/i18n/uk';
 import { DisciplineDot } from '../../../shared/ui/DisciplineDot';
 import { ErrorAlert } from '../../../shared/ui/ErrorAlert';
@@ -17,7 +18,7 @@ function GradebookIndex() {
   const { semester } = useCurrentSemester();
   const loads = useQuery({ ...q.loads(semester?.id ?? ''), enabled: semester !== null });
   if (!semester) return <Alert severity="info">{uk.gradebook.noSemester}</Alert>;
-  const items = loads.data ?? [];
+  const items = journalsOf(loads.data ?? []);
 
   return (
     <>
@@ -33,21 +34,21 @@ function GradebookIndex() {
           </Typography>
           <Paper variant="outlined" sx={{ maxWidth: 640 }}>
             <List disablePadding>
-              {items.map((l) => (
+              {items.map((j) => (
                 <LinkListItem
-                  key={l.id}
+                  key={`${j.discipline.id}|${j.group.id}|${j.subgroup?.id ?? ''}`}
                   to="/gradebook/$loadId"
-                  params={{ loadId: l.id }}
+                  params={{ loadId: j.primaryId }}
                   sx={{ minHeight: 56 }}
                 >
                   <ListItemText
                     primary={
                       <>
-                        <DisciplineDot color={l.discipline.color} />
-                        {l.discipline.title}
+                        <DisciplineDot color={j.discipline.color} />
+                        {j.discipline.title}
                       </>
                     }
-                    secondary={`${l.group.name}${l.subgroup ? ` · ${l.subgroup.name}` : ''} · ${uk.loads.kinds[l.kind]} · ${l.hours.held} ${uk.loads.hoursOf} ${l.plannedHours} год`}
+                    secondary={`${j.group.name}${j.subgroup ? ` · ${j.subgroup.name}` : ''} · ${j.kinds.map((k) => uk.loads.kinds[k]).join(', ')} · ${String(j.held)} ${uk.loads.hoursOf} ${String(j.planned)} год`}
                   />
                 </LinkListItem>
               ))}

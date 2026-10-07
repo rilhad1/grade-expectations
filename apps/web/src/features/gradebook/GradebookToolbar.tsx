@@ -1,4 +1,4 @@
-import type { LoadDto } from '@ge/shared';
+import type { LessonKind, LoadDto } from '@ge/shared';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import { Box, MenuItem, Select, Stack, Typography } from '@mui/material';
 
@@ -22,11 +22,18 @@ export function GradebookToolbar({
   currentId,
   onPick,
   period,
+  kinds,
+  kindFilter,
+  onKindFilter,
 }: {
   loads: readonly LoadDto[];
   currentId: string;
   onPick: (loadId: string) => void;
   period?: React.ReactNode;
+  /** Види занять, що є в журналі, — для фільтра (одного виду фільтр не потрібен). */
+  kinds: readonly LessonKind[];
+  kindFilter: 'ALL' | LessonKind;
+  onKindFilter: (kind: 'ALL' | LessonKind) => void;
 }) {
   const nav = loadNav(loads, currentId);
   if (!nav) return <Box sx={{ mb: 2 }}>{period}</Box>;
@@ -72,15 +79,30 @@ export function GradebookToolbar({
           />
         )}
 
-        {nav.variants.length > 1 && (
+        {nav.subgroups.length > 1 && (
+          <SegmentedControl
+            ariaLabel={uk.gradebook.subgroup}
+            value={current?.subgroup?.id ?? ''}
+            onChange={(id) => {
+              const target = nav.forSubgroup(id === '' ? null : id);
+              if (target) onPick(target);
+            }}
+            options={nav.subgroups.map((sg) => ({
+              value: sg.id ?? '',
+              label: sg.name ?? uk.gradebook.wholeGroup,
+            }))}
+          />
+        )}
+
+        {kinds.length > 1 && (
           <SegmentedControl
             ariaLabel={uk.gradebook.kind}
-            value={currentId}
-            onChange={onPick}
-            options={nav.variants.map((v) => ({
-              value: v.id,
-              label: `${uk.loads.kindsShort[v.kind]}${v.subgroupName ? ` · ${v.subgroupName}` : ''}`,
-            }))}
+            value={kindFilter}
+            onChange={onKindFilter}
+            options={[
+              { value: 'ALL' as const, label: uk.gradebook.kindFilter.ALL },
+              ...kinds.map((k) => ({ value: k, label: uk.gradebook.kindFilter[k] })),
+            ]}
           />
         )}
 

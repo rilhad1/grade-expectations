@@ -108,15 +108,39 @@ export function summarize(
   };
 }
 
-/** Дані журналу навантаження: заняття, студенти, відмітки й оцінки. */
+/** Вид занять, чиї правила оцінювання вважаються основними в зведеному журналі. */
+const PRIMARY_KIND_ORDER = ['PRACTICE', 'LAB', 'SEMINAR', 'CONTROL', 'LECTURE'] as const;
+
+/**
+ * Споріднені навантаження зведеного журналу: той самий семестр, дисципліна, група й підгрупа,
+ * усіх видів занять; викладач бачить лише власні. Перше — основне (правила оцінювання).
+ */
+export async function siblingLoads(ctx: AuthContext, load: JournalLoad) {
+  const rows = await ctx.db.teachingLoad.findMany({
+    where: {
+      semesterId: load.semesterId,
+      disciplineId: load.disciplineId,
+      groupId: load.groupId,
+      subgroupId: load.subgroupId,
+      deletedAt: null,
+      ...(!isModerator(ctx) && { teacherId: ctx.user.id }),
+    },
+    select: { id: true, kind: true, gradingRules: true },
+  });
+  const rank = (kind: (typeof PRIMARY_KIND_ORDER)[number]) => PRIMARY_KIND_ORDER.indexOf(kind);
+  return rows.sort((a, b) => rank(a.kind) - rank(b.kind) || a.id.localeCompare(b.id));
+}
+
+/** Дані журналу: заняття, студенти, відмітки й оцінки навантаження (або кількох споріднених). */
 export async function loadGradebookData(
   ctx: AuthContext,
   load: JournalLoad,
   range: { from?: string | undefined; to?: string | undefined } = {},
+  loadIds: readonly string[] = [load.id],
 ) {
   const lessons = await ctx.db.lesson.findMany({
     where: {
-      loadId: load.id,
+      loadId: { in: [...loadIds] },
       deletedAt: null,
       status: { in: ['PLANNED', 'HELD', 'SUBSTITUTED'] },
       ...((range.from !== undefined || range.to !== undefined) && {
@@ -126,7 +150,7 @@ export async function loadGradebookData(
         },
       }),
     },
-    include: { topic: true },
+    include: { topic: true, load: { select: { kind: true } } },
     orderBy: [{ date: 'asc' }, { pairNumber: 'asc' }],
   });
   const enrollments = await ctx.db.enrollment.findMany({
@@ -149,7 +173,7 @@ export async function loadGradebookData(
       orderBy: { id: 'asc' },
     }),
     ctx.db.assessment.findMany({
-      where: { loadId: load.id, deletedAt: null },
+      where: { loadId: { in: [...loadIds] }, deletedAt: null },
       orderBy: [{ createdAt: 'asc' }, { title: 'asc' }],
     }),
   ]);
@@ -174,9 +198,16 @@ export async function getGradebook(
   range: { from?: string | undefined; to?: string | undefined },
 ): Promise<GradebookDto> {
   const load = await findJournalLoad(ctx, loadId);
-  const rules = rulesOf(load);
+  // Один журнал на дисципліну й групу: усі види занять разом, правила — основного навантаження
+  const siblings = await siblingLoads(ctx, load);
+  const rules = rulesOf(siblings[0] ?? load);
   const { lessons, enrollments, attendance, grades, assessments, assessmentGrades } =
-    await loadGradebookData(ctx, load, range);
+    await loadGradebookData(
+      ctx,
+      load,
+      range,
+      siblings.map((l) => l.id),
+    );
   const dateOfLesson = new Map(lessons.map((l) => [l.id, isoOf(l.date)]));
   const assessmentById = new Map(assessments.map((a) => [a.id, a]));
   const semester = { from: isoOf(load.semester.startDate), to: isoOf(load.semester.endDate) };
@@ -254,7 +285,7 @@ export async function getGradebook(
       id: l.id,
       date: isoOf(l.date),
       pairNumber: l.pairNumber,
-      kind: load.kind,
+      kind: l.load.kind,
       status: l.status === 'HELD' ? 'HELD' : l.status === 'SUBSTITUTED' ? 'SUBSTITUTED' : 'PLANNED',
       topic: l.topicText ?? l.topic?.title ?? null,
     })),
