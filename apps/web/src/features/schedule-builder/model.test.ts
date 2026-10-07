@@ -37,6 +37,7 @@ const load = (id: string, o: Partial<LoadDto> = {}): LoadDto => ({
   group: { id: 'g1', name: 'ПДт-12', course: 1 },
   subgroup: null,
   teacher: { id: 't1', fullName: 'Бойчук В.В.' },
+  streamId: null,
   hours: { planned: 32, held: 0, forecast: 0, deficit: 32, extraPairsNeeded: 16 },
   version: 0,
   ...o,

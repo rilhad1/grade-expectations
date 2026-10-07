@@ -355,6 +355,7 @@ async function semesterContext(ctx: AuthContext, semesterId: string) {
     kind: l.kind,
     plannedHours: l.plannedHours,
     controlForm: l.controlForm,
+    streamId: l.streamId,
   }));
   return { semester, input, loads: loadInputs };
 }
@@ -627,6 +628,7 @@ export async function listLessons(
     homework: l.homework,
     note: l.note,
     manuallyEdited: l.manuallyEdited,
+    streamId: l.load.streamId,
     discipline: {
       id: l.load.discipline.id,
       title: l.load.discipline.title,

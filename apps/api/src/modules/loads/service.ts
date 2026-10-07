@@ -50,6 +50,7 @@ function toDto(row: LoadRow, lessons: readonly LessonHours[], today: string): Lo
     group: row.group,
     subgroup: row.subgroup,
     teacher: row.teacher,
+    streamId: row.streamId,
     hours: hoursProgress({ plannedHours: row.plannedHours }, own, today),
     version: row.version,
   };
@@ -242,4 +243,73 @@ export async function deleteLoad(ctx: AuthContext, id: string): Promise<void> {
     where: { id },
     data: { deletedAt: new Date(), version: { increment: 1 } },
   });
+}
+
+/**
+ * Об'єднує навантаження лекцій у потік: один семестр, дисципліна, викладач, різні групи.
+ * Якщо хтось із них уже в потоці, до нього долучаються всі обрані (і його поточні учасники).
+ */
+export async function mergeStream(ctx: AuthContext, loadIds: string[]): Promise<LoadDto[]> {
+  const unique = [...new Set(loadIds)];
+  const rows = await ctx.db.teachingLoad.findMany({
+    where: { id: { in: unique }, ...loadScope(ctx.organization.id) },
+  });
+  if (rows.length !== unique.length) throw notFound('Навантаження не знайдено');
+  const first = rows[0];
+  if (!first) throw notFound('Навантаження не знайдено');
+  await requireOpenSemester(ctx, first.semesterId);
+  const same = rows.every(
+    (r) =>
+      r.semesterId === first.semesterId &&
+      r.disciplineId === first.disciplineId &&
+      r.teacherId === first.teacherId &&
+      r.kind === first.kind,
+  );
+  if (!same || first.kind !== 'LECTURE')
+    throw unprocessable(
+      'STREAM_MISMATCH',
+      'У потік об’єднуються лекції однієї дисципліни одного викладача в одному семестрі',
+    );
+  if (new Set(rows.map((r) => r.groupId)).size !== rows.length)
+    throw unprocessable('STREAM_SAME_GROUP', 'У потоці має бути по одному навантаженню на групу');
+  if (rows.some((r) => r.subgroupId !== null))
+    throw unprocessable('STREAM_SUBGROUP', 'Потік складається з навантажень на всю групу');
+
+  const streamId = rows.find((r) => r.streamId)?.streamId ?? newId(undefined);
+  const inherited = rows.flatMap((r) => (r.streamId ? [r.streamId] : []));
+  await ctx.db.teachingLoad.updateMany({
+    where: {
+      deletedAt: null,
+      OR: [
+        { id: { in: unique } },
+        ...(inherited.length > 0 ? [{ streamId: { in: inherited } }] : []),
+      ],
+    },
+    data: { streamId, version: { increment: 1 } },
+  });
+  return Promise.all(unique.map((id) => getLoad(ctx, id)));
+}
+
+/** Виходить із потоку; якщо в потоці лишається одна група, потік розпускається. */
+export async function leaveStream(ctx: AuthContext, id: string): Promise<LoadDto> {
+  const current = await ctx.db.teachingLoad.findFirst({
+    where: { id, ...loadScope(ctx.organization.id) },
+  });
+  if (!current) throw notFound('Навантаження не знайдено');
+  await requireOpenSemester(ctx, current.semesterId);
+  if (current.streamId === null) return getLoad(ctx, id);
+  await ctx.db.teachingLoad.update({
+    where: { id },
+    data: { streamId: null, version: { increment: 1 } },
+  });
+  const rest = await ctx.db.teachingLoad.findMany({
+    where: { streamId: current.streamId, deletedAt: null },
+    select: { id: true },
+  });
+  if (rest.length === 1)
+    await ctx.db.teachingLoad.updateMany({
+      where: { streamId: current.streamId },
+      data: { streamId: null, version: { increment: 1 } },
+    });
+  return getLoad(ctx, id);
 }

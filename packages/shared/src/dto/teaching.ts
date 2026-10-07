@@ -62,6 +62,12 @@ export const lessonDetailDtoSchema = lessonItemDtoSchema.extend({
   roster: z.array(rosterEntrySchema),
   /** Для проведеного заняття: до якого моменту можна скасувати завершення (10 хв). */
   undoUntil: z.iso.datetime().nullable(),
+  /** Усі заняття цього потоку тієї ж пари (разом із цим); порожньо, якщо заняття не в потоці. */
+  stream: z
+    .array(
+      z.object({ lessonId: uuidSchema, group: z.object({ id: uuidSchema, name: z.string() }) }),
+    )
+    .default([]),
 });
 export type LessonDetailDto = z.infer<typeof lessonDetailDtoSchema>;
 

@@ -45,6 +45,8 @@ export interface LoadInput {
   kind: LessonKind;
   plannedHours: number;
   controlForm: ControlForm;
+  /** Потік: навантаження з однаковим streamId ведуться як одна пара (викладач і аудиторія спільні). */
+  streamId?: string | null;
 }
 
 export interface ExistingLesson {

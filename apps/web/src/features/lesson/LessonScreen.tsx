@@ -4,6 +4,7 @@ import CloudOffOutlined from '@mui/icons-material/CloudOffOutlined';
 import EditOutlined from '@mui/icons-material/EditOutlined';
 import { Alert, Box, Button, ButtonBase, Paper, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
 
 import { q } from '../../api/queries';
@@ -13,6 +14,7 @@ import { useSyncStore } from '../../offline/syncStore';
 import { formatShortDate, formatWeekdayDate } from '../../shared/format';
 import { uk } from '../../shared/i18n/uk';
 import { ErrorAlert } from '../../shared/ui/ErrorAlert';
+import { SegmentedControl } from '../../shared/ui/SegmentedControl';
 import { ListSkeleton } from '../../shared/ui/Skeletons';
 import { LinkBase, LinkButton } from '../../shared/ui/links';
 
@@ -34,6 +36,7 @@ export function LessonScreen({ lessonId }: { lessonId: string }) {
   const [editHeld, setEditHeld] = useState(false);
   const [now, setNow] = useState(() => new Date());
   const sync = useSyncStore();
+  const navigate = useNavigate();
   const todayQuery = useQuery({
     queryKey: ['today'],
     queryFn: loadToday,
@@ -67,6 +70,7 @@ export function LessonScreen({ lessonId }: { lessonId: string }) {
     lesson.editGrade.error ??
     lesson.deleteGrade.error ??
     lesson.finish.error ??
+    lesson.finishAll.error ??
     lesson.reopen.error ??
     lesson.saveInfo.error;
 
@@ -219,6 +223,19 @@ export function LessonScreen({ lessonId }: { lessonId: string }) {
         </Box>
       )}
 
+      {detail.stream.length > 1 && (
+        <Box sx={{ mb: 2, overflowX: 'auto' }}>
+          <SegmentedControl
+            ariaLabel={uk.lesson.streamGroups}
+            value={detail.id}
+            onChange={(id) => {
+              void navigate({ to: '/lessons/$lessonId', params: { lessonId: id } });
+            }}
+            options={detail.stream.map((s) => ({ value: s.lessonId, label: s.group.name }))}
+          />
+        </Box>
+      )}
+
       <ErrorAlert error={mutationError} />
       {inactive && (
         <Alert severity="warning" sx={{ mb: 2 }}>
@@ -292,14 +309,22 @@ export function LessonScreen({ lessonId }: { lessonId: string }) {
             <Button
               variant="contained"
               size="large"
-              disabled={!held && (isFuture || lesson.finish.isPending)}
+              disabled={
+                !held && (isFuture || lesson.finish.isPending || lesson.finishAll.isPending)
+              }
               onClick={() => {
                 if (held) setEditHeld(false);
+                else if (detail.stream.length > 1)
+                  lesson.finishAll.mutate(detail.stream.map((s) => s.lessonId));
                 else lesson.finish.mutate();
               }}
               sx={{ minHeight: 52, px: 2.5, whiteSpace: 'nowrap' }}
             >
-              {held ? uk.lesson.doneEditing : uk.lesson.finish}
+              {held
+                ? uk.lesson.doneEditing
+                : detail.stream.length > 1
+                  ? uk.lesson.finishStream
+                  : uk.lesson.finish}
             </Button>
           )}
         </Box>

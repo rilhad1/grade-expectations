@@ -20,8 +20,17 @@ export async function loadLesson(id: string): Promise<LessonDetailDto> {
     if (!isNetworkError(error)) throw error;
     const record = await db.lessons.get(id);
     if (!record) throw error;
-    return record.detail;
+    // Старі локальні копії можуть не мати нових полів: схема доповнює їх значеннями за замовчуванням
+    return withDefaults(record.detail);
   }
+}
+
+type Stored = Omit<LessonDetailDto, 'stream' | 'streamId'> &
+  Partial<Pick<LessonDetailDto, 'stream' | 'streamId'>>;
+
+/** Локальна копія, збережена попередньою версією, не має полів потоку: доповнюємо за замовчуванням. */
+function withDefaults(stored: Stored): LessonDetailDto {
+  return { ...stored, streamId: stored.streamId ?? null, stream: stored.stream ?? [] };
 }
 
 /**

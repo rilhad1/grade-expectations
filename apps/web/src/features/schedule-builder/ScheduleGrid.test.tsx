@@ -24,6 +24,7 @@ const load: LoadDto = {
   group: { id: 'g', name: 'ПДт-12', course: 1 },
   subgroup: { id: 'sg', name: '2 підгрупа' },
   teacher: { id: 't', fullName: 'Бойчук В.В.' },
+  streamId: null,
   hours: { planned: 32, held: 0, forecast: 0, deficit: 32, extraPairsNeeded: 16 },
   version: 0,
 };

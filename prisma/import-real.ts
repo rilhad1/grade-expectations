@@ -676,6 +676,8 @@ await prisma.teachingLoad.createMany({
     groupId: groupId(s.group),
     teacherId: USER,
     kind: s.kind,
+    // Потокові лекції КІт-31…34: одна пара для чотирьох груп (одна дисципліна — один потік)
+    streamId: s.kind === 'LECTURE' && KIT.includes(s.group) ? id(`stream:${s.disc}`) : null,
     plannedHours: (lessonsPerLoad.get(lid) ?? 0) * 2,
     controlForm: DISC[s.disc].control,
     gradingRules: { ...defaultGradingRules, scale: scaleOf(s.group) },

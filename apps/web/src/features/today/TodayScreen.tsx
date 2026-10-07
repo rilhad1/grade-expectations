@@ -5,12 +5,13 @@ import PlaceOutlined from '@mui/icons-material/PlaceOutlined';
 import PlayArrow from '@mui/icons-material/PlayArrow';
 import { Box, Paper, Stack, Typography } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { q } from '../../api/queries';
 import { loadToday } from '../../offline/lessonSource';
 import { formatWeekdayDate } from '../../shared/format';
 import { uk } from '../../shared/i18n/uk';
+import { mergeStreamLessons } from '../../shared/streams';
 import { DisciplineDot } from '../../shared/ui/DisciplineDot';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { ErrorAlert } from '../../shared/ui/ErrorAlert';
@@ -293,12 +294,14 @@ export function TodayScreen({ fullName }: { fullName: string }) {
   }, []);
 
   const data = today.data;
+  // Лекція потоку для кількох груп — одна картка
+  const lessons = useMemo(() => (data ? mergeStreamLessons(data.lessons) : []), [data]);
   const bellList = bells.data ?? [];
   const nowMin = kyivMinutes(now);
-  const current = data ? pickCurrent(data.lessons, bellList, nowMin) : null;
-  const others = data?.lessons.filter((l) => l.id !== current?.lesson?.id) ?? [];
-  const currentTotal = data?.lessons.find((l) => l.id === current?.lesson?.id)?.total ?? null;
-  const heldCount = data?.lessons.filter((l) => l.status === 'HELD').length ?? 0;
+  const current = data ? pickCurrent(lessons, bellList, nowMin) : null;
+  const others = lessons.filter((l) => l.id !== current?.lesson?.id);
+  const currentTotal = lessons.find((l) => l.id === current?.lesson?.id)?.total ?? null;
+  const heldCount = lessons.filter((l) => l.status === 'HELD').length;
 
   return (
     <>
@@ -308,7 +311,7 @@ export function TodayScreen({ fullName }: { fullName: string }) {
           <>
             {t.welcome}, {fullName}
             {data
-              ? ` · ${formatWeekdayDate(data.date)}${data.lessons.length > 0 ? ` · ${t.pairsSummary(data.lessons.length, heldCount)}` : ''}`
+              ? ` · ${formatWeekdayDate(data.date)}${lessons.length > 0 ? ` · ${t.pairsSummary(lessons.length, heldCount)}` : ''}`
               : ''}
           </>
         }
@@ -327,7 +330,7 @@ export function TodayScreen({ fullName }: { fullName: string }) {
       {data && (
         <Stack direction={{ xs: 'column', lg: 'row' }} spacing={3} alignItems="flex-start">
           <Stack spacing={3} sx={{ flexGrow: 1, minWidth: 0, width: '100%' }}>
-            {data.lessons.length === 0 && (
+            {lessons.length === 0 && (
               <EmptyState
                 icon={<CalendarViewWeekOutlined />}
                 title={t.noLessons}

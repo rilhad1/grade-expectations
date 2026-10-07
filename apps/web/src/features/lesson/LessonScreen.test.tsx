@@ -20,6 +20,8 @@ vi.mock('../../api/queries', () => ({
     }),
   },
 }));
+const navigate = vi.hoisted(() => vi.fn());
+vi.mock('@tanstack/react-router', () => ({ useNavigate: () => navigate }));
 vi.mock('../../shared/ui/links', () => ({
   LinkButton: ({ children }: { children: React.ReactNode }) => <a href="/x">{children}</a>,
   LinkBase: ({ children }: { children: React.ReactNode }) => <a href="/">{children}</a>,
@@ -49,6 +51,8 @@ const lesson = (over: Partial<LessonDetailDto> = {}): LessonDetailDto => ({
   homework: null,
   note: null,
   manuallyEdited: false,
+  streamId: null,
+  stream: [],
   version: 0,
   scale: 'TWELVE',
   undoUntil: null,
@@ -191,6 +195,33 @@ describe('LessonScreen («На парі»)', () => {
       await screen.findByRole('heading', { name: uk.lesson.finishedTitle }),
     ).toBeInTheDocument();
     expect((await db.outbox.toArray()).map((r) => r.op.type)).toEqual(['attendance.set']);
+  });
+
+  it('потік лекцій: вкладки груп ведуть на сусідні заняття, «Завершити для всіх груп» ставить завершення кожного', async () => {
+    api.fetchLesson.mockResolvedValue(
+      lesson({
+        stream: [
+          { lessonId: 'l1', group: { id: 'g', name: 'КІт-31' } },
+          { lessonId: 'l2', group: { id: 'g2', name: 'КІт-32' } },
+        ],
+      }),
+    );
+    renderWithClient(<LessonScreen lessonId="l1" />);
+    const tabs = await screen.findByRole('group', { name: uk.lesson.streamGroups });
+    expect(within(tabs).getByRole('button', { name: 'КІт-31' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
+    fireEvent.click(within(tabs).getByRole('button', { name: 'КІт-32' }));
+    expect(navigate).toHaveBeenCalledWith({ to: '/lessons/$lessonId', params: { lessonId: 'l2' } });
+
+    fireEvent.click(screen.getByRole('button', { name: uk.lesson.finishStream }));
+    await screen.findByRole('heading', { name: uk.lesson.finishedTitle });
+    const queued = await db.outbox.toArray();
+    expect(queued.map((r) => [r.op.type, r.lessonId]).sort()).toEqual([
+      ['lesson.finish', 'l1'],
+      ['lesson.finish', 'l2'],
+    ]);
   });
 
   it('майбутнє заняття не можна завершити; скасоване не приймає відміток', async () => {

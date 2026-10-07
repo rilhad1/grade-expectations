@@ -31,6 +31,8 @@ export const loadDtoSchema = z.object({
   group: z.object({ id: uuidSchema, name: z.string(), course: z.number().int() }),
   subgroup: z.object({ id: uuidSchema, name: z.string() }).nullable(),
   teacher: z.object({ id: uuidSchema, fullName: z.string() }),
+  /** Потік лекцій: навантаження з однаковим streamId — одна пара для кількох груп. */
+  streamId: uuidSchema.nullable(),
   /** Вичитка годин: план / факт / прогноз. */
   hours: hoursProgressDtoSchema,
   version: z.number().int(),
@@ -68,6 +70,12 @@ export const updateLoadSchema = z
   })
   .partial()
   .extend(versionSchema.shape);
+
+/** Об'єднання навантажень лекцій кількох груп у потік. */
+export const mergeLoadsStreamSchema = z.object({
+  loadIds: z.array(uuidSchema).min(2).max(20),
+});
+export type MergeLoadsStreamInput = z.infer<typeof mergeLoadsStreamSchema>;
 
 export type CreateLoadInput = z.infer<typeof createLoadSchema>;
 export type UpdateLoadInput = z.infer<typeof updateLoadSchema>;

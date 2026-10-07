@@ -60,15 +60,17 @@ export function detectScheduleConflicts(
 
       const where = `день ${a.weekday}, пара ${a.pairNumber}`;
       const pair = { slotIds: [a.id, b.id], loadIds: [la.id, lb.id] };
+      // Одна пара потоку для кількох груп: викладач і аудиторія в неї спільні, це не конфлікт
+      const sameStream = la.streamId != null && la.streamId === lb.streamId;
 
-      if (la.teacherId === lb.teacherId) {
+      if (la.teacherId === lb.teacherId && !sameStream) {
         conflicts.push({
           type: 'TEACHER_BUSY',
           ...pair,
           message: `Викладач уже зайнятий (${where})`,
         });
       }
-      if (a.roomId !== null && a.roomId === b.roomId) {
+      if (a.roomId !== null && a.roomId === b.roomId && !sameStream) {
         conflicts.push({ type: 'ROOM_BUSY', ...pair, message: `Аудиторія зайнята (${where})` });
       }
       if (groupsOverlap(la, lb)) {

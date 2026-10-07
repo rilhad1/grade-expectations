@@ -185,4 +185,33 @@ describe('detectScheduleConflicts', () => {
       expect(c[0]?.slotIds).toEqual(['s1', 's2']);
     });
   });
+
+  it('потік: одна пара для кількох груп — викладач і аудиторія спільні, це не конфлікт', () => {
+    const teacher = { teacherId: 't1', streamId: 'stream-1' };
+    const c = detectScheduleConflicts(
+      [slot('s1', 'a', { roomId: 'r1' }), slot('s2', 'b', { roomId: 'r1' })],
+      [load('a', { ...teacher }), load('b', { ...teacher, groupId: 'g2' })],
+    );
+    expect(c).toEqual([]);
+  });
+
+  it('потік не ховає справжніх конфліктів: інший потік чи без потоку лишаються конфліктом', () => {
+    const base = { teacherId: 't1' };
+    const other = detectScheduleConflicts(
+      [slot('s1', 'a'), slot('s2', 'b')],
+      [load('a', { ...base, streamId: 'x' }), load('b', { ...base, groupId: 'g2', streamId: 'y' })],
+    );
+    expect(types(other)).toEqual(['TEACHER_BUSY']);
+    const alone = detectScheduleConflicts(
+      [slot('s1', 'a'), slot('s2', 'b')],
+      [load('a', { ...base, streamId: 'x' }), load('b', { ...base, groupId: 'g2' })],
+    );
+    expect(types(alone)).toEqual(['TEACHER_BUSY']);
+    // Та сама група двічі навіть у потоці — конфлікт групи
+    const sameGroup = detectScheduleConflicts(
+      [slot('s1', 'a'), slot('s2', 'b')],
+      [load('a', { ...base, streamId: 'x' }), load('b', { ...base, streamId: 'x' })],
+    );
+    expect(types(sameGroup)).toEqual(['GROUP_BUSY']);
+  });
 });

@@ -109,6 +109,27 @@ export async function getLessonDetail(ctx: AuthContext, id: string): Promise<Les
   ]);
   const marks = new Map(attendance.map((a) => [a.enrollmentId, a.status]));
 
+  // Потік лекцій: та сама пара в інших групах (одна пара для викладача)
+  const streamRows =
+    lesson.load.streamId === null
+      ? []
+      : await ctx.db.lesson.findMany({
+          where: {
+            deletedAt: null,
+            date: lesson.date,
+            pairNumber: lesson.pairNumber,
+            teacherId: lesson.teacherId,
+            load: { streamId: lesson.load.streamId, deletedAt: null },
+          },
+          select: { id: true, load: { select: { group: { select: { id: true, name: true } } } } },
+        });
+  const stream =
+    streamRows.length > 1
+      ? streamRows
+          .map((r) => ({ lessonId: r.id, group: r.load.group }))
+          .sort((a, b) => a.group.name.localeCompare(b.group.name, 'uk', { numeric: true }))
+      : [];
+
   const undoUntil =
     lesson.status === 'HELD' ? new Date(lesson.updatedAt.getTime() + UNDO_MINUTES * 60_000) : null;
 
@@ -124,6 +145,7 @@ export async function getLessonDetail(ctx: AuthContext, id: string): Promise<Les
     homework: lesson.homework,
     note: lesson.note,
     manuallyEdited: lesson.manuallyEdited,
+    streamId: lesson.load.streamId,
     discipline: {
       id: lesson.load.discipline.id,
       title: lesson.load.discipline.title,
@@ -141,6 +163,7 @@ export async function getLessonDetail(ctx: AuthContext, id: string): Promise<Les
       gradingRulesSchema.safeParse(lesson.load.gradingRules).data?.scale ??
       defaultGradingRules.scale,
     undoUntil: undoUntil && undoUntil > new Date() ? undoUntil.toISOString() : null,
+    stream,
     roster: roster.map((e) => ({
       enrollmentId: e.id,
       studentId: e.studentId,

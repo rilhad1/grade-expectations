@@ -57,6 +57,14 @@ export function useLesson(lessonId: string) {
   });
 
   const finish = useMutation({ mutationFn: () => run({ type: 'lesson.finish', lessonId }) });
+  /** Завершує пару для всіх груп потоку (спершу сусідні заняття, потім поточне). */
+  const finishAll = useMutation({
+    mutationFn: async (lessonIds: readonly string[]) => {
+      for (const id of lessonIds)
+        if (id !== lessonId) await submitOp({ type: 'lesson.finish', lessonId: id });
+      return run({ type: 'lesson.finish', lessonId });
+    },
+  });
   const reopen = useMutation({ mutationFn: () => run({ type: 'lesson.reopen', lessonId }) });
   const saveInfo = useMutation({
     mutationFn: (v: { version: number; topicText?: string | null; homework?: string | null }) =>
@@ -78,6 +86,7 @@ export function useLesson(lessonId: string) {
     editGrade,
     deleteGrade,
     finish,
+    finishAll,
     reopen,
     saveInfo,
     newGradeId,

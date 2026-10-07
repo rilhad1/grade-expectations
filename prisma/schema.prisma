@@ -513,6 +513,8 @@ model TeachingLoad {
   plannedHours Int
   controlForm  ControlForm
   gradingRules Json
+  /// Потік: навантаження лекцій кількох груп з однаковим streamId — одна пара для викладача
+  streamId     String?     @db.Uuid
   createdAt    DateTime    @default(now())
   updatedAt    DateTime    @updatedAt
   version      Int         @default(0)
@@ -530,6 +532,7 @@ model TeachingLoad {
 
   @@index([semesterId, teacherId])
   @@index([groupId])
+  @@index([streamId])
 }
 
 model Schedule {

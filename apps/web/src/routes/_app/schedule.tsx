@@ -20,7 +20,7 @@ import {
 } from '@mui/material';
 import { useQuery } from '@tanstack/react-query';
 import { createFileRoute, useNavigate } from '@tanstack/react-router';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { getAll } from '../../api/http';
 import { q } from '../../api/queries';
@@ -39,6 +39,7 @@ import {
 } from '../../features/teacher-schedule/model';
 import { formatShortDate } from '../../shared/format';
 import { uk } from '../../shared/i18n/uk';
+import { mergeStreamLessons } from '../../shared/streams';
 import { DisciplineDot } from '../../shared/ui/DisciplineDot';
 import { EmptyState } from '../../shared/ui/EmptyState';
 import { ErrorAlert } from '../../shared/ui/ErrorAlert';
@@ -77,7 +78,8 @@ function SchedulePage() {
   const [requesting, setRequesting] = useState<LessonItemDto | null>(null);
 
   const allDays = weekDays(weekStart);
-  const list = lessons.data ?? [];
+  // Лекція потоку для кількох груп — одна картка
+  const list = useMemo(() => mergeStreamLessons(lessons.data ?? []), [lessons.data]);
   // Субота показується, лише якщо в ній є заняття
   const days = list.some((l) => l.date === allDays[5]) ? allDays : allDays.slice(0, 5);
   const parity =

@@ -3,6 +3,8 @@ import {
   Alert,
   Box,
   Button,
+  Checkbox,
+  Chip,
   LinearProgress,
   MenuItem,
   Paper,
@@ -22,7 +24,7 @@ import { useState } from 'react';
 import { q } from '../../../api/queries';
 import { useCurrentSemester } from '../../../app/SemesterSwitcher';
 import { LoadDialog } from '../../../features/loads/LoadDialog';
-import { deleteLoad } from '../../../features/loads/api';
+import { deleteLoad, leaveLoadStream, mergeLoadsStream } from '../../../features/loads/api';
 import { uk } from '../../../shared/i18n/uk';
 import { DisciplineDot } from '../../../shared/ui/DisciplineDot';
 import { ErrorAlert } from '../../../shared/ui/ErrorAlert';
@@ -65,11 +67,23 @@ function LoadsPage() {
   const [group, setGroup] = useState('');
   const [teacher, setTeacher] = useState('');
   const [dialog, setDialog] = useState<'add' | LoadDto | null>(null);
+  // Вибір лекцій для об'єднання в потік
+  const [picked, setPicked] = useState<string[]>([]);
 
   const remove = useMutation({
     mutationFn: deleteLoad,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['loads'] }),
   });
+
+  const refresh = () => queryClient.invalidateQueries({ queryKey: ['loads'] });
+  const merge = useMutation({
+    mutationFn: () => mergeLoadsStream(picked),
+    onSuccess: async () => {
+      setPicked([]);
+      await refresh();
+    },
+  });
+  const leave = useMutation({ mutationFn: leaveLoadStream, onSuccess: refresh });
 
   if (!semester) return <Alert severity="info">{l.noSemester}</Alert>;
   const teachers = (users.data ?? []).filter((u) => u.roles.includes('TEACHER'));
@@ -131,7 +145,26 @@ function LoadsPage() {
         </TextField>
       </Stack>
 
-      <ErrorAlert error={remove.error ?? loads.error} />
+      <ErrorAlert error={remove.error ?? merge.error ?? leave.error ?? loads.error} />
+      {picked.length > 0 && (
+        <Alert
+          severity="info"
+          sx={{ mb: 2 }}
+          action={
+            <Button
+              size="small"
+              disabled={picked.length < 2 || merge.isPending}
+              onClick={() => {
+                merge.mutate();
+              }}
+            >
+              {l.mergeStream}
+            </Button>
+          }
+        >
+          {l.mergeHint(picked.length)}
+        </Alert>
+      )}
       {loads.isSuccess && rows.length === 0 && <Alert severity="info">{l.empty}</Alert>}
 
       {rows.length > 0 && (
@@ -139,6 +172,7 @@ function LoadsPage() {
           <Table size="small">
             <TableHead>
               <TableRow>
+                <TableCell padding="checkbox" />
                 <TableCell>{l.discipline}</TableCell>
                 <TableCell>{l.group}</TableCell>
                 <TableCell>{l.kind}</TableCell>
@@ -151,6 +185,23 @@ function LoadsPage() {
             <TableBody>
               {rows.map((x) => (
                 <TableRow key={x.id} hover>
+                  <TableCell padding="checkbox">
+                    {x.kind === 'LECTURE' && !x.subgroup && (
+                      <Checkbox
+                        size="small"
+                        disabled={readOnly}
+                        checked={picked.includes(x.id)}
+                        slotProps={{ input: { 'aria-label': l.pickForStream(x.group.name) } }}
+                        onChange={(e) => {
+                          setPicked(
+                            e.target.checked
+                              ? [...picked, x.id]
+                              : picked.filter((id) => id !== x.id),
+                          );
+                        }}
+                      />
+                    )}
+                  </TableCell>
                   <TableCell>
                     <DisciplineDot color={x.discipline.color} />
                     {x.discipline.shortTitle}
@@ -159,7 +210,24 @@ function LoadsPage() {
                     {x.group.name}
                     {x.subgroup ? ` · ${x.subgroup.name}` : ''}
                   </TableCell>
-                  <TableCell>{l.kindsShort[x.kind]}</TableCell>
+                  <TableCell>
+                    {l.kindsShort[x.kind]}
+                    {x.streamId && (
+                      <Chip
+                        size="small"
+                        label={l.stream}
+                        title={l.leaveStream}
+                        onDelete={
+                          readOnly
+                            ? undefined
+                            : () => {
+                                leave.mutate(x.id);
+                              }
+                        }
+                        sx={{ ml: 1 }}
+                      />
+                    )}
+                  </TableCell>
                   <TableCell>{x.teacher.fullName}</TableCell>
                   <TableCell>{l.controlForms[x.controlForm]}</TableCell>
                   <TableCell>

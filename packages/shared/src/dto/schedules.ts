@@ -97,6 +97,8 @@ export const lessonItemDtoSchema = z.object({
   homework: z.string().nullable(),
   note: z.string().nullable(),
   manuallyEdited: z.boolean(),
+  /** Потік лекцій: заняття з однаковим streamId, датою й парою — одна пара для кількох груп. */
+  streamId: uuidSchema.nullable().default(null),
   discipline: z.object({
     id: uuidSchema,
     title: z.string(),

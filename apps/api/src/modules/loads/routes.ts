@@ -3,11 +3,13 @@ import {
   idParamSchema,
   loadDtoSchema,
   loadListQuerySchema,
+  mergeLoadsStreamSchema,
   pageOf,
   updateLoadSchema,
 } from '@ge/shared';
 import type { FastifyInstance } from 'fastify';
 import type { ZodTypeProvider } from 'fastify-type-provider-zod';
+import { z } from 'zod';
 
 import * as service from './service.js';
 
@@ -43,6 +45,20 @@ export function loadRoutes(app: FastifyInstance): void {
       schema: { params: idParamSchema, body: updateLoadSchema, response: { 200: loadDtoSchema } },
     },
     async (req) => service.updateLoad(await auth(req), req.params.id, req.body),
+  );
+  // Потоки лекцій: одна пара для кількох груп
+  r.post(
+    '/loads/stream',
+    {
+      preHandler: write,
+      schema: { body: mergeLoadsStreamSchema, response: { 200: z.array(loadDtoSchema) } },
+    },
+    async (req) => service.mergeStream(await auth(req), req.body.loadIds),
+  );
+  r.delete(
+    '/loads/:id/stream',
+    { preHandler: write, schema: { params: idParamSchema, response: { 200: loadDtoSchema } } },
+    async (req) => service.leaveStream(await auth(req), req.params.id),
   );
   r.delete(
     '/loads/:id',
