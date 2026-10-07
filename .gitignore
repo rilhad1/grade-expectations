@@ -10,3 +10,5 @@ apps/web/src/routeTree.gen.ts
 test-results
 playwright-report
 apps/web/.tanstack
+.env.*
+!.env.example
