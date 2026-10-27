@@ -136,11 +136,12 @@ describe('GradebookScreen', () => {
   it('таблиця «студенти × заняття»: імена, оцінки, відмітки, середній і пропуски', async () => {
     renderWithClient(<GradebookScreen loadId="load1" />);
     await screen.findByRole('grid');
-    expect(screen.getByText('Бондар Т.')).toBeInTheDocument();
+    expect(screen.getByText('Бондар Тест')).toBeInTheDocument();
     expect(cell(0, 0)).toHaveTextContent('9');
     expect(cell(1, 0)).toHaveTextContent(uk.lesson.attendanceShort.ABSENT);
     expect(screen.getByText('9,0')).toBeInTheDocument();
-    expect(screen.getAllByText('н/а').length).toBeGreaterThan(0);
+    // Прогноз без жодного значення не займає місця в таблиці
+    expect(screen.queryByText('н/а')).not.toBeInTheDocument();
   });
 
   it('майбутні заняття за замовчуванням сховані: сітка закінчується сьогоднішнім днем', async () => {
@@ -428,7 +429,7 @@ describe('GradebookScreen', () => {
   it('клік по імені відкриває картку студента зі зведенням', async () => {
     renderWithClient(<GradebookScreen loadId="load1" />);
     await screen.findByRole('grid');
-    fireEvent.click(screen.getByText('Коваленко Т.'));
+    fireEvent.click(screen.getByText('Коваленко Тест'));
     const panel = await screen.findByRole('complementary');
     expect(within(panel).getByText(new RegExp(uk.gradebook.panel.risk))).toBeInTheDocument();
     expect(within(panel).getByText(new RegExp(uk.gradebook.panel.absent))).toBeInTheDocument();
