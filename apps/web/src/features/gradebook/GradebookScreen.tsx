@@ -179,10 +179,15 @@ export function GradebookScreen({
 
   const onKeyDown = (e: React.KeyboardEvent) => {
     if (e.ctrlKey || e.metaKey || e.altKey) return;
-    const action = interpretKey(e.key, buffer.current);
+    const action = interpretKey(e.key, buffer.current, e.shiftKey);
     if (!action) return;
-    e.preventDefault();
     const size = { rows: data.students.length, cols: lessonCount + data.assessments.length };
+    // Tab на краю сітки лишає фокус браузеру: клавіатурою можна вийти з журналу
+    if (e.key === 'Tab' && action.type === 'move') {
+      const next = moveSelection(selection, action, size);
+      if (next.row === selection.row && next.col === selection.col) return;
+    }
+    e.preventDefault();
 
     if (action.type === 'move') {
       if (buffer.current) flush();
@@ -201,6 +206,13 @@ export function GradebookScreen({
           status: action.status,
         });
     } else if (action.type === 'delete') {
+      // Незавершений набір цифр скасовується, оцінка не пишеться й нічого не видаляється
+      if (buffer.current) {
+        buffer.current = '';
+        if (timer.current) clearTimeout(timer.current);
+        timer.current = null;
+        return;
+      }
       const a = currentAssessment();
       if (a) {
         if (a.grade)

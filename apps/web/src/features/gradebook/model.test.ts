@@ -81,6 +81,7 @@ describe('interpretKey', () => {
     expect(interpretKey('ArrowDown', '')).toEqual({ type: 'move', dRow: 1, dCol: 0 });
     expect(interpretKey('ArrowLeft', '')).toEqual({ type: 'move', dRow: 0, dCol: -1 });
     expect(interpretKey('Tab', '')).toEqual({ type: 'move', dRow: 0, dCol: 1 });
+    expect(interpretKey('Tab', '', true)).toEqual({ type: 'move', dRow: 0, dCol: -1 });
     expect(interpretKey('Enter', '')).toEqual({ type: 'open' });
     expect(interpretKey('Delete', '')).toEqual({ type: 'delete' });
     expect(interpretKey('Backspace', '')).toEqual({ type: 'delete' });

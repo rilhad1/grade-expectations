@@ -124,7 +124,7 @@ beforeEach(async () => {
   Object.values(api).forEach((m) => m.mockReset());
   api.fetchGradebook.mockResolvedValue(book());
   api.postGrade.mockResolvedValue({});
-  api.patchGrade.mockResolvedValue({});
+  api.patchGrade.mockResolvedValue({ roster: [{ grades: [{ id: 'g1', version: 3 }] }] });
   api.removeGrade.mockResolvedValue({});
   api.putAttendance.mockResolvedValue({});
 });
@@ -357,6 +357,21 @@ describe('GradebookScreen', () => {
     expect(api.postGrade).not.toHaveBeenCalled();
   });
 
+  it('друга правка тієї ж оцінки йде з версією з відповіді на першу', async () => {
+    renderWithClient(<GradebookScreen loadId="load1" />);
+    await screen.findByRole('grid');
+    fireEvent.click(cell(0, 0));
+    fireEvent.keyDown(grid(), { key: '5' });
+    await waitFor(() => {
+      expect(api.patchGrade).toHaveBeenCalledTimes(1);
+    });
+    fireEvent.keyDown(grid(), { key: '7' });
+    await waitFor(() => {
+      expect(api.patchGrade).toHaveBeenCalledTimes(2);
+    });
+    expect(api.patchGrade).toHaveBeenLastCalledWith('g1', 3, { kind: 'ORAL', value: 7 });
+  });
+
   it('Delete прибирає останню оцінку; без оцінки знімає «н»', async () => {
     renderWithClient(<GradebookScreen loadId="load1" />);
     await screen.findByRole('grid');
@@ -397,6 +412,34 @@ describe('GradebookScreen', () => {
         { enrollmentId: 'e1', status: 'LATE' },
       ]);
     });
+  });
+
+  it('Delete під час набору цифр скасовує буфер: оцінка не пишеться', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    try {
+      renderWithClient(<GradebookScreen loadId="load1" />);
+      await screen.findByRole('grid');
+      fireEvent.click(cell(1, 1));
+      fireEvent.keyDown(grid(), { key: '1' });
+      fireEvent.keyDown(grid(), { key: 'Delete' });
+      await vi.advanceTimersByTimeAsync(2000);
+      expect(api.postGrade).not.toHaveBeenCalled();
+      expect(api.patchGrade).not.toHaveBeenCalled();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it('Tab і Shift+Tab рухають вибір, на краю сітки фокус віддається браузеру', async () => {
+    renderWithClient(<GradebookScreen loadId="load1" />);
+    await screen.findByRole('grid');
+    fireEvent.click(cell(0, 0));
+    expect(fireEvent.keyDown(grid(), { key: 'Tab' })).toBe(false); // перехоплено
+    expect(cell(0, 1)).toHaveAttribute('aria-selected', 'true');
+    fireEvent.keyDown(grid(), { key: 'Tab', shiftKey: true });
+    expect(cell(0, 0)).toHaveAttribute('aria-selected', 'true');
+    // Shift+Tab у першій клітинці: подія не скасована, фокус іде далі
+    expect(fireEvent.keyDown(grid(), { key: 'Tab', shiftKey: true })).toBe(true);
   });
 
   it('межі: стрілка вліво в першій клітинці нікуди не веде, оцінка поза шкалою ігнорується', async () => {

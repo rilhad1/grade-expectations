@@ -133,6 +133,17 @@ export function GradebookGrid({
     else bands.push({ key, label: uk.semesters.periodKinds[p.kind], start: i, span: 1 });
   });
   const hasBands = bands.length > 0;
+  // Те саме по вертикалі: рядок не ховається ні під шапкою, ні за нижнім краєм
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el || typeof el.scrollTo !== 'function') return;
+    const headH = HEAD_H + (hasBands ? BAND_H : 0);
+    const top = headH + selection.row * ROW_H;
+    const bottom = top + ROW_H;
+    if (top < el.scrollTop + headH) el.scrollTo({ top: Math.max(0, top - headH) });
+    else if (bottom > el.scrollTop + el.clientHeight)
+      el.scrollTo({ top: bottom - el.clientHeight });
+  }, [selection.row, hasBands]);
 
   const sticky = (left: number, bg = 'background.paper') => ({
     position: 'sticky' as const,

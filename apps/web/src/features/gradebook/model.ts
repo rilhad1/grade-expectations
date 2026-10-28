@@ -120,7 +120,7 @@ const ATTENDANCE_KEYS: Record<string, AttendanceStatus> = {
 };
 
 /** Клавіатура журналу як в Excel: стрілки, цифри, Enter, Delete; н / п / з — відмітки. */
-export function interpretKey(key: string, buffer: string): KeyAction {
+export function interpretKey(key: string, buffer: string, shiftKey = false): KeyAction {
   switch (key) {
     case 'ArrowUp':
       return { type: 'move', dRow: -1, dCol: 0 };
@@ -129,8 +129,9 @@ export function interpretKey(key: string, buffer: string): KeyAction {
     case 'ArrowLeft':
       return { type: 'move', dRow: 0, dCol: -1 };
     case 'ArrowRight':
-    case 'Tab':
       return { type: 'move', dRow: 0, dCol: 1 };
+    case 'Tab':
+      return { type: 'move', dRow: 0, dCol: shiftKey ? -1 : 1 };
     case 'Enter':
       return { type: 'open' };
     case 'Delete':

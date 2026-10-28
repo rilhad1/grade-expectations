@@ -1,6 +1,7 @@
 import type { AttendanceStatus, GradebookDto } from '@ge/shared';
 import { uuidv7 } from '@ge/shared';
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useRef } from 'react';
 
 import {
   patchAssessment,
@@ -31,6 +32,10 @@ export function useGradebook(loadId: string, range: Range) {
     // Під час зміни фільтра періоду таблиця й перелік періодів не зникають
     placeholderData: keepPreviousData,
   });
+
+  // Останні відомі версії оцінок із відповідей сервера: оптимістична копія версію не збільшує,
+  // тож швидка друга правка тієї ж клітинки інакше йшла б із застарілою версією (409)
+  const gradeVersions = useRef(new Map<string, number>());
 
   const options = <V>(optimistic: (dto: GradebookDto, vars: V) => GradebookDto) => ({
     mutationKey: ['gradebook', loadId],
@@ -73,15 +78,20 @@ export function useGradebook(loadId: string, range: Range) {
         value: v.value,
       }),
     ),
-    mutationFn: (v) =>
-      v.gradeId
-        ? patchGrade(v.gradeId, v.version ?? 0, { kind: v.kind, value: v.value })
-        : postGrade(v.lessonId, {
-            id: v.newId,
-            enrollmentId: v.enrollmentId,
-            kind: v.kind,
-            value: v.value,
-          }),
+    mutationFn: async (v) => {
+      if (!v.gradeId)
+        return postGrade(v.lessonId, {
+          id: v.newId,
+          enrollmentId: v.enrollmentId,
+          kind: v.kind,
+          value: v.value,
+        });
+      const version = Math.max(v.version ?? 0, gradeVersions.current.get(v.gradeId) ?? 0);
+      const detail = await patchGrade(v.gradeId, version, { kind: v.kind, value: v.value });
+      const saved = detail.roster.flatMap((r) => r.grades).find((g) => g.id === v.gradeId);
+      if (saved) gradeVersions.current.set(v.gradeId, saved.version);
+      return detail;
+    },
   });
 
   const clearGrade = useMutation({
