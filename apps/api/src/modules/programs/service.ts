@@ -3,7 +3,7 @@ import { uuidv7, type GradingRules, type LoadDto, type TopicPlanDto } from '@ge/
 import { conflict } from '../../errors.js';
 import { isoOf } from '../../lib/db.js';
 import type { AuthContext } from '../../plugins/session.js';
-import { findJournalLoad, rulesOf } from '../journal/gradebook.js';
+import { assertScaleUnlocked, findJournalLoad } from '../journal/gradebook.js';
 import { getLoad } from '../loads/service.js';
 import { assignTopicsForLoads } from '../schedules/service.js';
 
@@ -110,10 +110,7 @@ export async function updateGradingRules(
   rules: GradingRules,
 ): Promise<LoadDto> {
   const load = await findJournalLoad(ctx, loadId);
-  if (rules.scale !== rulesOf(load).scale) {
-    const graded = await ctx.db.grade.count({ where: { deletedAt: null, lesson: { loadId } } });
-    if (graded > 0) throw conflict('SCALE_LOCKED', 'Шкалу не можна змінити: оцінки вже виставлено');
-  }
+  await assertScaleUnlocked(ctx, load, rules.scale);
   await ctx.db.teachingLoad.update({
     where: { id: loadId },
     data: { gradingRules: rules, version: { increment: 1 } },

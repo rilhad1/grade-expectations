@@ -700,6 +700,7 @@ model Grade {
 
   @@index([enrollmentId])
   @@index([lessonId])
+  @@index([assessmentId])
 }
 
 model Attestation {
@@ -740,6 +741,7 @@ model AttestationResult {
   enrollment  Enrollment   @relation(fields: [enrollmentId], references: [id])
 
   @@unique([attestationId, loadId, enrollmentId])
+  @@index([loadId])
 }
 
 // Згенеровані файли (відомості, експорт даних): створюються фоновими задачами pg-boss.

@@ -33,6 +33,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm db:generate
       - run: pnpm db:deploy
+      - run: touch .env # db:seed читає --env-file=.env; змінні беруться з env завдання
       - run: pnpm db:seed
       - run: pnpm db:seed # повторний seed не має нічого дублювати
       - run: pnpm typecheck

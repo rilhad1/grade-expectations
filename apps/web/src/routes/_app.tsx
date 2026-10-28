@@ -15,10 +15,17 @@ import { CardSkeleton } from '../shared/ui/Skeletons';
 /** Усі захищені сторінки живуть під цим layout: без сесії — перенаправлення на вхід. */
 export const Route = createFileRoute('/_app')({
   beforeLoad: async () => {
-    const { data, error } = await authClient.getSession();
-    if (data) return;
+    // Без мережі getSession() кидає TypeError: це теж «немає зв'язку», а не помилка маршруту
+    const result = await authClient.getSession().catch(() => null);
+    if (result?.data) return;
+    const error = result?.error ?? null;
     // Без зв'язку сесію не перевірити: пускаємо, якщо на пристрої є профіль останнього входу
-    const offline = !navigator.onLine || error === null || !error.status || error.status >= 502;
+    const offline =
+      result === null ||
+      !navigator.onLine ||
+      error === null ||
+      !error.status ||
+      error.status >= 502;
     if (offline && (await getMeta('cache:me')) !== undefined) return;
     throw redirect({ to: '/login' });
   },

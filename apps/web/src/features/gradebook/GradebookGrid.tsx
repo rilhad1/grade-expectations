@@ -502,7 +502,7 @@ export function GradebookGrid({
                     fontVariantNumeric: 'tabular-nums',
                     fontWeight: 600,
                     fontSize: 13,
-                    color: s.average !== null && s.average < 4 ? 'ge.errFg' : 'text.primary',
+                    color: s.risk.includes('LOW_GRADE') ? 'ge.errFg' : 'text.primary',
                   }}
                 >
                   {s.average === null ? uk.common.none : s.average.toFixed(1).replace('.', ',')}

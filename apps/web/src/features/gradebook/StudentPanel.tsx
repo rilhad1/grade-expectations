@@ -43,7 +43,7 @@ export function StudentPanel({
     .sort((a, b) => b.date.localeCompare(a.date))
     .slice(0, 12);
   const initials = `${student.lastName[0] ?? ''}${student.firstName[0] ?? ''}`;
-  const lowAvg = s.average !== null && s.average < 4;
+  const lowAvg = s.risk.includes('LOW_GRADE');
 
   return (
     <Drawer anchor="right" open onClose={onClose}>

@@ -36,7 +36,11 @@ export const jobsPlugin = fp(async (app: FastifyInstance, opts: { env: Env }) =>
     const running = new Set<Promise<void>>();
     app.decorate('jobs', {
       enqueue: (documentId: string) => {
-        const task = run(documentId).finally(() => running.delete(task));
+        const task = run(documentId)
+          .catch((error: unknown) => {
+            app.log.error({ err: error, documentId }, 'inline job failed');
+          })
+          .finally(() => running.delete(task));
         running.add(task);
         return Promise.resolve();
       },

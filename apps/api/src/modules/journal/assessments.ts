@@ -266,9 +266,17 @@ export async function writeAssessmentGrade(
     };
 
   const row = await ctx.db.$transaction(async (tx) => {
-    const saved = latest
+    // Унікального індексу на (assessmentId, enrollmentId) немає: два паралельні перші записи дали б дубль
+    await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`${assessmentId}:${enrollmentId}`}))`;
+    const current =
+      latest ??
+      (await tx.grade.findFirst({
+        where: { assessmentId, enrollmentId },
+        orderBy: [{ updatedAt: 'desc' }],
+      }));
+    const saved = current
       ? await tx.grade.update({
-          where: { id: latest.id },
+          where: { id: current.id },
           data: {
             value: change.value,
             comment: change.comment,

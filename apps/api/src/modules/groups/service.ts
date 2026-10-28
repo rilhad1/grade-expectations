@@ -298,7 +298,7 @@ export async function promoteGroups(
         continue;
       }
       const existing = await tx.group.findFirst({
-        where: { cohortId: source.cohortId, academicYearId: toYear.id, deletedAt: null },
+        where: { cohortId: source.cohortId, academicYearId: toYear.id, name, deletedAt: null },
       });
       if (existing) {
         result.skipped.push({ groupId: source.id, reason: 'ALREADY_PROMOTED' });

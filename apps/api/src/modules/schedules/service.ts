@@ -522,19 +522,50 @@ export async function publishSchedule(
         data: { deletedAt: new Date(), version: { increment: 1 } },
       });
     }
-    await tx.lesson.createMany({
-      data: plan.create.map((l) => ({
-        id: uuidv7(),
-        loadId: l.loadId,
-        slotId: l.slotId,
-        teacherId: loadById.get(l.loadId)?.teacherId ?? '',
-        scheduleVersion: l.scheduleVersion,
-        date: dateOf(l.date),
-        pairNumber: l.pairNumber,
-        roomId: l.roomId,
-        hours: 2,
-      })),
-    });
+    const rows = plan.create.map((l) => ({
+      id: uuidv7(),
+      loadId: l.loadId,
+      slotId: l.slotId,
+      teacherId: loadById.get(l.loadId)?.teacherId ?? '',
+      scheduleVersion: l.scheduleVersion,
+      date: dateOf(l.date),
+      pairNumber: l.pairNumber,
+      roomId: l.roomId,
+      hours: 2,
+    }));
+    // Унікальний індекс (loadId, date, pairNumber) не знає про м'яке видалення: такі заняття відновлюємо
+    const keyOf = (r: { loadId: string; date: Date; pairNumber: number }) =>
+      `${r.loadId}|${isoOf(r.date)}|${String(r.pairNumber)}`;
+    const trashed =
+      rows.length === 0
+        ? []
+        : await tx.lesson.findMany({
+            where: {
+              deletedAt: { not: null },
+              OR: rows.map((r) => ({ loadId: r.loadId, date: r.date, pairNumber: r.pairNumber })),
+            },
+            select: { id: true, loadId: true, date: true, pairNumber: true },
+          });
+    const revive = new Map(trashed.map((t) => [keyOf(t), t.id]));
+    for (const r of rows) {
+      const reviveId = revive.get(keyOf(r));
+      if (reviveId === undefined) continue;
+      await tx.lesson.update({
+        where: { id: reviveId },
+        data: {
+          slotId: r.slotId,
+          teacherId: r.teacherId,
+          scheduleVersion: r.scheduleVersion,
+          roomId: r.roomId,
+          hours: r.hours,
+          status: 'PLANNED',
+          manuallyEdited: false,
+          deletedAt: null,
+          version: { increment: 1 },
+        },
+      });
+    }
+    await tx.lesson.createMany({ data: rows.filter((r) => !revive.has(keyOf(r))) });
   });
 
   await assignTopicsForLoads(ctx, [...new Set(plan.create.map((l) => l.loadId))]);

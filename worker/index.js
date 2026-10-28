@@ -9,6 +9,10 @@ export default {
     const headers = new Headers(request.headers);
     headers.set('x-forwarded-host', url.host);
     headers.set('x-forwarded-proto', 'https');
+    // Адресу клієнта визначає Cloudflare; значення X-Forwarded-For від клієнта підробляється, тож перезаписуємо його
+    const clientIp = request.headers.get('cf-connecting-ip');
+    if (clientIp) headers.set('x-forwarded-for', clientIp);
+    else headers.delete('x-forwarded-for');
     return fetch(target, {
       method: request.method,
       headers,

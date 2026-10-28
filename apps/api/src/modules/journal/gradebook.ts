@@ -9,7 +9,7 @@ import {
 } from '@ge/shared';
 import type { Prisma } from '@prisma/client';
 
-import { notFound } from '../../errors.js';
+import { conflict, notFound } from '../../errors.js';
 import { dateOf, isoOf } from '../../lib/db.js';
 import type { AuthContext } from '../../plugins/session.js';
 import { semesterScope } from '../semesters/repo.js';
@@ -129,6 +129,23 @@ export async function siblingLoads(ctx: AuthContext, load: JournalLoad) {
   });
   const rank = (kind: (typeof PRIMARY_KIND_ORDER)[number]) => PRIMARY_KIND_ORDER.indexOf(kind);
   return rows.sort((a, b) => rank(a.kind) - rank(b.kind) || a.id.localeCompare(b.id));
+}
+
+/** Шкалу не можна змінити, коли в журналі (усіх видів занять) уже є оцінки: у заняттях або в колонках оцінювання. */
+export async function assertScaleUnlocked(
+  ctx: AuthContext,
+  load: JournalLoad,
+  newScale: GradingRules['scale'],
+) {
+  if (newScale === rulesOf(load).scale) return;
+  const ids = [...new Set([load.id, ...(await siblingLoads(ctx, load)).map((l) => l.id)])];
+  const graded = await ctx.db.grade.count({
+    where: {
+      deletedAt: null,
+      OR: [{ lesson: { loadId: { in: ids } } }, { assessment: { loadId: { in: ids } } }],
+    },
+  });
+  if (graded > 0) throw conflict('SCALE_LOCKED', 'Шкалу не можна змінити: оцінки вже виставлено');
 }
 
 /** Дані журналу: заняття, студенти, відмітки й оцінки навантаження (або кількох споріднених). */

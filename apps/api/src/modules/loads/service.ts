@@ -11,6 +11,7 @@ import type { Prisma } from '@prisma/client';
 import { conflict, notFound, unprocessable } from '../../errors.js';
 import { definedOnly, isoOf, newId, pageArgs, toPage } from '../../lib/db.js';
 import type { AuthContext } from '../../plugins/session.js';
+import { assertScaleUnlocked, findJournalLoad } from '../journal/gradebook.js';
 import { semesterScope } from '../semesters/repo.js';
 
 const loadScope = (organizationId: string) =>
@@ -195,6 +196,8 @@ export async function updateLoad(
   if (input.teacherId !== undefined) await requireTeacher(ctx, input.teacherId);
 
   const { version, gradingRules, ...rest } = input;
+  if (gradingRules !== undefined)
+    await assertScaleUnlocked(ctx, await findJournalLoad(ctx, id), gradingRules.scale);
   await ctx.db.$transaction(async (tx) => {
     const { count } = await tx.teachingLoad.updateMany({
       where: { id, version, deletedAt: null },

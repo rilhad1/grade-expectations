@@ -256,6 +256,7 @@ export async function cloneSemester(
 
   const result: CloneSemesterResult = { copiedLoads: 0, copiedSlots: 0, skipped: [] };
   const loadIdMap = new Map<string, string>();
+  const streamIdMap = new Map<string, string>();
 
   await ctx.db.$transaction(async (tx) => {
     for (const load of sourceLoads) {
@@ -280,6 +281,11 @@ export async function cloneSemester(
 
       const newLoadId = uuidv7();
       loadIdMap.set(load.id, newLoadId);
+      let streamId: string | null = null;
+      if (load.streamId !== null) {
+        streamId = streamIdMap.get(load.streamId) ?? uuidv7();
+        streamIdMap.set(load.streamId, streamId);
+      }
       await tx.teachingLoad.create({
         data: {
           id: newLoadId,
@@ -287,6 +293,7 @@ export async function cloneSemester(
           disciplineId: load.disciplineId,
           groupId: group.id,
           subgroupId,
+          streamId,
           teacherId: load.teacherId,
           kind: load.kind,
           plannedHours: load.plannedHours,

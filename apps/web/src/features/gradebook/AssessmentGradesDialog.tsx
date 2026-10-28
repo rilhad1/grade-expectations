@@ -100,6 +100,7 @@ export function AssessmentGradesDialog({
 
       {student && index !== null && (
         <GradeSheet
+          key={student.enrollmentId}
           student={{
             enrollmentId: student.enrollmentId,
             studentId: student.studentId,

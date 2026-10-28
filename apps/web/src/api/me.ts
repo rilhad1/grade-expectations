@@ -7,6 +7,8 @@ import {
 
 import { cachedFetch } from '../offline/cache';
 
+import { ApiError } from './http';
+
 export class UnauthenticatedError extends Error {
   constructor() {
     super('UNAUTHENTICATED');
@@ -18,7 +20,7 @@ export const fetchMe = (): Promise<MeResponse> =>
   cachedFetch('me', async () => {
     const res = await fetch('/api/v1/me');
     if (res.status === 401) throw new UnauthenticatedError();
-    if (!res.ok) throw new Error(`me: ${res.status}`);
+    if (!res.ok) throw new ApiError(res.status, 'ME_FAILED', `me: ${String(res.status)}`);
     return meResponseSchema.parse(await res.json());
   });
 

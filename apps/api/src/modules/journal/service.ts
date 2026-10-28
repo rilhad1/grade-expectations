@@ -234,7 +234,8 @@ export async function finishLesson(ctx: AuthContext, id: string): Promise<Lesson
           lessonId: id,
           enrollmentId: e.id,
           status: 'PRESENT' as const,
-          editedAt: new Date(),
+          // Найстаріший можливий час: явна відмітка з будь-якого пристрою завжди переважить автозаповнення (LWW)
+          editedAt: new Date(0),
         })),
     });
     await tx.lesson.update({ where: { id }, data: { status: 'HELD', version: { increment: 1 } } });

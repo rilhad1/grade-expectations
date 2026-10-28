@@ -234,8 +234,9 @@ for (const sh of sheets) {
   }
 
   // колонки оцінювання: знайти або створити
+  // Разом із видаленими: видалену в застосунку колонку/оцінку не воскрешаємо
   const existingAssessments = await prisma.assessment.findMany({
-    where: { loadId: practical.id, deletedAt: null },
+    where: { loadId: practical.id },
   });
   const assessmentByCol = new Map<number, string>();
   for (const col of sh.columns) {
@@ -244,6 +245,10 @@ for (const sh of sheets) {
     const t = col.title ?? '';
     const ex = existingAssessments.find((a) => a.title.toLowerCase() === t.toLowerCase());
     if (ex) {
+      if (ex.deletedAt !== null) {
+        skipped.push(`${sh.sheet}: колонку «${t}» видалено в застосунку, не відновлено`);
+        continue;
+      }
       assessmentByCol.set(col.col, ex.id);
       continue;
     }
@@ -273,7 +278,6 @@ for (const sh of sheets) {
   const existingGrades = await prisma.grade.findMany({
     where: {
       assessmentId: { in: [...assessmentByCol.values()] },
-      deletedAt: null,
     },
   });
   const gradeByKey = new Map(existingGrades.map((g) => [`${g.assessmentId}|${g.enrollmentId}`, g]));
@@ -285,7 +289,7 @@ for (const sh of sheets) {
       where: { semesterId: semester.id, kind: 'INTERIM', course: 0, deletedAt: null },
     }));
   const existingResults = await prisma.attestationResult.findMany({
-    where: { loadId: practical.id, deletedAt: null },
+    where: { loadId: practical.id },
   });
   const resultByEnr = new Map(
     existingResults.map((r) => [`${r.attestationId}|${r.enrollmentId}`, r]),
@@ -340,7 +344,7 @@ for (const sh of sheets) {
             value,
           });
           stats.grades++;
-        } else if (ex.value !== value) {
+        } else if (ex.deletedAt === null && ex.value !== value) {
           conflicts.push(
             `${sh.sheet}: ${r.name}, «${col.title ?? ''}»: у БД ${String(ex.value)}, у таблиці ${String(value)}`,
           );
@@ -363,7 +367,7 @@ for (const sh of sheets) {
             final,
           });
           stats.results++;
-        } else if (ex.final !== final) {
+        } else if (ex.deletedAt === null && ex.final !== final) {
           conflicts.push(
             `${sh.sheet}: ${r.name}, підсумок модуля: у БД «${ex.final ?? ''}», у таблиці «${final}»`,
           );
@@ -409,44 +413,47 @@ writeFileSync(
 );
 console.log(`\nРезервна копія: ${backupFile}`);
 
-await prisma.$transaction(async (tx) => {
-  await tx.assessment.createMany({
-    data: newAssessments.map((a) => ({
-      id: a.id,
-      loadId: a.loadId,
-      kind: a.kind,
-      title: a.title,
-      maxScore: a.maxScore,
-      attestationKind: a.attestationKind,
-      createdAt: new Date(Date.UTC(2026, 8, 1, 0, 0, 0, a.order)),
-    })),
-    skipDuplicates: true,
-  });
-  await tx.attendance.createMany({ data: newAttendance, skipDuplicates: true });
-  await tx.grade.createMany({
-    data: newGrades.map((g) => ({
-      id: g.id,
-      enrollmentId: g.enrollmentId,
-      assessmentId: g.assessmentId,
-      kind: g.kind,
-      value: g.value,
-    })),
-    skipDuplicates: true,
-  });
-  await tx.attestationResult.createMany({
-    data: newResults.map((r) => ({ ...r, confirmed: true })),
-    skipDuplicates: true,
-  });
-  await tx.lesson.updateMany({
-    where: { id: { in: [...heldLessonIds] }, status: 'PLANNED' },
-    data: { status: 'HELD' },
-  });
-  for (const m of middleNameUpdates)
-    await tx.student.updateMany({
-      where: { id: m.id, middleName: null },
-      data: { middleName: m.middleName },
+await prisma.$transaction(
+  async (tx) => {
+    await tx.assessment.createMany({
+      data: newAssessments.map((a) => ({
+        id: a.id,
+        loadId: a.loadId,
+        kind: a.kind,
+        title: a.title,
+        maxScore: a.maxScore,
+        attestationKind: a.attestationKind,
+        createdAt: new Date(Date.UTC(2026, 8, 1, 0, 0, 0, a.order)),
+      })),
+      skipDuplicates: true,
     });
-});
+    await tx.attendance.createMany({ data: newAttendance, skipDuplicates: true });
+    await tx.grade.createMany({
+      data: newGrades.map((g) => ({
+        id: g.id,
+        enrollmentId: g.enrollmentId,
+        assessmentId: g.assessmentId,
+        kind: g.kind,
+        value: g.value,
+      })),
+      skipDuplicates: true,
+    });
+    await tx.attestationResult.createMany({
+      data: newResults.map((r) => ({ ...r, confirmed: true })),
+      skipDuplicates: true,
+    });
+    await tx.lesson.updateMany({
+      where: { id: { in: [...heldLessonIds] }, status: 'PLANNED' },
+      data: { status: 'HELD' },
+    });
+    for (const m of middleNameUpdates)
+      await tx.student.updateMany({
+        where: { id: m.id, middleName: null },
+        data: { middleName: m.middleName },
+      });
+  },
+  { timeout: 120_000, maxWait: 20_000 },
+);
 console.log('Записано.', {
   відміток: await prisma.attendance.count(),
   оцінок: await prisma.grade.count(),
