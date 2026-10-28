@@ -204,6 +204,24 @@ describe('студенти й зарахування', () => {
     const list = await mod<Page<StudentDto>>('GET', '/students?q=видал');
     expect(list.body.items).toHaveLength(0);
   });
+
+  it('видалення студента прибирає його зарахування з групи', async () => {
+    const created = await mod<StudentDto>('POST', '/students', {
+      lastName: 'Зниклий',
+      firstName: 'Зі Складу',
+    });
+    await mod('POST', '/enrollments', {
+      studentId: created.body.id,
+      groupId: group.id,
+      fromDate: '2026-09-01',
+    });
+    const before = (await mod<GroupDetailDto>('GET', `/groups/${group.id}`)).body;
+    expect(before.enrollments.some((e) => e.student.id === created.body.id)).toBe(true);
+    expect((await mod('DELETE', `/students/${created.body.id}`)).status).toBe(204);
+    const after = (await mod<GroupDetailDto>('GET', `/groups/${group.id}`)).body;
+    expect(after.enrollments.some((e) => e.student.id === created.body.id)).toBe(false);
+    expect(after.studentCount).toBe(before.studentCount - 1);
+  });
 });
 
 describe('імпорт студентів', () => {

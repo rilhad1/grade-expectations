@@ -83,7 +83,7 @@ export async function getGroup(ctx: AuthContext, id: string): Promise<GroupDetai
     include: {
       ...activeCount,
       enrollments: {
-        where: { deletedAt: null },
+        where: { deletedAt: null, student: { deletedAt: null } },
         include: { student: true },
         orderBy: [{ student: { lastName: 'asc' } }, { student: { firstName: 'asc' } }],
       },
@@ -278,7 +278,9 @@ export async function promoteGroups(
         where: { id: item.groupId, ...groupScope(ctx.organization.id) },
         include: {
           academicYear: true,
-          enrollments: { where: { deletedAt: null, status: 'ACTIVE' } },
+          enrollments: {
+            where: { deletedAt: null, status: 'ACTIVE', student: { deletedAt: null } },
+          },
           subgroups: {
             where: { deletedAt: null },
             include: { members: { where: { deletedAt: null } } },
@@ -465,11 +467,19 @@ export async function updateStudent(
 }
 
 export async function deleteStudent(ctx: AuthContext, id: string): Promise<void> {
-  const { count } = await ctx.db.student.updateMany({
-    where: { id, ...studentScope },
-    data: { deletedAt: new Date(), version: { increment: 1 } },
+  const now = new Date();
+  await ctx.db.$transaction(async (tx) => {
+    const { count } = await tx.student.updateMany({
+      where: { id, ...studentScope },
+      data: { deletedAt: now, version: { increment: 1 } },
+    });
+    if (count === 0) throw notFound('Студента не знайдено');
+    // Зарахування видаленого студента не лишаємо активними: інакше група й переведення його бачать
+    await tx.enrollment.updateMany({
+      where: { studentId: id, deletedAt: null },
+      data: { deletedAt: now, version: { increment: 1 } },
+    });
   });
-  if (count === 0) throw notFound('Студента не знайдено');
 }
 
 // ── Зарахування ──────────────────────────────────────

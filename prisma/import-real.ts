@@ -15,6 +15,8 @@ import { defaultGradingRules, type IsoDate } from '@ge/shared';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { hashPassword } from 'better-auth/crypto';
 
+import { assertLocalDatabase } from './local-guard.js';
+
 type SlotParity = ScheduleSlotInput['parity'];
 
 const prisma = new PrismaClient();
@@ -494,6 +496,7 @@ if (!email || !password || password.length < 8) {
 }
 
 if (args.has('--wipe')) {
+  assertLocalDatabase('import-real --wipe');
   const tables = await prisma.$queryRaw<{ tablename: string }[]>`
     SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename <> '_prisma_migrations'`;
   const list = tables.map((t) => `"${t.tablename}"`).join(', ');

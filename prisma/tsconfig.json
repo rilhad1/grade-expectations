@@ -1,5 +1,5 @@
 {
   "extends": "../tsconfig.base.json",
   "compilerOptions": { "noEmit": true, "types": ["node"] },
-  "include": ["seed.ts", "import-real.ts", "import-delta.ts"]
+  "include": ["seed.ts", "import-real.ts", "import-delta.ts", "local-guard.ts"]
 }

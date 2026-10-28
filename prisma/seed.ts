@@ -16,6 +16,8 @@ import { defaultGradingRules, type IsoDate } from '@ge/shared';
 import { Prisma, PrismaClient } from '@prisma/client';
 import { hashPassword } from 'better-auth/crypto';
 
+import { assertLocalDatabase } from './local-guard.js';
+
 const prisma = new PrismaClient();
 
 /** Детермінований UUID (формат v5) з текстового ключа: однаковий ключ → однаковий id. */
@@ -231,6 +233,7 @@ const semesterInput: SemesterInput = {
 };
 
 async function main(): Promise<void> {
+  assertLocalDatabase('seed');
   const insert = { skipDuplicates: true } as const;
 
   await prisma.organization.createMany({

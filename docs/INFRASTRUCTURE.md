@@ -68,7 +68,7 @@ set -a; source .env.neon; set +a
 pnpm db:deploy
 ```
 
-**Перезавантажити демо-дані.** Seed ідемпотентний: `pnpm exec tsx --env-file=.env.neon prisma/seed.ts` (перед цим `pnpm db:generate && pnpm --filter @ge/shared --filter @ge/domain build`).
+**Перезавантажити демо-дані.** Seed ідемпотентний; на віддаленій базі його (і `import-real --wipe`) захищено від випадкового запуску, потрібна `ALLOW_REMOTE_DB=1`: `ALLOW_REMOTE_DB=1 pnpm exec tsx --env-file=.env.neon prisma/seed.ts` (перед цим `pnpm db:generate && pnpm --filter @ge/shared --filter @ge/domain build`).
 
 **Перевірити, що все живе:**
 

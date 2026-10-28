@@ -170,9 +170,8 @@ Vitest: `@ge/api` 181 тест (17 файлів), `@ge/web` 224 (36), `@ge/share
 
 **API, дані й транзакції**
 
-- `groups/service.ts`: `deleteStudent` м'яко видаляє лише `Student`, зарахування лишаються активними (група показує видаленого, переведення створює йому нове зарахування); `createSubgroup` не дедуплікує `enrollmentIds` (409 на композитному ключі); `Group @@unique([academicYearId,name])` і `Subgroup @@unique([groupId,name])` не частково-унікальні.
-- `documents/exportData.ts:77`: експорт «усіх даних викладача» не містить оцінок колонок оцінювання й самих колонок.
-- `directory/service.ts`: `Room @@unique([organizationId,name])` блокує повторне використання назви видаленої аудиторії; `deleteRoom`/`deleteDiscipline` без перевірки використання.
+- `groups/service.ts`: `createSubgroup` не дедуплікує `enrollmentIds` (409 на композитному ключі); `Group @@unique([academicYearId,name])` і `Subgroup @@unique([groupId,name])` не частково-унікальні.
+- - `directory/service.ts`: `Room @@unique([organizationId,name])` блокує повторне використання назви видаленої аудиторії; `deleteRoom`/`deleteDiscipline` без перевірки використання.
 - `journal/assessments.ts`: зміна виду колонки (LAB↔TEST) не оновлює `kind` наявних оцінок (ваги розходяться).
 - `attestations/service.ts`: `ensureAttestations` лениво копіює дати з `SemesterPeriod` у `Attestation` і більше не оновлює (після редагування періоду відомість і банер «Сьогодні» бачать старі дати); `saveResults` без транзакції й без перевірки `version`.
 - `sync/service.ts`: `applyAttendance/applyGradeSet/applyGradeDelete` пишуть аудит окремо від зміни (порушення ADR-016 «в тій самій транзакції»); pull не повідомляє про заняття, передані іншому викладачеві, і про зміни складу групи; push робить ~7 запитів на операцію.
@@ -197,6 +196,6 @@ Vitest: `@ge/api` 181 тест (17 файлів), `@ge/web` 224 (36), `@ge/share
 
 **Інфраструктура й скрипти**
 
-- `prisma/import-real.ts --wipe` і `db:reset` виконуються проти будь-якого `DATABASE_URL` у середовищі (змінна оболонки має пріоритет над `--env-file`); `prisma/seed.ts` без захисту від запуску на проді (у `docs/INFRASTRUCTURE.md` описаний як штатна операція, але після реального імпорту створить демо-акаунти з відомим паролем).
+- `db:reset` (`prisma migrate reset`) досі виконується проти будь-якого `DATABASE_URL`; `import-real --wipe` і `seed` тепер відмовляються працювати не на localhost без `ALLOW_REMOTE_DB=1` (`prisma/local-guard.ts`). `moduleProposal`: правило `missedTest='ZERO'` недієве; це доменне рішення, яке чекає на користувача.
 - `prisma/import-delta.ts`: пошук семестру/студентів лише за датою/назвою групи без року й статусу; заняття зі статусами CANCELLED/MOVED отримують відмітки; повторювані ПІБ у групі мовчки зливаються.
 - Ефективність: `journal/today.ts` робить ≈7 запитів на навантаження послідовно й рахує ризик по кожному виду окремо (розбіжність із журналом); `sync/pull` викликає `getLessonDetail` по кожному заняттю (сотні запитів на знімок); веб опитує `/today` кожні 60 с.

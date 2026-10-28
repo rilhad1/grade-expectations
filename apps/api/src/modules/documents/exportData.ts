@@ -73,10 +73,17 @@ export async function buildDataExport(ctx: AuthContext, generatedAt: Date): Prom
       orderBy: [{ student: { lastName: 'asc' } }, { student: { firstName: 'asc' } }],
     });
     const lessonIds = lessons.map((l) => l.id);
-    const [grades, attendance, results] = await Promise.all([
+    const [grades, attendance, results, assessments, assessmentGrades] = await Promise.all([
       ctx.db.grade.findMany({ where: { lessonId: { in: lessonIds }, deletedAt: null } }),
       ctx.db.attendance.findMany({ where: { lessonId: { in: lessonIds }, deletedAt: null } }),
       ctx.db.attestationResult.findMany({ where: { loadId: load.id, deletedAt: null } }),
+      ctx.db.assessment.findMany({
+        where: { loadId: load.id, deletedAt: null },
+        orderBy: { createdAt: 'asc' },
+      }),
+      ctx.db.grade.findMany({
+        where: { assessment: { loadId: load.id, deletedAt: null }, deletedAt: null },
+      }),
     ]);
 
     const header = ['Студент', ...lessons.map((l) => `${isoOf(l.date)} п${String(l.pairNumber)}`)];
@@ -110,6 +117,19 @@ export async function buildDataExport(ctx: AuthContext, generatedAt: Date): Prom
             lessonId: g.lessonId,
             enrollmentId: g.enrollmentId,
             kind: g.kind,
+            value: g.value,
+            comment: g.comment,
+          })),
+          assessments: assessments.map((a) => ({
+            id: a.id,
+            kind: a.kind,
+            title: a.title,
+            maxScore: a.maxScore,
+            attestationKind: a.attestationKind,
+          })),
+          assessmentGrades: assessmentGrades.map((g) => ({
+            assessmentId: g.assessmentId,
+            enrollmentId: g.enrollmentId,
             value: g.value,
             comment: g.comment,
           })),
