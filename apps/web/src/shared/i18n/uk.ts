@@ -476,7 +476,12 @@ export const uk = {
       LATE: 'з — запізнився',
     },
     attendanceShort: { PRESENT: '', ABSENT: 'н', EXCUSED: 'нп', LATE: 'з' },
-    rowHint: 'Тап — «н», утримання — інші відмітки',
+    rowHint:
+      'Був / н — одним дотиком; нп і з — тап по прізвищу; оцінку впишіть у поле й натисніть Enter',
+    wasPresent: 'Був',
+    attendanceToggleFor: (name: string) => `Відвідуваність: ${name}`,
+    gradeInputPlaceholder: 'бал',
+    gradeInputFor: (name: string) => `Поле оцінки: ${name}`,
     back: 'Назад до «Сьогодні»',
     untilBell: 'до дзвінка',
     offlineStrip: (n: number) => `Офлайн · ${String(n)} змін збережено на пристрої`,

@@ -262,6 +262,15 @@ export function LessonScreen({ lessonId }: { lessonId: string }) {
             onAddGrade={() => {
               if (!inactive) setSheet({ student: entry });
             }}
+            onQuickGrade={(value) => {
+              if (!inactive)
+                lesson.addGrade.mutate({
+                  id: lesson.newGradeId(),
+                  enrollmentId: entry.enrollmentId,
+                  kind: defaultGradeKind(detail.kind),
+                  value,
+                });
+            }}
             onEditGrade={(grade) => {
               if (!inactive) setSheet({ student: entry, grade });
             }}

@@ -1,16 +1,16 @@
 import type { GradeEntry, LessonDetailDto, RosterEntry } from '@ge/shared';
-import { Box, ButtonBase, Menu, MenuItem, Typography } from '@mui/material';
-import { useRef, useState } from 'react';
+import AddIcon from '@mui/icons-material/Add';
+import { Box, ButtonBase, Menu, MenuItem, TextField, Typography } from '@mui/material';
+import { useState } from 'react';
 
 import { uk } from '../../shared/i18n/uk';
 import { GradeChip } from '../../shared/ui/GradeChip';
 import { StatusChip } from '../../shared/ui/StatusChip';
 
-import { gradeLabel, toggleAbsent } from './model';
+import { gradeLabel, isValidGrade } from './model';
 
 type Status = RosterEntry['attendance'];
 const STATUSES: Status[] = ['PRESENT', 'ABSENT', 'EXCUSED', 'LATE'];
-const LONG_PRESS_MS = 450;
 
 const rowBg: Record<Status, string> = {
   PRESENT: 'background.paper',
@@ -20,8 +20,9 @@ const rowBg: Record<Status, string> = {
 };
 
 /**
- * Рядок студента: тап — «н» і назад, утримання — меню відміток (нп, з),
- * кнопка «+ оцінка» відкриває шторку. Статус завжди з літерою, не лише кольором.
+ * Рядок студента (макет C): прізвище, явний перемикач «Був | н», оцінки чіпами й поле швидкої оцінки.
+ * Тап по прізвищу відкриває меню всіх відміток (нп, з); «+» відкриває шторку з типом оцінки.
+ * Статус завжди з літерою, не лише кольором.
  */
 export function RosterRow({
   index,
@@ -29,6 +30,7 @@ export function RosterRow({
   scale,
   onAttendance,
   onAddGrade,
+  onQuickGrade,
   onEditGrade,
 }: {
   index: number;
@@ -36,33 +38,36 @@ export function RosterRow({
   scale: LessonDetailDto['scale'];
   onAttendance: (status: Status) => void;
   onAddGrade: () => void;
+  /** Оцінка, вписана у поле рядка (тип — за видом заняття). */
+  onQuickGrade: (value: number) => void;
   onEditGrade: (grade: GradeEntry) => void;
 }) {
   const [anchor, setAnchor] = useState<HTMLElement | null>(null);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const longPressed = useRef(false);
+  const [text, setText] = useState('');
   const fullName = `${entry.lastName} ${entry.firstName}`;
   const away = entry.attendance === 'ABSENT' || entry.attendance === 'EXCUSED';
+  const absent = entry.attendance === 'ABSENT';
+  const present = entry.attendance === 'PRESENT';
+  const typed = text.trim() === '' ? null : Number(text);
+  const invalid = typed !== null && !isValidGrade(scale, typed);
+  // Для «зараховано / не зараховано» вводити нічого: оцінка ставиться шторкою
+  const quickField = scale !== 'PASS_FAIL';
 
-  const start = (target: HTMLElement) => {
-    longPressed.current = false;
-    timer.current = setTimeout(() => {
-      longPressed.current = true;
-      setAnchor(target);
-    }, LONG_PRESS_MS);
-  };
-  const cancel = () => {
-    if (timer.current) clearTimeout(timer.current);
-    timer.current = null;
+  const commit = () => {
+    if (typed === null || invalid) return;
+    onQuickGrade(typed);
+    setText('');
   };
 
   return (
     <Box
       sx={{
         display: 'flex',
+        flexWrap: 'wrap',
         alignItems: 'center',
-        gap: 1,
-        minHeight: 60,
+        columnGap: 1,
+        rowGap: 0,
+        py: 0.5,
         pl: 1,
         pr: 1.5,
         borderBottom: 1,
@@ -73,33 +78,16 @@ export function RosterRow({
       <ButtonBase
         data-testid={`row-${entry.enrollmentId}`}
         aria-label={`${fullName}. ${uk.lesson.attendance[entry.attendance]}`}
-        onPointerDown={(e) => {
-          start(e.currentTarget);
-        }}
-        onPointerUp={cancel}
-        onPointerLeave={cancel}
-        onPointerCancel={cancel}
-        onContextMenu={(e) => {
-          e.preventDefault();
+        aria-haspopup="menu"
+        onClick={(e) => {
           setAnchor(e.currentTarget);
         }}
-        onClick={() => {
-          if (longPressed.current) {
-            longPressed.current = false;
-            return;
-          }
-          onAttendance(toggleAbsent(entry.attendance));
-        }}
-        onKeyDown={(e) => {
-          if (e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10'))
-            setAnchor(e.currentTarget);
-        }}
         sx={{
-          flexGrow: 1,
+          flex: { xs: '1 1 100%', sm: '1 1 0' },
           minWidth: 0,
           justifyContent: 'flex-start',
           textAlign: 'left',
-          minHeight: 60,
+          minHeight: 36,
           borderRadius: '6px',
           px: 0.5,
           gap: 1,
@@ -116,37 +104,133 @@ export function RosterRow({
           sx={{
             flexGrow: 1,
             minWidth: 0,
-            fontSize: 16,
+            fontSize: 17,
             color: away ? 'text.secondary' : 'text.primary',
           }}
         >
           {fullName}
         </Typography>
-        <StatusChip status={entry.attendance} />
+        {!present && !absent && <StatusChip status={entry.attendance} />}
       </ButtonBase>
 
-      <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexShrink: 0 }}>
-        {entry.grades.map((g) => (
+      <Box
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          flexWrap: 'wrap',
+          pl: { xs: 3.5, sm: 0 },
+          width: { xs: '100%', sm: 'auto' },
+        }}
+      >
+        <Box
+          role="radiogroup"
+          aria-label={uk.lesson.attendanceToggleFor(fullName)}
+          sx={{
+            display: 'inline-flex',
+            border: 1,
+            borderColor: 'ge.line2',
+            borderRadius: '8px',
+            overflow: 'hidden',
+            flexShrink: 0,
+          }}
+        >
           <ButtonBase
-            key={g.id}
+            role="radio"
+            aria-checked={present}
+            data-testid={`present-${entry.enrollmentId}`}
             onClick={() => {
-              onEditGrade(g);
+              onAttendance('PRESENT');
             }}
-            aria-label={`${uk.lesson.gradeKinds[g.kind]} ${gradeLabel(scale, g.value)}`}
-            sx={{ borderRadius: '6px', minWidth: 30 }}
+            sx={{
+              minWidth: 56,
+              height: 40,
+              px: 1.5,
+              fontSize: 15,
+              fontWeight: present ? 600 : 500,
+              bgcolor: present ? 'ge.accentSoft' : 'background.paper',
+              color: present ? 'primary.main' : 'text.secondary',
+            }}
           >
-            <GradeChip value={g.value} scale={scale} />
+            {uk.lesson.wasPresent}
           </ButtonBase>
-        ))}
+          <ButtonBase
+            role="radio"
+            aria-checked={absent}
+            data-testid={`absent-${entry.enrollmentId}`}
+            onClick={() => {
+              onAttendance('ABSENT');
+            }}
+            sx={{
+              minWidth: 56,
+              height: 40,
+              px: 1.5,
+              fontSize: 15,
+              fontWeight: absent ? 700 : 500,
+              borderLeft: 1,
+              borderColor: 'ge.line2',
+              bgcolor: absent ? 'ge.errBg' : 'background.paper',
+              color: absent ? 'ge.errFg' : 'text.secondary',
+            }}
+          >
+            {uk.lesson.attendanceShort.ABSENT}
+          </ButtonBase>
+        </Box>
+
+        <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center', flexShrink: 0 }}>
+          {entry.grades.map((g) => (
+            <ButtonBase
+              key={g.id}
+              onClick={() => {
+                onEditGrade(g);
+              }}
+              aria-label={`${uk.lesson.gradeKinds[g.kind]} ${gradeLabel(scale, g.value)}`}
+              sx={{ borderRadius: '6px', minWidth: 30 }}
+            >
+              <GradeChip value={g.value} scale={scale} />
+            </ButtonBase>
+          ))}
+        </Box>
+
+        {quickField && (
+          <TextField
+            value={text}
+            error={invalid}
+            onChange={(e) => {
+              setText(e.target.value.replace(/\D/g, '').slice(0, 3));
+            }}
+            onBlur={commit}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                commit();
+              }
+            }}
+            placeholder={uk.lesson.gradeInputPlaceholder}
+            hiddenLabel
+            size="small"
+            slotProps={{
+              htmlInput: {
+                inputMode: 'numeric',
+                enterKeyHint: 'done',
+                'aria-label': uk.lesson.gradeInputFor(fullName),
+                className: 'tnum',
+                style: { textAlign: 'center', fontSize: 17, fontWeight: 600 },
+              },
+            }}
+            sx={{ width: 76, '& .MuiInputBase-root': { height: 40 } }}
+          />
+        )}
         <ButtonBase
           aria-label={uk.lesson.addGradeFor(fullName)}
           onClick={onAddGrade}
           sx={{
-            height: 44,
-            px: 1.25,
+            height: 40,
+            minWidth: 40,
+            px: scale === 'PASS_FAIL' ? 1.25 : 0,
             border: 1,
             borderColor: 'ge.line2',
-            borderRadius: '6px',
+            borderRadius: '8px',
             bgcolor: 'background.paper',
             color: 'primary.main',
             fontSize: 14,
@@ -154,7 +238,7 @@ export function RosterRow({
             whiteSpace: 'nowrap',
           }}
         >
-          {uk.lesson.addGrade}
+          {scale === 'PASS_FAIL' ? uk.lesson.addGrade : <AddIcon fontSize="small" />}
         </ButtonBase>
       </Box>
 

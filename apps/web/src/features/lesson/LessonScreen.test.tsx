@@ -89,15 +89,15 @@ describe('LessonScreen («На парі»)', () => {
     expect(counter()).toBe(`${uk.lesson.present} 3 ${uk.lesson.of} 3`);
   });
 
-  it('тап по студенту відмічає «н» миттєво і ставить зміну в чергу (без відповіді сервера)', async () => {
+  it('перемикач «н» відмічає миттєво і ставить зміну в чергу (без відповіді сервера)', async () => {
     renderWithClient(<LessonScreen lessonId="l1" />);
     await screen.findByTestId('row-e1');
 
-    fireEvent.click(row(1));
+    fireEvent.click(screen.getByTestId('absent-e1'));
     await waitFor(() => {
       expect(counter()).toBe(`${uk.lesson.present} 2 ${uk.lesson.of} 3`);
     });
-    expect(within(row(1)).getByText('н')).toBeInTheDocument();
+    expect(screen.getByTestId('absent-e1')).toHaveAttribute('aria-checked', 'true');
     const queued = await db.outbox.toArray();
     expect(queued).toHaveLength(1);
     expect(queued[0]?.op).toMatchObject({
@@ -117,7 +117,7 @@ describe('LessonScreen («На парі»)', () => {
     api.fetchLesson.mockRejectedValue(new TypeError('Failed to fetch'));
     renderWithClient(<LessonScreen lessonId="l1" />);
     await screen.findByTestId('row-e1');
-    fireEvent.click(row(1));
+    fireEvent.click(screen.getByTestId('absent-e1'));
     await waitFor(() => {
       expect(counter()).toBe(`${uk.lesson.present} 2 ${uk.lesson.of} 3`);
     });
@@ -146,6 +146,34 @@ describe('LessonScreen («На парі»)', () => {
     renderWithClient(<LessonScreen lessonId="l1" />);
     await screen.findByTestId('row-e1');
     expect(counter()).toBe(`${uk.lesson.present} 2 ${uk.lesson.of} 3`);
+  });
+
+  it('оцінка вписується в поле рядка: Enter зберігає з типом за видом заняття', async () => {
+    renderWithClient(<LessonScreen lessonId="l1" />);
+    await screen.findByTestId('row-e2');
+
+    const input = screen.getByRole('textbox', { name: uk.lesson.gradeInputFor('Коваленко Тест') });
+    fireEvent.change(input, { target: { value: '11' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+
+    expect(await within(row(2).parentElement as HTMLElement).findByText('11')).toBeInTheDocument();
+    expect(input).toHaveValue('');
+    const queued = await db.outbox.toArray();
+    expect(queued).toHaveLength(1);
+    expect(queued[0]?.op).toMatchObject({ type: 'grade.set', enrollmentId: 'e2', value: 11 });
+  });
+
+  it('оцінка поза шкалою не зберігається', async () => {
+    renderWithClient(<LessonScreen lessonId="l1" />);
+    await screen.findByTestId('row-e2');
+
+    const input = screen.getByRole('textbox', { name: uk.lesson.gradeInputFor('Коваленко Тест') });
+    fireEvent.change(input, { target: { value: '99' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    fireEvent.blur(input);
+
+    expect(input).toHaveValue('99');
+    expect(await db.outbox.count()).toBe(0);
   });
 
   it('оцінка: шторка → число → чіп з’являється одразу, у чергу йде id від клієнта', async () => {
@@ -184,7 +212,7 @@ describe('LessonScreen («На парі»)', () => {
     // Спершу підсумок; редагування вмикається кнопкою (скасування завершення давно недоступне)
     fireEvent.click(await screen.findByRole('button', { name: uk.lesson.editHeld }));
     await screen.findByTestId('row-e1');
-    fireEvent.click(row(2));
+    fireEvent.click(screen.getByTestId('absent-e2'));
     await waitFor(() => {
       expect(counter()).toBe(`${uk.lesson.present} 2 ${uk.lesson.of} 3`);
     });
@@ -234,7 +262,7 @@ describe('LessonScreen («На парі»)', () => {
     api.fetchLesson.mockResolvedValue(lesson({ status: 'CANCELLED' }));
     renderWithClient(<LessonScreen lessonId="l1" />);
     expect(await screen.findByText(uk.lesson.cancelled)).toBeInTheDocument();
-    fireEvent.click(row(1));
+    fireEvent.click(screen.getByTestId('absent-e1'));
     expect(await db.outbox.count()).toBe(0);
   });
 });

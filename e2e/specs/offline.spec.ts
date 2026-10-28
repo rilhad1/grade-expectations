@@ -23,7 +23,10 @@ test.describe('офлайн «На парі»: зміни без мережі с
     await context.setOffline(true);
     await expect(page.getByRole('banner').getByRole('status')).toContainText('Офлайн');
 
-    await rows.first().click(); // «н»
+    await page
+      .getByTestId(/^absent-/)
+      .first()
+      .click(); // «н»
     await page
       .getByRole('button', { name: /Додати оцінку/ })
       .nth(1)

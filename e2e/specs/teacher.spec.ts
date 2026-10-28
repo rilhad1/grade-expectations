@@ -27,9 +27,12 @@ test.describe('сценарії викладача (сьогодні — 12 жо
     await expect(rows).toHaveCount(25);
     await expect(page.getByText('Присутні 25 з 25')).toBeVisible();
 
-    await rows.first().click(); // тап → «н»
+    await page
+      .getByTestId(/^absent-/)
+      .first()
+      .click(); // перемикач → «н»
     await expect(page.getByText('Присутні 24 з 25')).toBeVisible();
-    await expect(rows.first().getByText('н')).toBeVisible();
+    await expect(page.getByTestId(/^absent-/).first()).toHaveAttribute('aria-checked', 'true');
 
     await page
       .getByRole('button', { name: /Додати оцінку/ })
