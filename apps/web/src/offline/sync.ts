@@ -208,7 +208,15 @@ export function startSync(): () => void {
   };
   window.addEventListener('online', onOnline);
   document.addEventListener('visibilitychange', onVisible);
-  const timer = setInterval(requestSync, INTERVAL_MS);
+  // У фоновій вкладці таймер не буди: сервер (Render/Neon) засинає, якщо його не смикати.
+  // Невідправлені зміни все одно йдуть, щоб нічого не лежало в черзі.
+  const timer = setInterval(() => {
+    if (document.visibilityState === 'visible') requestSync();
+    else
+      void db.outbox.count().then((n) => {
+        if (n > 0) requestSync();
+      });
+  }, INTERVAL_MS);
 
   useSyncStore.setState({ online: navigator.onLine });
   void refreshSyncStatus();

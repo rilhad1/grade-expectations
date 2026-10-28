@@ -8,7 +8,13 @@ import { listLoads } from '../loads/service.js';
 import { listLessons } from '../schedules/service.js';
 import { semesterScope } from '../semesters/repo.js';
 
-import { findJournalLoad, loadGradebookData, rulesOf, summarize } from './gradebook.js';
+import {
+  findJournalLoad,
+  loadGradebookData,
+  rulesOf,
+  summarize,
+  type StudentData,
+} from './gradebook.js';
 
 const ATTESTATION_HORIZON_DAYS = 30;
 const MAX_RISK = 30;
@@ -28,33 +34,33 @@ export async function getToday(ctx: AuthContext): Promise<TodayDto> {
     _count: { _all: true },
   });
   const markedBy = new Map(marks.map((m) => [m.lessonId, m._count._all]));
-  const sizes = new Map<string, number>();
-  const sizeOf = async (loadId: string, groupId: string, subgroupId: string | null) => {
-    const cached = sizes.get(loadId);
-    if (cached !== undefined) return cached;
-    const n = await ctx.db.enrollment.count({
-      where: {
-        groupId,
-        deletedAt: null,
-        status: 'ACTIVE',
-        ...(subgroupId !== null && { subgroups: { some: { subgroupId, deletedAt: null } } }),
-      },
-    });
-    sizes.set(loadId, n);
-    return n;
-  };
-  const withProgress = [];
-  for (const lesson of lessons) {
-    const load = await ctx.db.teachingLoad.findFirst({
-      where: { id: lesson.loadId },
-      select: { groupId: true, subgroupId: true },
-    });
-    withProgress.push({
-      ...lesson,
-      marked: markedBy.get(lesson.id) ?? 0,
-      total: load ? await sizeOf(lesson.loadId, load.groupId, load.subgroupId) : 0,
-    });
-  }
+  // Навантаження пар дня й розміри груп: по одному запиту на різне навантаження, паралельно
+  const loadRows = await ctx.db.teachingLoad.findMany({
+    where: { id: { in: [...new Set(lessons.map((l) => l.loadId))] } },
+    select: { id: true, groupId: true, subgroupId: true },
+  });
+  const sizes = new Map(
+    await Promise.all(
+      loadRows.map(async (load) => {
+        const n = await ctx.db.enrollment.count({
+          where: {
+            groupId: load.groupId,
+            deletedAt: null,
+            status: 'ACTIVE',
+            ...(load.subgroupId !== null && {
+              subgroups: { some: { subgroupId: load.subgroupId, deletedAt: null } },
+            }),
+          },
+        });
+        return [load.id, n] as const;
+      }),
+    ),
+  );
+  const withProgress = lessons.map((lesson) => ({
+    ...lesson,
+    marked: markedBy.get(lesson.id) ?? 0,
+    total: sizes.get(lesson.loadId) ?? 0,
+  }));
 
   if (!semester) return { date, lessons: withProgress, attestations: [], risk: [], hours: [] };
 
@@ -100,52 +106,69 @@ export async function getToday(ctx: AuthContext): Promise<TodayDto> {
       : [{ kind: a.kind, dateFrom: from, dateTo: to, daysUntil, groups }];
   });
 
-  const risk: TodayDto['risk'] = [];
-  for (const h of hours) {
-    const load = await findJournalLoad(ctx, h.id);
-    const rules = rulesOf(load);
-    const range = { from: isoOf(load.semester.startDate), to: isoOf(load.semester.endDate) };
-    const data = await loadGradebookData(ctx, load);
-    const dateOfLesson = new Map(data.lessons.map((l) => [l.id, isoOf(l.date)]));
-    const dateOfAssessment = new Map(data.assessments.map((a) => [a.id, a.date]));
-    for (const e of data.enrollments.filter((x) => x.status === 'ACTIVE')) {
-      const own = {
-        grades: [
-          ...data.grades
-            .filter((g) => g.enrollmentId === e.id && g.lessonId !== null)
-            .map((g) => ({
-              kind: g.kind,
-              value: g.value,
-              date: dateOfLesson.get(g.lessonId ?? '') ?? range.from,
-            })),
-          ...data.assessmentGrades
-            .filter((g) => g.enrollmentId === e.id)
-            .map((g) => ({
-              kind: g.kind,
-              value: g.value,
-              date: dateOfAssessment.get(g.assessmentId ?? '') ?? range.from,
-            })),
-        ],
-        attendance: data.attendance
-          .filter((a) => a.enrollmentId === e.id)
-          .map((a) => ({ status: a.status, date: dateOfLesson.get(a.lessonId) ?? range.from })),
+  // Ризик кожного навантаження рахується незалежно, тож паралельно
+  const riskByLoad = await Promise.all(
+    hours.map(async (h) => {
+      const found: TodayDto['risk'] = [];
+      const load = await findJournalLoad(ctx, h.id);
+      const rules = rulesOf(load);
+      const range = { from: isoOf(load.semester.startDate), to: isoOf(load.semester.endDate) };
+      const data = await loadGradebookData(ctx, load);
+      const dateOfLesson = new Map(data.lessons.map((l) => [l.id, isoOf(l.date)]));
+      const dateOfAssessment = new Map(data.assessments.map((a) => [a.id, a.date]));
+      // Оцінки й відмітки згруповано за студентом один раз, а не фільтруються для кожного
+      const gradesOf = new Map<string, StudentData['grades'][number][]>();
+      const attendanceOf = new Map<string, StudentData['attendance'][number][]>();
+      const push = <T>(map: Map<string, T[]>, id: string, item: T) => {
+        const list = map.get(id);
+        if (list) list.push(item);
+        else map.set(id, [item]);
       };
-      const s = summarize(own, rules, range);
-      if (s.risk.length > 0) {
-        risk.push({
-          enrollmentId: e.id,
-          loadId: load.id,
-          lastName: e.student.lastName,
-          firstName: e.student.firstName,
-          group: load.group.name,
-          discipline: load.discipline.shortTitle,
-          reasons: s.risk,
-          average: s.average,
-          absencePercent: s.absencePercent,
+      for (const g of data.grades)
+        if (g.lessonId !== null)
+          push(gradesOf, g.enrollmentId, {
+            kind: g.kind,
+            value: g.value,
+            date: dateOfLesson.get(g.lessonId) ?? range.from,
+          });
+      for (const g of data.assessmentGrades)
+        push(gradesOf, g.enrollmentId, {
+          kind: g.kind,
+          value: g.value,
+          date: dateOfAssessment.get(g.assessmentId ?? '') ?? range.from,
         });
+      for (const a of data.attendance)
+        push(attendanceOf, a.enrollmentId, {
+          status: a.status,
+          date: dateOfLesson.get(a.lessonId) ?? range.from,
+        });
+      for (const e of data.enrollments.filter((x) => x.status === 'ACTIVE')) {
+        const s = summarize(
+          {
+            grades: gradesOf.get(e.id) ?? [],
+            attendance: attendanceOf.get(e.id) ?? [],
+          },
+          rules,
+          range,
+        );
+        if (s.risk.length > 0) {
+          found.push({
+            enrollmentId: e.id,
+            loadId: load.id,
+            lastName: e.student.lastName,
+            firstName: e.student.firstName,
+            group: load.group.name,
+            discipline: load.discipline.shortTitle,
+            reasons: s.risk,
+            average: s.average,
+            absencePercent: s.absencePercent,
+          });
+        }
       }
-    }
-  }
+      return found;
+    }),
+  );
+  const risk: TodayDto['risk'] = riskByLoad.flat();
   risk.sort((a, b) => b.reasons.length - a.reasons.length || (a.average ?? 99) - (b.average ?? 99));
 
   return { date, lessons: withProgress, attestations, risk: risk.slice(0, MAX_RISK), hours };

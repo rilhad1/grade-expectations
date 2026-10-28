@@ -45,6 +45,8 @@ function toHeaders(request: FastifyRequest): Headers {
   return headers;
 }
 
+const MEMBERSHIP_TTL_MS = 30_000;
+
 /**
  * Читає сесію Better Auth, знаходить членство в коледжі й будує контекст запиту.
  * Користувач без членства вважається неавтентифікованим (немає доступу до жодного коледжу).
@@ -59,17 +61,26 @@ export const sessionPlugin = fp((app: FastifyInstance, opts: { env: Env }) => {
       new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Kyiv' }).format(new Date()),
   });
 
+  type Membership = NonNullable<Awaited<ReturnType<typeof findMembership>>>;
+  const memberships = new Map<string, { value: Membership; until: number }>();
+  const findMembership = (userId: string) =>
+    app.prisma.membership.findFirst({
+      where: { userId, deletedAt: null },
+      include: { organization: { select: { id: true, title: true } } },
+      orderBy: { createdAt: 'asc' },
+    });
+
   async function buildContext(
     userId: string,
     user: { email: string; fullName: string },
     deviceId: string,
   ): Promise<AuthContext> {
-    const membership = await app.prisma.membership.findFirst({
-      where: { userId, deletedAt: null },
-      include: { organization: { select: { id: true, title: true } } },
-      orderBy: { createdAt: 'asc' },
-    });
+    const cached = memberships.get(userId);
+    const membership =
+      cached && cached.until > Date.now() ? cached.value : await findMembership(userId);
     if (!membership) throw unauthenticated();
+    // Членство змінюється рідко: коротко тримаємо в пам'яті, щоб не питати БД на кожен запит
+    memberships.set(userId, { value: membership, until: Date.now() + MEMBERSHIP_TTL_MS });
     return {
       user: { id: userId, ...user },
       organization: membership.organization,

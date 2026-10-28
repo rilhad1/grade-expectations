@@ -80,7 +80,7 @@ export function assessmentDate(
 export const rulesOf = (load: { gradingRules: unknown }): GradingRules =>
   gradingRulesSchema.safeParse(load.gradingRules).data ?? defaultGradingRules;
 
-interface StudentData {
+export interface StudentData {
   grades: { kind: GradebookCell['grades'][number]['kind']; value: number; date: string }[];
   attendance: { status: 'PRESENT' | 'ABSENT' | 'EXCUSED' | 'LATE'; date: string }[];
 }

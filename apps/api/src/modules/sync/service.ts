@@ -4,6 +4,7 @@ import type { Prisma } from '@prisma/client';
 
 import { AppError, forbidden, unprocessable } from '../../errors.js';
 import { audit } from '../../lib/audit.js';
+import { mapLimit } from '../../lib/concurrency.js';
 import { addDaysIso, dateOf, definedOnly } from '../../lib/db.js';
 import type { AuthContext } from '../../plugins/session.js';
 import { assessmentOwner, writeAssessmentGrade } from '../journal/assessments.js';
@@ -20,6 +21,8 @@ import {
 import { semesterScope } from '../semesters/repo.js';
 
 /** Вікно локальної копії: два тижні назад і вперед від сьогодні. */
+/** Скільки занять знімка збираємо одночасно (пул з'єднань Prisma невеликий). */
+const PULL_CONCURRENCY = 4;
 const WINDOW_DAYS = 14;
 /** Запас курсора: перекриття вікон дешевше за втрачену зміну (застосування ідемпотентне). */
 const CURSOR_OVERLAP_MS = 2_000;
@@ -333,9 +336,11 @@ export async function pull(ctx: AuthContext, since: string | undefined): Promise
     orderBy: [{ date: 'asc' }, { pairNumber: 'asc' }],
     take: MAX_LESSONS,
   });
-  const lessons = [];
-  for (const row of rows.filter((r) => r.deletedAt === null))
-    lessons.push(await getLessonDetail(ctx, row.id));
+  const lessons = await mapLimit(
+    rows.filter((r) => r.deletedAt === null),
+    PULL_CONCURRENCY,
+    (row) => getLessonDetail(ctx, row.id),
+  );
   const bells = await ctx.db.bellTime.findMany({
     where: { deletedAt: null },
     orderBy: { pairNumber: 'asc' },
